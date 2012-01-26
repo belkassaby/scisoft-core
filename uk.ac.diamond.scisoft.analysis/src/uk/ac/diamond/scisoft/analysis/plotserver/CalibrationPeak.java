@@ -19,6 +19,11 @@ package uk.ac.diamond.scisoft.analysis.plotserver;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 
+import javax.measure.quantity.Length;
+import javax.measure.unit.Unit;
+
+import org.jscience.physics.amount.Amount;
+
 class HKL implements Serializable {
 	private LinkedHashMap<String,Integer> hkl;
 	
@@ -39,14 +44,22 @@ class HKL implements Serializable {
 public class CalibrationPeak implements Serializable {
 	private double peakPos;
 	private double twoTheta;
-	private double dSpacing;
+	private Amount<Length> dSpacing;
 	private HKL reflection;
 
-	public CalibrationPeak(double peakPos, double tTheta, double dSpacing, int[] reflection) {
+	public CalibrationPeak(double peakPos, double tTheta, Amount<Length> dSpacing, int[] reflection) {
 		super();
 		this.peakPos = peakPos;
 		this.twoTheta = tTheta;
 		this.dSpacing = dSpacing;
+		this.reflection = new HKL(reflection[0], reflection[1], reflection[2]);
+	}
+
+	public CalibrationPeak(double peakPos, double tTheta, double dSpacing, Unit<Length> unit, int[] reflection) {
+		super();
+		this.peakPos = peakPos;
+		this.twoTheta = tTheta;
+		this.dSpacing = Amount.valueOf(dSpacing, unit);
 		this.reflection = new HKL(reflection[0], reflection[1], reflection[2]);
 	}
 
@@ -58,7 +71,7 @@ public class CalibrationPeak implements Serializable {
 		return twoTheta;
 	}
 
-	public double getDSpacing() {
+	public Amount<Length> getDSpacing() {
 		return dSpacing;
 	}
 
