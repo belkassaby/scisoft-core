@@ -23,6 +23,8 @@ import gda.data.nexus.tree.NexusTreeWriter;
 
 import java.util.Enumeration;
 
+import ncsa.hdf.hdf5lib.HDF5Constants;
+
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
@@ -54,7 +56,7 @@ public class SimpleNexusSaver implements IFileSaver {
 		try {
 			// TODO Check to see if the file exists...
 			// TODO then either delete it or fail gracefully!
-			file = new NexusFile(fileName, NexusFile.NXACC_CREATE5);
+			file = new NexusFile(fileName, HDF5Constants.H5F_ACC_TRUNC);
 			file.makegroup("ScanFileHolder", "NXentry");
 			file.opengroup("ScanFileHolder", "NXentry");
 
@@ -81,7 +83,8 @@ public class SimpleNexusSaver implements IFileSaver {
 					int[] shape = data.getShape();
 					file.makedata(headings[i], Nexus.getGroupDataType(data.getDtype()), shape.length, shape);
 					file.opendata(headings[i]);
-					file.putdata(data.getBuffer());
+					int data_type = Nexus.getGroupDataType(data.getDtype()); 
+					file.putdata(data_type, data.getBuffer());
 					file.closedata();
 				}
 			}

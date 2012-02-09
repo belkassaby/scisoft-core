@@ -19,6 +19,8 @@ package uk.ac.diamond.scisoft.analysis.io;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+import ncsa.hdf.hdf5lib.HDF5Constants;
+
 import org.nexusformat.NexusException;
 import org.nexusformat.NexusFile;
 
@@ -58,7 +60,7 @@ public class RawNexusLoader extends AbstractFileLoader {
 
 		NexusFile file;
 		try {
-			file = new NexusFile(fileName, NexusFile.NXACC_READ);
+			file = new NexusFile(fileName, HDF5Constants.H5F_ACC_RDONLY);
 
 			// file.opengroup("entry1", "NXentry");
 
@@ -115,7 +117,8 @@ public class RawNexusLoader extends AbstractFileLoader {
 								int[] shape = Arrays.copyOf(iDim, rank);
 								final int dtype = Nexus.getDType(iStart[1]);
 								AbstractDataset ds = AbstractDataset.zeros(shape, dtype);
-								file.getdata(ds.getBuffer());
+								int ds_type = Nexus.getGroupDataType(ds.getDtype());
+								file.getdata(ds_type, ds.getBuffer());
 								ds.setName(dataName);
 								dataHolder.addDataset(dataName, ds);
 

@@ -29,8 +29,11 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,26 +55,33 @@ public class Nexus {
 	 * @return dataset type
 	 */
 	static public int getDType(int type) {
-		switch (type) {
-		case NexusFile.NX_FLOAT64:
-			return AbstractDataset.FLOAT64;
-		case NexusFile.NX_FLOAT32:
-			return AbstractDataset.FLOAT32;
-		case NexusFile.NX_INT64:
-		case NexusFile.NX_UINT64:
-			return AbstractDataset.INT64;
-		case NexusFile.NX_INT32:
-		case NexusFile.NX_UINT32:
-			return AbstractDataset.INT32;
-		case NexusFile.NX_INT16:
-		case NexusFile.NX_UINT16:
-			return AbstractDataset.INT16;
-		case NexusFile.NX_INT8:
-		case NexusFile.NX_UINT8:
-			return AbstractDataset.INT8;
-		default:
-			throw new IllegalArgumentException("Unknown or unsupported NeXus data type");
+		try {
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_INT8)
+					|| H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_UINT8))
+				return AbstractDataset.INT8;
+
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_INT16)
+					|| H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_UINT16))
+				return AbstractDataset.INT16;
+
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_INT32)
+					|| H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_UINT32))
+				return AbstractDataset.INT32;
+
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_INT64)
+					|| H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_UINT64))
+				return AbstractDataset.INT64;
+
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_FLOAT))
+				return AbstractDataset.FLOAT32;
+
+			if (H5.H5Tequal(type, HDF5Constants.H5T_NATIVE_DOUBLE))
+				return AbstractDataset.FLOAT64;
+		} catch (HDF5LibraryException e) {
+			throw new RuntimeException("HDF5 type check error", e);
 		}
+		throw new IllegalArgumentException(
+				"Unknown or unsupported NeXus data type");
 	}
 
 	/**
@@ -82,19 +92,20 @@ public class Nexus {
 	static public int getGroupDataType(int dtype) {
 		switch (dtype) {
 		case AbstractDataset.FLOAT64:
-			return NexusFile.NX_FLOAT64;
+			return HDF5Constants.H5T_NATIVE_DOUBLE;
 		case AbstractDataset.FLOAT32:
-			return NexusFile.NX_FLOAT32;
+			return HDF5Constants.H5T_NATIVE_FLOAT;
 		case AbstractDataset.INT64:
-			return NexusFile.NX_INT64;
+			return HDF5Constants.H5T_NATIVE_INT64;
 		case AbstractDataset.INT32:
-			return NexusFile.NX_INT32;
+			return HDF5Constants.H5T_NATIVE_INT32;
 		case AbstractDataset.INT16:
-			return NexusFile.NX_INT16;
+			return HDF5Constants.H5T_NATIVE_INT16;
 		case AbstractDataset.INT8:
-			return NexusFile.NX_INT8;
+			return HDF5Constants.H5T_NATIVE_INT8;
 		default:
-			throw new IllegalArgumentException("Unknown or unsupported dataset type");
+			throw new IllegalArgumentException(
+					"Unknown or unsupported dataset type");
 		}
 	}
 
@@ -106,13 +117,13 @@ public class Nexus {
 	static public int getUnsignedGroupDataType(int dtype) {
 		switch (dtype) {
 		case AbstractDataset.INT64:
-			return NexusFile.NX_UINT64;
+			return HDF5Constants.H5T_NATIVE_UINT64;
 		case AbstractDataset.INT32:
-			return NexusFile.NX_UINT32;
+			return HDF5Constants.H5T_NATIVE_UINT32;
 		case AbstractDataset.INT16:
-			return NexusFile.NX_UINT16;
+			return HDF5Constants.H5T_NATIVE_UINT16;
 		case AbstractDataset.INT8:
-			return NexusFile.NX_UINT8;
+			return HDF5Constants.H5T_NATIVE_UINT8;
 		default:
 			throw new IllegalArgumentException("Unknown or unsupported dataset type");
 		}
@@ -125,53 +136,71 @@ public class Nexus {
 	 */
 	static public AbstractDataset createDataset(NexusGroupData groupData, boolean keepBitWidth) {
 		AbstractDataset ds = null;
-		switch (groupData.type) {
-		case NexusFile.NX_FLOAT64:
-			double[] dData = (double[]) groupData.getBuffer();
-			ds = new DoubleDataset(Arrays.copyOf(dData, dData.length), groupData.dimensions);
-			break;
-		case NexusFile.NX_FLOAT32:
-			float[] fData = (float[]) groupData.getBuffer();
-			ds = new FloatDataset(Arrays.copyOf(fData, fData.length), groupData.dimensions);
-			break;
-		case NexusFile.NX_INT64:
-		case NexusFile.NX_UINT64:
-			long[] lData = (long[]) groupData.getBuffer();
-			ds = new LongDataset(Arrays.copyOf(lData, lData.length), groupData.dimensions);
-			break;
-		case NexusFile.NX_INT32:
-		case NexusFile.NX_UINT32:
-			int[] iData = (int[]) groupData.getBuffer();
-			ds = new IntegerDataset(Arrays.copyOf(iData, iData.length), groupData.dimensions);
-			break;
-		case NexusFile.NX_INT16:
-		case NexusFile.NX_UINT16:
-			short[] sData = (short[]) groupData.getBuffer();
-			ds = new ShortDataset(Arrays.copyOf(sData, sData.length), groupData.dimensions);
-			break;
-		case NexusFile.NX_INT8:
-		case NexusFile.NX_UINT8:
-			byte[] bData = (byte[]) groupData.getBuffer();
-			ds = new ByteDataset(Arrays.copyOf(bData, bData.length), groupData.dimensions);
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown or unsupported dataset type");
+		boolean no_type = true;
+		try {
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_INT8)
+					|| H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT8)) {
+				byte[] bData = (byte[]) groupData.getBuffer();
+				ds = new ByteDataset(Arrays.copyOf(bData, bData.length), groupData.dimensions);
+				no_type = false;
+			}
+
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_INT16)
+					|| H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT16)) {
+				short[] sData = (short[]) groupData.getBuffer();
+				ds = new ShortDataset(Arrays.copyOf(sData, sData.length), groupData.dimensions);
+				no_type = false;
+			}
+
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_INT32)
+					|| H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT32)) {
+				int[] iData = (int[]) groupData.getBuffer();
+				ds = new IntegerDataset(Arrays.copyOf(iData, iData.length), groupData.dimensions);
+				no_type = false;
+			}
+
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_INT64)
+					|| H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT64)) {
+				long[] lData = (long[]) groupData.getBuffer();
+				ds = new LongDataset(Arrays.copyOf(lData, lData.length), groupData.dimensions);
+				no_type = false;
+			}
+
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_FLOAT)) {
+				float[] fData = (float[]) groupData.getBuffer();
+				ds = new FloatDataset(Arrays.copyOf(fData, fData.length), groupData.dimensions);
+				no_type = false;
+			}
+
+			if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_DOUBLE)) {
+				double[] dData = (double[]) groupData.getBuffer();
+				ds = new DoubleDataset(Arrays.copyOf(dData, dData.length), groupData.dimensions);
+				no_type = false;
+			}
+		} catch (HDF5LibraryException e) {
+			throw new RuntimeException("HDF5 type check error", e);
 		}
+		if (no_type)
+			throw new IllegalArgumentException("Unknown or unsupported dataset type");
 
 		if (!keepBitWidth) {
-			switch (groupData.type) {
-			case NexusFile.NX_UINT32:
-				ds = new LongDataset(ds);
-				DatasetUtils.unwrapUnsigned(ds, 32);
-				break;
-			case NexusFile.NX_UINT16:
-				ds = new IntegerDataset(ds);
-				DatasetUtils.unwrapUnsigned(ds, 16);
-				break;
-			case NexusFile.NX_UINT8:
-				ds = new ShortDataset(ds);
-				DatasetUtils.unwrapUnsigned(ds, 8);
-				break;
+			try {
+				if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT8)) {
+					ds = new ShortDataset(ds);
+					DatasetUtils.unwrapUnsigned(ds, 8);
+				}
+
+				if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT16)) {
+					ds = new IntegerDataset(ds);
+					DatasetUtils.unwrapUnsigned(ds, 16);
+				}
+
+				if (H5.H5Tequal(groupData.type, HDF5Constants.H5T_NATIVE_UINT32)) {
+					ds = new LongDataset(ds);
+					DatasetUtils.unwrapUnsigned(ds, 32);
+				}
+			} catch (HDF5LibraryException e) {
+				throw new RuntimeException("HDF5 type check error", e);
 			}
 		}
 		return ds;

@@ -36,8 +36,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+
 import org.nexusformat.NexusException;
-import org.nexusformat.NexusFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -381,15 +384,19 @@ public class NexusLoader extends AbstractFileLoader implements IMetaLoader, IDat
 		}
 		if (dataSetNames == null || dataSetNames.contains(name)) {
 			NexusGroupData data = dataNode.getData();
-			if (data != null && data.getBuffer() != null && data.type != NexusFile.NX_CHAR) {
-				AbstractDataset ds = Nexus.createDataset(data, keepBitWidth);
-				if (ds == null) {
-					logger.error("NexusLoader cannot handle data of type {}", data.type);
-				} else {
-					ds.setName(name);
-					dataHolder.addDataset(name, ds);
-					retrieveDatasetNames.add(name);
+			try {
+				if (data != null && data.getBuffer() != null && H5.H5Tget_class(data.type) != HDF5Constants.H5T_STRING) {
+					AbstractDataset ds = Nexus.createDataset(data, keepBitWidth);
+					if (ds == null) {
+						logger.error("NexusLoader cannot handle data of type {}", data.type);
+					} else {
+						ds.setName(name);
+						dataHolder.addDataset(name, ds);
+						retrieveDatasetNames.add(name);
+					}
 				}
+			} catch (HDF5LibraryException e) {
+				logger.error("H5Tget_class call has failed", e);
 			}
 		}
 	}

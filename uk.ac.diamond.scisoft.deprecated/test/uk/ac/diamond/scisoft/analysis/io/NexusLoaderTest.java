@@ -24,6 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import ncsa.hdf.hdf5lib.HDF5Constants;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.nexusformat.NexusException;
@@ -80,18 +82,18 @@ public class NexusLoaderTest {
 	
 	private void makeTestFile(String fileName, int[] dims) throws NexusException {
 		NexusFile file = null;
-		file = new NexusFile(fileName, NexusFile.NXACC_CREATE5);
+		file = new NexusFile(fileName, HDF5Constants.H5F_ACC_CREAT);
 		file.makegroup("dummy", "dummy");
 		file.opengroup("dummy", "dummy");
 		{
-			file.makedata("heading1", NexusFile.NX_FLOAT64, dims.length, dims);
+			file.makedata("heading1", HDF5Constants.H5T_NATIVE_DOUBLE, dims.length, dims);
 			file.opendata("heading1");
 			int totalLength = NexusExtractor.calcTotalLength(dims);
 			double[] dataIn = new double[totalLength];
 			for (int index = 0; index < totalLength; index++) {
 				dataIn[index] = index;
 			}
-			file.putdata(dataIn);
+			file.putdata(HDF5Constants.H5T_NATIVE_DOUBLE, dataIn);
 			file.closedata();
 		}
 		file.closegroup();
@@ -101,25 +103,25 @@ public class NexusLoaderTest {
 		file.makegroup("datasets", "NXdata");
 		file.opengroup("datasets", "NXdata");
 		{
-			file.makedata("heading1", NexusFile.NX_FLOAT64, dims.length, dims);
+			file.makedata("heading1", HDF5Constants.H5T_NATIVE_DOUBLE, dims.length, dims);
 			file.opendata("heading1");
 			int totalLength = NexusExtractor.calcTotalLength(dims);
 			double[] dataIn = new double[totalLength];
 			for (int index = 0; index < totalLength; index++) {
 				dataIn[index] = index;
 			}
-			file.putdata(dataIn);
+			file.putdata(HDF5Constants.H5T_NATIVE_DOUBLE, dataIn);
 			file.closedata();
 		}
 		{
-			file.makedata("heading2", NexusFile.NX_FLOAT64, dims.length, dims);
+			file.makedata("heading2", HDF5Constants.H5T_NATIVE_DOUBLE, dims.length, dims);
 			file.opendata("heading2");
 			int totalLength = NexusExtractor.calcTotalLength(dims);
 			double[] dataIn = new double[totalLength];
 			for (int index = 0; index < totalLength; index++) {
 				dataIn[index] = index*2;
 			}
-			file.putdata(dataIn);
+			file.putdata(HDF5Constants.H5T_NATIVE_DOUBLE, dataIn);
 			file.closedata();
 		}
 		file.closegroup();
