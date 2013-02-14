@@ -187,7 +187,20 @@ def pyenv(exe=None, path=None):
 
     # add current package
     h, _t = _path.split(__file__)
-    pkg, _t = _path.split(h)
+    if '__pyclasspath__' in h: # get directory in Jython
+        cp = [ p for p in _env['CLASSPATH'].split(':') if not p.endswith('jar') ]
+        _h, d = _path.split(h) # target directory to find
+        pkg = None
+        for p in cp:
+            f = _path.join(p, d)
+            if _path.exists(f):
+                pkg = p
+                break
+        if pkg is None:
+            raise RuntimeError, 'Cannot find scisoftpy package!'
+    else:
+        pkg, _t = _path.split(h)
+
     pypath.insert(0, pkg)
 
     return pyexe, pypath
