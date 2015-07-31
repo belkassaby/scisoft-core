@@ -80,7 +80,21 @@ public class HDF5LazySaver extends HDF5LazyLoader implements ILazySaver, Seriali
 	@Override
 	public void setSlice(IMonitor mon, IDataset data, SliceND slice) throws Exception {
 		if (!init) {
+			boolean zeroes = false;
+			for (int i : trueShape) {
+				if (i == 0) {
+					zeroes = true;
+					break;
+				}
+			}
+			if (zeroes) {
+				trueShape = slice.getSourceShape().clone();
+			}
 			initialize();
+		}
+		if (data.getRank() == 0) {
+			data = data.getSliceView();
+			data.setShape(slice.getShape());
 		}
 		HDF5Utils.setDatasetSlice(filePath, nodePath, name, slice, data);
 	}
