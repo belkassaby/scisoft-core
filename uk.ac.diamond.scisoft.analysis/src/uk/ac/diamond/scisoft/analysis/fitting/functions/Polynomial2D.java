@@ -174,7 +174,6 @@ public class Polynomial2D extends AFunction {
 		}
 	}
 
-
 	@Override
 	public void fillWithPartialDerivativeValues(IParameter parameter, DoubleDataset data, CoordinatesIterator it) {
 		Dataset pos = DatasetUtils.convertToDataset(it.getValues()[0]);
@@ -206,11 +205,6 @@ public class Polynomial2D extends AFunction {
 		
 		return a;
 	}
-	
-	
-		
-	
-	
 	
 	/**
 	 * Create a 2D dataset which contains in each row a coordinate raised to n-th powers.
@@ -253,7 +247,20 @@ public class Polynomial2D extends AFunction {
 		return chiSquared;
 	}
 	
-	public static double[] calculateBasisParameters (int[][]coords, double[] values, int degree, int noLoops, double delta){
+	public static int findIndexOfMinimum (double[] array){
+		
+		double minimum= array[0];
+		int index = 0;
+		for (int i = 1; i < array.length; i++) {
+		  if ( array[i] < minimum) {
+		      minimum = array[i];
+		      index = i;
+		   }
+		}
+		return index;
+	}
+	
+	public static DoubleDataset outputMatrix (int[][]coords, double[] values, int degree, int noLoops, double delta){
 		
 		double a[] = makeAArray(degree);
 		int noFunctions = (int) Math.pow((degree+1),2);
@@ -276,23 +283,24 @@ public class Polynomial2D extends AFunction {
 				parameterSpace[l + noFunctions]=b;
 			}
 			
-			
+			int minimumChiSquaredIndex = findIndexOfMinimum(chiSquaredArray);
+			a = parameterSpace[minimumChiSquaredIndex];
 		}
-		return null;
+		
+		Dataset outputDesignMatrix = evaluateDesignMatrix(makeDesignMatrix(coords, degree, a));
+		
+		DoubleDataset output = new DoubleDataset(values.length,3);
+		
+		for (int k = 0; k<values.length;k++){
+			output.set(coords[k][0], k, 0);
+			output.set(coords[k][1], k, 1);
+			output.set(outputDesignMatrix.getDouble(k), k, 2);
+		}
+		
+		return output;
 	}
 	
 	
-//		for (int i = 0; i < rows; i++) {
-//			final double x = coords.getDouble(i);
-//			double v = 1.0;
-//			for (int j = nparams - 1; j >= 0; j--) {
-//				matrix.setItem(v, i, j);
-//				v *= x;
-//			}
-//		}
-//
-//		return matrix;
-//	}
 
 	/**
 	 * Set the degree after a class instantiation
