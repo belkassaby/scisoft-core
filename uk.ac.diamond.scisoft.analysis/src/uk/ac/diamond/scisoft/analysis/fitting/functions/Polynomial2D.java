@@ -219,7 +219,7 @@ public class Polynomial2D extends AFunction {
 	 * @param coords
 	 * @return matrix
 	 */
-	public DoubleDataset makeDesignMatrix(int[][]coords, int degree, double[] a) {
+	public static DoubleDataset makeDesignMatrix(int[][]coords, int degree, double[] a) {
 		final int rows = coords.length;
 		int noFunctions = (int) Math.pow((degree+1),2);
 		DoubleDataset designMatrix = new DoubleDataset(rows, noFunctions);
@@ -244,9 +244,42 @@ public class Polynomial2D extends AFunction {
 		return z;
 	}
 	
+	public static double calculateChiSquared (Dataset z, double[] values){
+		
+		double chiSquared = 0;
+		for (int i = 0; i<values.length; i++){
+			chiSquared = chiSquared + Math.pow((values[i] - z.getDouble(i))/(Math.pow(values[i],0.5)),2);
+		}
+		return chiSquared;
+	}
 	
-	
-	
+	public static double[] calculateBasisParameters (int[][]coords, double[] values, int degree, int noLoops, double delta){
+		
+		double a[] = makeAArray(degree);
+		int noFunctions = (int) Math.pow((degree+1),2);
+		double[][] parameterSpace = new double[2*noFunctions][];
+		double[] chiSquaredArray = new double[2*noFunctions];
+		
+		for (int loopCounter = 0; loopCounter<noLoops;loopCounter++){
+			for (int l =0; l<=noFunctions; l++){
+				double[] b =a;
+				b[l] = a[l]+delta*a[l];
+				DoubleDataset designMatrix = makeDesignMatrix(coords, degree, b);
+				chiSquaredArray[l] = calculateChiSquared(designMatrix, values);
+				parameterSpace[l]=b;
+				
+				b[l] = a[l]-delta*a[l];
+				designMatrix = makeDesignMatrix(coords, degree, b);
+				parameterSpace[l + noFunctions]=b;
+				designMatrix = makeDesignMatrix(coords, degree, b);
+				chiSquaredArray[l + noFunctions] = calculateChiSquared(designMatrix, values);
+				parameterSpace[l + noFunctions]=b;
+			}
+			
+			
+		}
+		return null;
+	}
 	
 	
 //		for (int i = 0; i < rows; i++) {
