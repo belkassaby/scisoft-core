@@ -196,6 +196,22 @@ public class Polynomial2D extends AFunction {
 		}
 	}
 
+	
+	public static double[] makeAArray (int degree){
+		
+		double[] a = new double[(int) Math.pow((degree+1),2)];
+		for (int i=0; i<a.length; i++){
+			a[i] =1;
+		}
+		
+		return a;
+	}
+	
+	
+		
+	
+	
+	
 	/**
 	 * Create a 2D dataset which contains in each row a coordinate raised to n-th powers.
 	 * <p>
@@ -203,21 +219,47 @@ public class Polynomial2D extends AFunction {
 	 * @param coords
 	 * @return matrix
 	 */
-	public DoubleDataset makeMatrix(Dataset coords) {
-		final int rows = coords.getSize();
-		DoubleDataset matrix = new DoubleDataset(rows, nparams);
-
-		for (int i = 0; i < rows; i++) {
-			final double x = coords.getDouble(i);
-			double v = 1.0;
-			for (int j = nparams - 1; j >= 0; j--) {
-				matrix.setItem(v, i, j);
-				v *= x;
+	public DoubleDataset makeDesignMatrix(int[][]coords, int degree, double[] a) {
+		final int rows = coords.length;
+		int noFunctions = (int) Math.pow((degree+1),2);
+		DoubleDataset designMatrix = new DoubleDataset(rows, noFunctions);
+		
+		for (int l =0; l<rows; l++){
+			for (int i=0; i<= (degree+1); i++){
+				for (int j=0; j<= (degree+1); j++){
+					double element = a[l]*Math.pow(coords[l][0],i)*Math.pow(coords[l][1],j);
+					designMatrix.set(element, l, i+j);
+				}
 			}
 		}
-
-		return matrix;
+		
+		return designMatrix;
+		
 	}
+	
+	public static Dataset evaluateDesignMatrix (DoubleDataset designMatrix){
+		
+		Dataset z = designMatrix.sum(1);
+		
+		return z;
+	}
+	
+	
+	
+	
+	
+	
+//		for (int i = 0; i < rows; i++) {
+//			final double x = coords.getDouble(i);
+//			double v = 1.0;
+//			for (int j = nparams - 1; j >= 0; j--) {
+//				matrix.setItem(v, i, j);
+//				v *= x;
+//			}
+//		}
+//
+//		return matrix;
+//	}
 
 	/**
 	 * Set the degree after a class instantiation
