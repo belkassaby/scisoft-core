@@ -157,6 +157,33 @@ public class Polynomial2D extends AFunction {
 			buffer[i++] = temp;	
 		}
 	}
+	
+	public DoubleDataset getOutputValues (int[] len, int boundaryBox, int fitPower ) {
+		
+		double[] d = getParameterValues();
+		
+		DoubleDataset output1 = new DoubleDataset(len[0], len[1]);
+		
+		for (int k=boundaryBox; k<boundaryBox+len[0]; k++){
+			for (int l=boundaryBox; l<boundaryBox+len[0]; l++){
+				
+				double temp = 0;
+				double x = k;
+				double y = l;
+			
+				for (int j = 0; j <= (fitPower+1); j++) {
+					for (int i = 0; i <= (fitPower+1); i++) {
+						double v = d[(j*(fitPower+1)+k)]*Math.pow(x, j)*Math.pow(y, i);
+						temp += v;
+					}
+				}
+				
+				output1.set(temp, k-boundaryBox, l-boundaryBox);
+			}
+		}
+	
+		return output1;
+	}
 
 //	@Override
 //	public double partialDeriv(IParameter parameter, double... position) {

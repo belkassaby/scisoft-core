@@ -23,9 +23,8 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Polynomial2D;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
-import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
-import uk.ac.diamond.scisoft.analysis.processing.surfacescattering.BackgroundSetting;
+import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
 
 
 public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolynomial1DModel, OperationData> {
@@ -48,24 +47,11 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 		
 	@Override
 	protected OperationData process(IDataset input, IMonitor monitor) {
-		
-//		int[][] modelInts = RodScanPolynomial1DModelUnpacker.polynomial1DRRodScanUnpackerModelInts(model);
-//		double[] modelDouble = RodScanPolynomial1DModelUnpacker.polynomial1DRodScanUnpackerModelDoubles(model);
-//		boolean[] modelBooleans =RodScanPolynomial1DModelUnpacker.polynomial1DRodScanUnpackerModelBooleans(model);
-//		Direction modelDirection = RodScanPolynomial1DModelUnpacker.polynomial1DRodScanUnpackerModelDirection(model);
-		
+			
 		RectangularROI box = model.getBox();
 		
 		Dataset in1 = BoxSlicerRodScans.rOIBox(input, monitor, box.getIntLengths(), box.getIntPoint());
-		
-//		IDataset[] background = new IDataset[2];
-//				
-//		background[0] = BoxSlicerRodScans.iBelowOrRightBox(input, monitor, box.getIntLengths(), box.getIntPoint()
-//													, model.getBoundaryBox(), model.getDirection());
-//		
-//		background[1] = BoxSlicerRodScans.iAboveOrLeftBox(input, monitor, box.getIntLengths(), box.getIntPoint()
-//				, model.getBoundaryBox(), model.getDirection());
-		
+				
 		IOptimizer optimizer = new ApacheOptimizer(Optimizer.SIMPLEX_NM);
 		
 		Polynomial2D g2 = new Polynomial2D(model.getFitPower());
@@ -73,15 +59,15 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 		DoubleDataset[] fittingBackground = BoxSlicerRodScans2D.LeftRightTopBottomBoxes(input, monitor,
 				box.getIntLengths(), box.getIntPoint(), model.getBoundaryBox());
 		
-		optimizer.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
-				fittingBackground[2], g2);
+		try {
+			optimizer.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
+					fittingBackground[2], g2);
+		} 
+		catch (Exception e) {
+		}
 		
-		Dataset in1Background = DatasetFactory.zeros(in1.getShape(), Dataset.FLOAT64);
-		
-		in1Background = BackgroundSetting.rOIBackground1(background, in1Background
-				, box.getIntLengths(), box.getIntPoint()
-				, model.getBoundaryBox(), model.getFitPower()
-				, model.getDirection());
+		DoubleDataset in1Background = g2.getOutputValues(box.getIntLengths(), 
+				model.getBoundaryBox(), model.getFitPower());
 		
 		IndexIterator it = in1Background.getIterator();
 		
