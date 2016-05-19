@@ -32,11 +32,13 @@ import org.ejml.data.Complex64F;
  * y(x) = a_0 x^n + a_1 x^(n-1) + a_2 x^(n-2) + ... + a_(n-1) x + a_n
  */
 public class Polynomial2D extends AFunction {
-	private static final String NAME = "Polynomial";
+	private static final String NAME = "Polynomial2D";
 	private static final String DESC = "A polynomial of degree n."
 			+ "\n    y(x) = a_0 x^n + a_1 x^(n-1) + a_2 x^(n-2) + ... + a_(n-1) x + a_n";
 	private transient double[] a;
 	private transient int nparams; // actually degree + 1
+	private transient int degree;
+	private transient int noFunctions;
 
 	/**
 	 * Basic constructor, not advisable to use
@@ -49,8 +51,9 @@ public class Polynomial2D extends AFunction {
 	 * Make a polynomial of given degree (0 - constant, 1 - linear, 2 - quadratic, etc)
 	 * @param degree
 	 */
-	public Polynomial2D(final int degree) {
-		super(degree + 1);
+	public Polynomial2D(int degree) {
+		super((int) (Math.pow((degree+1),2)));
+		this.degree = degree;
 	}
 
 	/**
@@ -96,11 +99,11 @@ public class Polynomial2D extends AFunction {
 
 	@Override
 	protected void setNames() {
-		if (isDirty() && nparams < getNoOfParameters()) {
-			nparams = getNoOfParameters();
+		if (isDirty() && noFunctions < getNoOfParameters()) {
+			noFunctions = getNoOfParameters();
 		}
-		String[] paramNames = new String[nparams];
-		for (int i = 0; i < nparams; i++) {
+		String[] paramNames = new String[noFunctions];
+		for (int i = 0; i < noFunctions; i++) {
 			paramNames[i] = "a_" + i;
 		}
 
@@ -108,10 +111,10 @@ public class Polynomial2D extends AFunction {
 	}
 
 	private void calcCachedParameters() {
-		if (a == null || a.length != nparams) {
-			a = new double[nparams];
+		if (a == null || a.length != noFunctions) {
+			a = new double[noFunctions];
 		}
-		for (int i = 0; i < nparams; i++) {
+		for (int i = 0; i < noFunctions; i++) {
 			a[i] = getParameterValue(i);
 		}
 
@@ -126,7 +129,7 @@ public class Polynomial2D extends AFunction {
 		final double position = values[0];
 
 		double v = a[0];
-		for (int i = 1; i < nparams; i++) {
+		for (int i = 1; i < noFunctions; i++) {
 			v = v * position + a[i];
 		}
 		return v;
@@ -134,67 +137,95 @@ public class Polynomial2D extends AFunction {
 
 	@Override
 	public void fillWithValues(DoubleDataset data, CoordinatesIterator it) {
-		if (isDirty())
-			calcCachedParameters();
-
+		
+		double[] d = getParameterValues();
 		it.reset();
 		double[] coords = it.getCoordinates();
 		int i = 0;
 		double[] buffer = data.getData();
+
 		while (it.hasNext()) {
-			double v = a[0];
-			double p = coords[0];
-			for (int j = 1; j < nparams; j++) {
-				v = v * p + a[j];
+			double x = coords[0];
+			double y = coords[1];
+			double temp = 0;
+			for (int j = 0; j < (degree+1); j++) {
+				for (int k = 0; k < (degree+1); k++) {
+					double v = d[(j*(degree+1)+k)]*Math.pow(x, j)*Math.pow(y, k);
+					temp += v;
+				}
 			}
-			buffer[i++] = v;
+			buffer[i++] = temp;	
 		}
 	}
 
-	@Override
-	public double partialDeriv(IParameter parameter, double... position) {
-		if (isDuplicated(parameter))
-			return super.partialDeriv(parameter, position);
+//	@Override
+//	public double partialDeriv(IParameter parameter, double... position) {
+//		if (isDuplicated(parameter))
+//			return super.partialDeriv(parameter, position);
+//
+//		int i = indexOfParameter(parameter);
+//		if (i < 0)
+//			return 0;
+//
+//		final double pos = position[0];
+//		final int n = nparams - 1 - i;
+//		switch (n) {
+//		case 0:
+//			return 1.0;
+//		case 1:
+//			return pos;
+//		case 2:
+//			return pos * pos;
+//		default:
+//			return Math.pow(pos, n);
+//		}
+//	}
 
-		int i = indexOfParameter(parameter);
-		if (i < 0)
-			return 0;
+//	@Override
+//	public void fillWithPartialDerivativeValues(IParameter parameter, DoubleDataset data, CoordinatesIterator it) {
+//		Dataset pos = DatasetUtils.convertToDataset(it.getValues()[0]);
+//
+//		final int n = nparams - 1 - indexOfParameter(parameter);
+//		switch (n) {
+//		case 0:
+//			data.fill(1);
+//			break;
+//		case 1:
+//			data.setSlice(pos);
+//			break;
+//		case 2:
+//			Maths.square(pos, data);
+//			break;
+//		default:
+//			Maths.power(pos, n, data);
+//			break;
+//		}
+//	}
 
-		final double pos = position[0];
-		final int n = nparams - 1 - i;
-		switch (n) {
-		case 0:
-			return 1.0;
-		case 1:
-			return pos;
-		case 2:
-			return pos * pos;
-		default:
-			return Math.pow(pos, n);
+	public DoubleDataset makeMatrix(List<Dataset> coords, int degree) {
+		
+		int noFunctions = (int) Math.pow((degree+1),2);
+		final int rows = (coords.get(0)).getShape()[0];
+		DoubleDataset designMatrix = new DoubleDataset(rows, noFunctions);
+		
+		for (int l = 0; l < rows; l++) {
+			final double x = (coords.get(0)).getDouble(l);
+			final double y = (coords.get(1)).getDouble(l);
+			double v = 1.0;
+			
+			for (int i=0; i<= (degree+1); i++){
+				for (int j=0; j<= (degree+1); j++){
+					double element = v*Math.pow(x,i)*Math.pow(y,j);
+					designMatrix.set(element, l, i*j+j);					
+					}
+			}
+			
 		}
+
+			return designMatrix;
 	}
-
-	@Override
-	public void fillWithPartialDerivativeValues(IParameter parameter, DoubleDataset data, CoordinatesIterator it) {
-		Dataset pos = DatasetUtils.convertToDataset(it.getValues()[0]);
-
-		final int n = nparams - 1 - indexOfParameter(parameter);
-		switch (n) {
-		case 0:
-			data.fill(1);
-			break;
-		case 1:
-			data.setSlice(pos);
-			break;
-		case 2:
-			Maths.square(pos, data);
-			break;
-		default:
-			Maths.power(pos, n, data);
-			break;
-		}
-	}
-
+	
+	
 	
 	public static double[] makeAArray (int degree){
 		
@@ -260,7 +291,7 @@ public class Polynomial2D extends AFunction {
 		return index;
 	}
 	
-	public static DoubleDataset outputMatrix (int[][]coords, double[] values, int degree, int noLoops, double delta){
+	public static double[] outputAArray (int[][]coords, double[] values, int degree, int noLoops, double delta){
 		
 		double a[] = makeAArray(degree);
 		int noFunctions = (int) Math.pow((degree+1),2);
@@ -287,6 +318,14 @@ public class Polynomial2D extends AFunction {
 			a = parameterSpace[minimumChiSquaredIndex];
 		}
 		
+		return a;
+		
+	}
+	
+	public static DoubleDataset outputMatrix (int[][]coords, double[] values, int degree, int noLoops, double delta){
+		
+		double[] a = outputAArray(coords, values, degree, noLoops, delta);
+		
 		Dataset outputDesignMatrix = evaluateDesignMatrix(makeDesignMatrix(coords, degree, a));
 		
 		DoubleDataset output = new DoubleDataset(values.length,3);
@@ -308,9 +347,10 @@ public class Polynomial2D extends AFunction {
 	 */
 	public void setDegree(int degree) {
 		nparams = degree + 1;
-		parameters = createParameters(nparams);
+		noFunctions = (int) Math.pow((degree+1),2);
+		parameters = createParameters(noFunctions);
 		dirty = true;
-
+		
 		setNames();
 
 		if (parent != null) {
