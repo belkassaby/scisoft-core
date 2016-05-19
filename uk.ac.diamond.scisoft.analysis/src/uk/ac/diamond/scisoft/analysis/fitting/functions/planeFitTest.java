@@ -166,9 +166,9 @@ public class planeFitTest {
 
 			List<Dataset> meshGrid = DatasetUtils.meshGrid(x,y);
 			
-			Dataset z= DatasetFactory.zeros(new int[]{10,10}, Dataset.FLOAT64);
-			for (int i=0; i<10; i++){
-				for (int j=0; j<10; j++){
+			Dataset z= DatasetFactory.zeros(new int[]{x.getShape()[0],y.getShape()[0]}, Dataset.FLOAT64);
+			for (int i=0; i<x.getShape()[0]; i++){
+				for (int j=0; j<y.getShape()[0]; j++){
 					double v = 2*i*i + 2*j*j;
 					z.set(v, i, j);
 				}
