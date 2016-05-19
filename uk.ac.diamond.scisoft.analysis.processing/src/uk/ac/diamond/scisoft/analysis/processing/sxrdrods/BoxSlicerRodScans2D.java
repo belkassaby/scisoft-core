@@ -15,55 +15,51 @@ import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.processing.OperationException;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
-
-import uk.ac.diamond.scisoft.analysis.processing.operations.roiprofile.BoxIntegration.Direction;
+import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 
 public class BoxSlicerRodScans2D {
 
-	public static Dataset rOIBox(IDataset input , IMonitor monitor, int[] len, int[] pt) throws OperationException{ 
-	//// This creates in1, which is the ROI of interest
-		SliceND slice1 = new SliceND(input.getShape());
-		slice1.setSlice(1, pt[0], pt[0] + len[0], 1);
-		slice1.setSlice(0, pt[1], pt[1] + len[1], 1);
-		IDataset small1 = input.getSlice(slice1);
-		Dataset in1 = DatasetUtils.convertToDataset(small1);
-		return in1;
-	}
-	//
-	public static IDataset LeftRightTopBottomBoxes (IDataset input , IMonitor monitor, 
+	public static DoubleDataset[] LeftRightTopBottomBoxes (IDataset input , IMonitor monitor, 
 			int[] len, int[] pt, int boundaryBox) throws OperationException{
 		   
 	
-		   	SliceND slice2 = new SliceND(input.getShape());
-			slice2.setSlice(1, pt[0], pt[0] + len[0], 1);
-			slice2.setSlice(0, pt[1] + len[1], pt[1] + len[1] + boundaryBox, 1);
-			IDataset small2 = input.getSlice(slice2);
+		   	SliceND slice0 = new SliceND(input.getShape());
+			slice0.setSlice(1, pt[0]-boundaryBox, pt[0]+len[0]+boundaryBox, 1);
+			slice0.setSlice(0, pt[1]-boundaryBox, pt[1] + len[1] + boundaryBox, 1);
+			IDataset small0 = input.getSlice(slice0);
+			Dataset small0d = DatasetUtils.cast(small0, Dataset.FLOAT64);
+			
 			//return small2;
-		   //Top Box
+			//Complete Box
 			
-		   	SliceND slice4 = new SliceND(input.getShape());
-			slice4.setSlice(1, pt[0] + len[0], pt[0]+ len[0] + boundaryBox, 1);
-			slice4.setSlice(0, pt[1], pt[1] + len[1], 1);
-			IDataset small4 = input.getSlice(slice4);
-			//return small4;
-			//Left Box
-
-			SliceND slice0 = new SliceND(input.getShape());
-			slice0.setSlice(1, pt[0], pt[0] + len[0], 1);
-			slice0.setSlice(0, pt[1] - boundaryBox, pt[1], 1);
-			IDataset small0 = input.getSlice(slice0);				
-			//return small0;
-			//Bottom Box
+			int noOfPoints = (len[1] + boundaryBox)*(len[0] +boundaryBox) - boundaryBox*boundaryBox;
 			
-			SliceND slice3 = new SliceND(input.getShape());
-			slice3.setSlice(1, pt[0] - boundaryBox, pt[0], 1);
-			slice3.setSlice(0, pt[1], pt[1] +len[1], 1);
-			IDataset small3 = input.getSlice(slice3);
-			//return small3;
-			//Right Box
 			
-		   
-		   return null;
+			DoubleDataset xset = new DoubleDataset(noOfPoints);
+			DoubleDataset yset = new DoubleDataset(noOfPoints);
+			DoubleDataset zset = new DoubleDataset(noOfPoints);
+			
+			int l =0;
+			
+			for (int i =0; i<len[0]+boundaryBox; i++){
+				for (int j = 0; j<len[1] + boundaryBox;j++){
+					
+					if ((i<boundaryBox || i>=boundaryBox+len[0]) && (j<boundaryBox || j>=boundaryBox+len[1])){
+						xset.set(i, l);
+						yset.set(j, l);
+						zset.set(small0d.getDouble(i, j), l);
+					}
+				}	
+			}
+			
+			DoubleDataset[] output = new DoubleDataset[3];
+			
+			output[0] = xset;
+			output[1] = yset;
+			output[2] = zset;
+		
+		
+		return output;
 	}	
 	
 	
