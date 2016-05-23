@@ -76,8 +76,8 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 			if (v < 0) in1Background.setObjectAbs(it.index, 0);
 		}
 
-		System.out.println("### in1.getShape()[0]: " + in1.getShape()[0]+ "  in1.getShape()[1]:  "+ in1.getShape()[1] + "  @@@@@@");
-		System.out.println("### in1Background.getShape()[0]: " + in1Background.getShape()[0]+ "  in1Background.getShape()[1]:  "+ in1Background.getShape()[1] + "  @@@@@@");
+//		System.out.println("### in1.getShape()[0]: " + in1.getShape()[0]+ "  in1.getShape()[1]:  "+ in1.getShape()[1] + "  @@@@@@");
+//		System.out.println("### in1Background.getShape()[0]: " + in1Background.getShape()[0]+ "  in1Background.getShape()[1]:  "+ in1Background.getShape()[1] + "  @@@@@@");
 		
 		
 		Dataset pBackgroundSubtracted = Maths.subtract(in1, in1Background, null);
