@@ -173,7 +173,7 @@ public class Polynomial2D extends AFunction {
 			
 				for (int j = 0; j < (fitPower+1); j++) {
 					for (int i = 0; i < (fitPower+1); i++) {
-						System.out.println("##### j: " + j + "    i: " +i + "  #########");
+						//System.out.println("##### j: " + j + "    i: " +i + "  #########");
 						double v = d[(j*(fitPower+1)+i)]*Math.pow(x, j)*Math.pow(y, i);
 						temp += v;
 					}
