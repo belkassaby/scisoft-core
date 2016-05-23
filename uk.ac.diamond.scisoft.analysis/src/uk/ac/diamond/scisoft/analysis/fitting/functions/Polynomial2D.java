@@ -162,18 +162,19 @@ public class Polynomial2D extends AFunction {
 		
 		double[] d = getParameterValues();
 		
-		DoubleDataset output1 = new DoubleDataset(len[0], len[1]);
+		DoubleDataset output1 = new DoubleDataset(len[1], len[0]);
 		
-		for (int k=boundaryBox; k<boundaryBox+len[0]; k++){
+		for (int k=boundaryBox; k<boundaryBox+len[1]; k++){
 			for (int l=boundaryBox; l<boundaryBox+len[0]; l++){
 				
 				double temp = 0;
 				double x = k;
 				double y = l;
 			
-				for (int j = 0; j <= (fitPower+1); j++) {
-					for (int i = 0; i <= (fitPower+1); i++) {
-						double v = d[(j*(fitPower+1)+k)]*Math.pow(x, j)*Math.pow(y, i);
+				for (int j = 0; j < (fitPower+1); j++) {
+					for (int i = 0; i < (fitPower+1); i++) {
+						System.out.println("##### j: " + j + "    i: " +i + "  #########");
+						double v = d[(j*(fitPower+1)+i)]*Math.pow(x, j)*Math.pow(y, i);
 						temp += v;
 					}
 				}

@@ -32,7 +32,7 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DOperation";
+		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation";
 	}
 		
 	@Override
@@ -76,6 +76,10 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 			if (v < 0) in1Background.setObjectAbs(it.index, 0);
 		}
 
+		System.out.println("### in1.getShape()[0]: " + in1.getShape()[0]+ "  in1.getShape()[1]:  "+ in1.getShape()[1] + "  @@@@@@");
+		System.out.println("### in1Background.getShape()[0]: " + in1Background.getShape()[0]+ "  in1Background.getShape()[1]:  "+ in1Background.getShape()[1] + "  @@@@@@");
+		
+		
 		Dataset pBackgroundSubtracted = Maths.subtract(in1, in1Background, null);
 
 		pBackgroundSubtracted.setName("pBackgroundSubtracted");

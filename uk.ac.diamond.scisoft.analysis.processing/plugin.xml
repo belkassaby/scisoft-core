@@ -868,6 +868,13 @@
             model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
             name="RodScanPolynomial1DOperation">
       </operation>
+            <operation
+            class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation"
+            icon="icons/template.png"
+            id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            name="RodScanPolynomial2DOperation">
+      </operation>
    </extension>
    <extension
          point="org.eclipse.dawnsci.analysis.classloader">
