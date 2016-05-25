@@ -28,7 +28,7 @@ public class BoxSlicerReflectivity2D {
 			slice0.setSlice(0, pt[1]-boundaryBox, pt[1] + len[1] + boundaryBox, 1);
 			IDataset small0 = input.getSlice(slice0);
 			Dataset small0d = DatasetUtils.cast(small0, Dataset.FLOAT64);
-			System.out.println("small0d.getShape()[0]:   "+ small0d.getShape()[0] +"   small0d.getShape()[1]:   " + small0d.getShape()[1]);
+			//System.out.println("small0d.getShape()[0]:   "+ small0d.getShape()[0] +"   small0d.getShape()[1]:   " + small0d.getShape()[1]);
 			
 			//return small2;
 			//Complete Box
@@ -48,7 +48,7 @@ public class BoxSlicerReflectivity2D {
 					if ((i<boundaryBox || i>boundaryBox+len[0]) && (j<boundaryBox || j>boundaryBox+len[1])){
 						xset.set(i, l);
 						yset.set(j, l);
-						System.out.println("########## i:" + i+ "   j: "+j+"  l: " + l + "  #########");
+						//System.out.println("########## i:" + i+ "   j: "+j+"  l: " + l + "  #########");
 						zset.set(small0d.getDouble(i, j), l);
 						l++;
 					}

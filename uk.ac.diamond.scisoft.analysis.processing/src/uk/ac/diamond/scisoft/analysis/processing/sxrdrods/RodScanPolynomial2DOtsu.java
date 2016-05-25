@@ -9,14 +9,14 @@
 
 package uk.ac.diamond.scisoft.analysis.processing.sxrdrods;
 
-import java.util.List;
-
+import org.dawnsci.boofcv.internal.BoofCVImageFilterImpl;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.api.processing.OperationRank;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.DatasetFactory;
+import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.IndexIterator;
 import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
@@ -25,15 +25,15 @@ import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Polynomial2D;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
+import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 
-
-public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolynomial1DModel, OperationData> {
+public class RodScanPolynomial2DOtsu extends AbstractOperation<RodScanPolynomial1DModel, OperationData> {
 
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation";
+		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOtsu";
 	}
 		
 	@Override
@@ -53,34 +53,18 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 		
 		Dataset in1 = BoxSlicerRodScans.rOIBox(input, monitor, box.getIntLengths(), box.getIntPoint());
 				
-		ApacheOptimizer optimizer = new ApacheOptimizer(Optimizer.LEVENBERG_MARQUARDT);
+		IOptimizer optimizer = new ApacheOptimizer(Optimizer.SIMPLEX_NM);
 		
 		Polynomial2D g2 = new Polynomial2D(model.getFitPower());
 		
-//		Dataset[] fittingBackground = BoxSlicerRodScans2D.LeftRightTopBottomBoxes(input, monitor,
-//				box.getIntLengths(), box.getIntPoint(), model.getBoundaryBox());
-		
-		System.out.println("@@@@@Got here####");
+		Dataset[] fittingBackground = BoxSlicerRodScans2D.LeftRightTopBottomBoxes(input, monitor,
+				box.getIntLengths(), box.getIntPoint(), model.getBoundaryBox());
 		
 		try {
-			
-			DoubleDataset mask =BoxSlicerRodScans2D.weightingMask(input, monitor, box.getIntLengths(), 
-					box.getIntPoint(), model.getBoundaryBox());
-			
-			List<Dataset> meshGrid = BoxSlicerRodScans2D.coordMesh(input, monitor, box.getIntLengths(), 
-					box.getIntPoint(), model.getBoundaryBox());
-			
-			//optimizer.setWeight(mask);
-			
-			optimizer.optimize(new Dataset[]{meshGrid.get(0),meshGrid.get(1)}, 
-					BoxSlicerRodScans2D.regionOfRegard(input, monitor, box.getIntLengths(), 
-					box.getIntPoint(), model.getBoundaryBox()), g2);
-			
-//			optimizer.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
-//					fittingBackground[2], g2);
+			optimizer.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
+					fittingBackground[2], g2);
 		} 
 		catch (Exception e) {
-			System.out.println(e);
 		}
 		
 		DoubleDataset in1Background = g2.getOutputValues(box.getIntLengths(), 
@@ -120,6 +104,12 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 			if (q < 0) pBackgroundSubtracted.setObjectAbs(it1.index, 0);
 		}
 		
+		BoofCVImageFilterImpl service = new BoofCVImageFilterImpl(); 
+		
+//		IDataset otsuTest = service.globalOtsuThreshold(pBackgroundSubtracted, false, true);
+		
+//		Dataset otsuTestOut = DatasetUtils.cast(otsuTest, Dataset.FLOAT64);
+		
 		Dataset fhkl = Maths.sqrt(pBackgroundSubtracted);
 		
 		Dataset in1Sum = DatasetFactory.createFromObject(in1.sum());
@@ -131,6 +121,8 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 		in1Background.setName("Polynomial background");
 		pBackgroundSubtracted.setName("Signal after polynomial background subtracted");
 		fhkl.setName("fhkl");
+//		otsuTestOut.setName("Otsu test");
+		
 		
 		in1Sum.setName("Region of Interest Summed") ;
 		in1BackgroundSum.setName("Polynomial background summed");
@@ -138,8 +130,7 @@ public class RodScanPolynomial2DOperation extends AbstractOperation<RodScanPolyn
 		fhklSum.setName("fhkl summed");
 		
 		return new OperationData(in1, in1Background, pBackgroundSubtracted, fhkl, in1Sum, in1BackgroundSum, pBackgroundSubtractedSum, fhklSum);
-//		return new OperationData(in1);
-
+//, otsuTestOut
 	}
 //
 }

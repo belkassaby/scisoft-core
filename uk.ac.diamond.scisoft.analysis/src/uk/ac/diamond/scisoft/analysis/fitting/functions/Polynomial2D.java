@@ -156,11 +156,19 @@ public class Polynomial2D extends AFunction {
 			}
 			buffer[i++] = temp;	
 		}
+		
+		buffer.toString();
 	}
 	
 	public DoubleDataset getOutputValues (int[] len, int boundaryBox, int fitPower ) {
 		
 		double[] d = getParameterValues();
+		
+		System.out.println(">>>>>>>>>>>Fitted parameters: <<<<<<<<<");
+		
+		for (int e=0; e<d.length; e++){
+				System.out.println("Parameter d[" +e+"]: "+d[e]+"  ########");
+		}
 		
 		DoubleDataset output1 = new DoubleDataset(len[1], len[0]);
 		
@@ -173,7 +181,6 @@ public class Polynomial2D extends AFunction {
 			
 				for (int j = 0; j < (fitPower+1); j++) {
 					for (int i = 0; i < (fitPower+1); i++) {
-						//System.out.println("##### j: " + j + "    i: " +i + "  #########");
 						double v = d[(j*(fitPower+1)+i)]*Math.pow(x, j)*Math.pow(y, i);
 						temp += v;
 					}
