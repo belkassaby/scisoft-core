@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.analysis.processing.sxrdrods;
 
+import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.eclipse.dawnsci.analysis.api.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.api.image.IImageFilterService;
 import org.eclipse.dawnsci.analysis.api.monitor.IMonitor;
@@ -24,17 +25,18 @@ import org.eclipse.dawnsci.analysis.dataset.operations.AbstractOperation;
 import org.eclipse.dawnsci.analysis.dataset.roi.RectangularROI;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Polynomial2D;
+import uk.ac.diamond.scisoft.analysis.optimize.AbstractOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
 import uk.ac.diamond.scisoft.analysis.processing.operations.utils.OperationServiceLoader;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 
-public class RodScanPolynomial2DOtsu extends AbstractOperation<RodScanPolynomial1DModel, OperationData> {
+public class RodScanPoly2DSubSample extends AbstractOperation<RodScanPolynomial1DModel, OperationData> {
 
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOtsu";
+		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample";
 	}
 		
 	@Override
@@ -50,30 +52,79 @@ public class RodScanPolynomial2DOtsu extends AbstractOperation<RodScanPolynomial
 	@Override
 	protected OperationData process(IDataset input, IMonitor monitor) {
 			
+		System.out.println("~~~~~~~~~~~restart~~~~~~~~~~~~~~~");
+		
 		RectangularROI box = model.getBox();
 		
 		Dataset in1 = BoxSlicerRodScans.rOIBox(input, monitor, box.getIntLengths(), box.getIntPoint());
 				
-		IOptimizer optimizer = new ApacheOptimizer(Optimizer.LEVENBERG_MARQUARDT);
+		IOptimizer optimizer = new ApacheOptimizer(Optimizer.SIMPLEX_MD);
+		
+		//LevenbergMarquardtOptimizer optimizer1 = new LevenbergMarquardtOptimizer();
+		
+		AbstractOptimizer optimizer2 = new ApacheOptimizer(Optimizer.SIMPLEX_MD);
+		
+		//double[] initialSolution = {1, 1, 1};
+		
+		//optimizer2.setParameterValues(parameters);
+		
+		//optimizer1.
+		
 		
 		Polynomial2D g2 = new Polynomial2D(model.getFitPower());
 		
 		Dataset[] fittingBackground = BoxSlicerRodScans2D.LeftRightTopBottomBoxes(input, monitor,
 				box.getIntLengths(), box.getIntPoint(), model.getBoundaryBox());
 		
+		Dataset[] subSetBackground = BoxSlicerRodScans2D.subRange(input, monitor,
+				box.getIntLengths(), box.getIntPoint(), model.getBoundaryBox());
+		
+		double[] d = new double[(int) Math.pow(2*model.getFitPower()+1,2)];
+		
+		long startTime = System.currentTimeMillis();
+		
 		try {
-			long startTime = System.currentTimeMillis();
 			
-			optimizer.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
-					fittingBackground[2], g2);
+			System.out.println("been through here again");
+			optimizer.optimize(new Dataset[]{subSetBackground[0], subSetBackground[1]}, 
+					subSetBackground[2], g2);
 			
-			long endTime = System.currentTimeMillis();
-			
-			long  elapsedTime = endTime-startTime;
-			System.out.println("optimizer elapsed time:  " + elapsedTime);
-		} 
-		catch (Exception e) {
+			d = g2.ouputParameters();
 		}
+		catch (Exception e) {
+				System.out.println("Fitting failed at 1");
+		}	
+		
+		System.out.println("check sub range output@@@@@");
+		g2.checkFittingParameters();
+			
+		d = g2.ouputParameters();
+			
+		optimizer2.setParameterValues(d);
+		
+		long subRangeTime = System.currentTimeMillis();
+		
+		long subRangeElapsedTime = subRangeTime-startTime;
+		System.out.println("@@@@@@@@@@@@optimizer subRangeTime:  " + subRangeElapsedTime+"  ########~~~~#####");
+		
+		try{	
+			optimizer2.optimize(new Dataset[]{fittingBackground[0], fittingBackground[1]}, 
+					fittingBackground[2], g2);
+			}
+		catch (Exception e) {
+				System.out.println("Fitting failed");
+			}	
+		
+		System.out.println("check full range output@@@@@");
+		g2.checkFittingParameters();
+		
+		//optimizer.;
+		
+		long endTime = System.currentTimeMillis();
+		
+		long elapsedTime = endTime-startTime;
+		System.out.println("@@@@@@@@@@@@optimizer elapsed time:  " + elapsedTime+"  ########~~~~#####");
+		
 		
 		DoubleDataset in1Background = g2.getOutputValues(box.getIntLengths(), 
 				model.getBoundaryBox(), model.getFitPower());

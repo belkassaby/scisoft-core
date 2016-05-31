@@ -166,7 +166,7 @@ public class RodScanPolynomial1DModel extends AbstractOperationModel {
 		}
 
 		
-		private RectangularROI box = new RectangularROI(200d, 100d, 1d, 1d, 0d);
+		private RectangularROI box = new RectangularROI(200d, 100d, 10d, 10d, 0d);
 
 
 		public RectangularROI getBox() {

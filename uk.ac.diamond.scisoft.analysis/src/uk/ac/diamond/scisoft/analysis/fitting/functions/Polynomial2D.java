@@ -54,6 +54,10 @@ public class Polynomial2D extends AFunction {
 	public Polynomial2D(int degree) {
 		super((int) (Math.pow((degree+1),2)));
 		this.degree = degree;
+		nparams = (int) Math.pow((degree+1),2);
+		noFunctions = (int) Math.pow((degree+1),2);
+		parameters = createParameters(noFunctions);
+		
 	}
 
 	/**
@@ -120,6 +124,8 @@ public class Polynomial2D extends AFunction {
 
 		setDirty(false);
 	}
+	
+	
 
 	@Override
 	public double val(double... values) {
@@ -159,6 +165,58 @@ public class Polynomial2D extends AFunction {
 		
 		buffer.toString();
 	}
+	
+	public double[] ouputParameters() {
+		
+		double[] d = getParameterValues();
+		
+		return d;
+	}
+	
+	
+	
+	public double[][] jacobian (CoordinatesIterator it){
+		
+		it.reset();
+		double[] coords = it.getCoordinates();
+		
+		double[][] jacobian = new double[2][(int)(Math.pow((degree+1), 2))];
+		
+		while (it.hasNext()) {
+			double x = coords[0];
+			double y = coords[1];
+		
+			for (int j = 0; j < (degree+1); j++) {
+				for (int k = 0; k < (degree+1); k++) {
+					
+					double v =0;
+					double u =0;
+					
+					v = Math.pow(x, j)*Math.pow(y, k);
+					u = Math.pow(x, j)*Math.pow(y, k);
+					
+					jacobian[0][(j*(degree+1)+k)] = v;
+					jacobian[1][(j*(degree+1)+k)] = u;
+				}
+			}
+		}
+		
+		return jacobian;
+	}
+	
+	public void checkFittingParameters() {
+		
+		double[] d = getParameterValues();
+		
+		System.out.println(">>>>>>>>>>>Fitted parameters: <<<<<<<<<");
+		
+		for (int e=0; e<d.length; e++){
+				System.out.println("Parameter d[" +e+"]: "+d[e]+"  ########");
+		}
+		
+		
+	}
+	
 	
 	public DoubleDataset getOutputValues (int[] len, int boundaryBox, int fitPower ) {
 		
@@ -381,7 +439,7 @@ public class Polynomial2D extends AFunction {
 	 * @param degree
 	 */
 	public void setDegree(int degree) {
-		nparams = degree + 1;
+		nparams = (int) Math.pow((degree+1),2);
 		noFunctions = (int) Math.pow((degree+1),2);
 		parameters = createParameters(noFunctions);
 		dirty = true;

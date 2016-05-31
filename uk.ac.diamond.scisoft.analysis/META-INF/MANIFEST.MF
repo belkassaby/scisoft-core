@@ -45,6 +45,7 @@ Bundle-ClassPath: .,
  jars/jai_imageio.jar
 Import-Package: Jama,
  com.thoughtworks.xstream.core.util,
+ org.python.modules;version="2.5.3",
  org.slf4j;version="[1.7.2,2.0.0)"
 Eclipse-BuddyPolicy: global
 Important-Note: This plugin SHOULD NOT be lazy activated because we always want this 

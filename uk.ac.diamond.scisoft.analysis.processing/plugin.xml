@@ -882,6 +882,20 @@
             model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
             name="RodScanPolynomial2DOtsu">
       </operation>
+            <operation
+            class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DLMOtsu"
+            icon="icons/template.png"
+            id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DLMOtsu"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            name="RodScanPolynomial2DLMOtsu">
+      </operation>
+            <operation
+            class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample"
+            icon="icons/template.png"
+            id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            name="RodScanPoly2DSubSample">
+      </operation>
       <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="BoofCV image filter service">
    <implementation class="uk.ac.diamond.scisoft.analysis.processing.RodScanPolynomial2DOtsu"/>
    <service>
