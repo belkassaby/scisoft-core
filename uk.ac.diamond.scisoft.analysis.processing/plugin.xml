@@ -872,30 +872,38 @@
             class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation"
             icon="icons/template.png"
             id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOperation"
-            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DModel"
             name="RodScanPolynomial2DOperation">
       </operation>
             <operation
             class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOtsu"
             icon="icons/template.png"
             id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DOtsu"
-            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DModel"
             name="RodScanPolynomial2DOtsu">
       </operation>
             <operation
             class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DLMOtsu"
             icon="icons/template.png"
             id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DLMOtsu"
-            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DModel"
             name="RodScanPolynomial2DLMOtsu">
       </operation>
             <operation
             class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample"
             icon="icons/template.png"
             id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample"
-            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial1DModel"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DModel"
             name="RodScanPoly2DSubSample">
       </operation>
+            <operation
+            class="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScans2DLinearLeastSquares"
+            icon="icons/template.png"
+            id="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScans2DLinearLeastSquares"
+            model="uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPolynomial2DModel"
+            name="RodScans2DLinearLeastSquares">
+      </operation>
+
       <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="BoofCV image filter service">
    <implementation class="uk.ac.diamond.scisoft.analysis.processing.RodScanPolynomial2DOtsu"/>
    <service>

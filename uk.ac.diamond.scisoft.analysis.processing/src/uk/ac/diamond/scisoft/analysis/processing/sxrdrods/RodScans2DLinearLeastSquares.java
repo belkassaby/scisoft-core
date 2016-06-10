@@ -28,15 +28,16 @@ import uk.ac.diamond.scisoft.analysis.optimize.AbstractOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
+import uk.ac.diamond.scisoft.analysis.optimize.LinearLeastSquares;
 import uk.ac.diamond.scisoft.analysis.processing.operations.utils.OperationServiceLoader;
 
-public class RodScanPoly2DSubSample extends AbstractOperation<RodScanPolynomial2DModel, OperationData> {
+public class RodScans2DLinearLeastSquares extends AbstractOperation<RodScanPolynomial2DModel, OperationData> {
 
 	private Polynomial2D g2;
 	
 	@Override
 	public String getId() {
-		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScanPoly2DSubSample";
+		return "uk.ac.diamond.scisoft.analysis.processing.sxrdrods.RodScans2DLinearLeastSquares";
 	}
 		
 	@Override
@@ -185,12 +186,49 @@ public class RodScanPoly2DSubSample extends AbstractOperation<RodScanPolynomial2
 		System.out.println("check full range output@@@@@");
 		g2.checkFittingParameters();
 		
-////////////////////////////////////////////////////end of fitting flailing
-		
 		long endTime = System.currentTimeMillis();
 		
 		long elapsedTime = endTime-startTime;
 		System.out.println("@@@@@@@@@@@@optimizer elapsed time:  " + elapsedTime+"  ########~~~~#####");
+		
+		
+////////////////////////////////////////////////////end of fitting flailing
+		
+		
+////////////////////////////////////////////////////linear least squares test and comparison
+		
+		long linearLeastStartTime = System.currentTimeMillis();
+		System.out.println("Started the Linear Least Squares Method");
+		
+		LinearLeastSquares tFit = new LinearLeastSquares(10000);
+		double[] testOutput = new double[(int) Math.pow(model.getFitPower(), 2)];
+		
+		Dataset offset = DatasetFactory.ones(fittingBackground[2].getShape(), Dataset.FLOAT64);
+		
+		Dataset intermediateFitTest  = Maths.add(offset, fittingBackground[2]);
+		
+		Dataset matrix = LinearLeastSquaresServicesForSXRD.polynomial2DLinearLeastSquaresMatrixGenerator
+				(model.getFitPower(), fittingBackground[0], fittingBackground[1]);
+		
+		Dataset zSigma = LinearLeastSquaresServicesForSXRD.polynomial2DLinearLeastSquaresSigmaGenerator
+				(fittingBackground[2]);
+		
+		testOutput = tFit.solve(matrix, intermediateFitTest, zSigma);
+
+		System.out.println("linear last squares output:");
+		
+		for (int i=0; i<((int) Math.pow(model.getFitPower(), 2)); i++){
+			System.out.println("d [" + i + "]:  " + testOutput[i]);
+		}
+		
+		long linearLeastEndTime  = System.currentTimeMillis();
+		
+		long linearLeastElapsedTime = linearLeastStartTime -linearLeastEndTime;
+		System.out.println("@@@@@@@@@@@@linear least elapsed time:  " + linearLeastElapsedTime+"  ########~~~~#####");
+		
+		
+///////////////////////////////////////////////////////////////		
+		
 		
 		
 		DoubleDataset in1Background = g2.getOutputValues(box.getIntLengths(), 

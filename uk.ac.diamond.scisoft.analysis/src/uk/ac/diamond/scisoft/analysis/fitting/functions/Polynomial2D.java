@@ -22,9 +22,7 @@ import org.ddogleg.solver.PolynomialRoots;
 import org.ddogleg.solver.RootFinderType;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 import org.eclipse.dawnsci.analysis.dataset.impl.Dataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.DatasetUtils;
 import org.eclipse.dawnsci.analysis.dataset.impl.DoubleDataset;
-import org.eclipse.dawnsci.analysis.dataset.impl.Maths;
 import org.ejml.data.Complex64F;
 
 /**
@@ -102,6 +100,13 @@ public class Polynomial2D extends AFunction {
 	}
 
 	@Override
+	public int getNoOfParameters(){
+		return nparams;
+	}
+	
+	
+	
+	@Override
 	protected void setNames() {
 		if (isDirty() && noFunctions < getNoOfParameters()) {
 			noFunctions = getNoOfParameters();
@@ -166,7 +171,7 @@ public class Polynomial2D extends AFunction {
 		buffer.toString();
 	}
 	
-	public double[] ouputParameters() {
+	public double[] outputParameters() {
 		
 		double[] d = getParameterValues();
 		
@@ -222,11 +227,11 @@ public class Polynomial2D extends AFunction {
 		
 		double[] d = getParameterValues();
 		
-		System.out.println(">>>>>>>>>>>Fitted parameters: <<<<<<<<<");
-		
-		for (int e=0; e<d.length; e++){
-				System.out.println("Parameter d[" +e+"]: "+d[e]+"  ########");
-		}
+//		System.out.println(">>>>>>>>>>>Fitted parameters: <<<<<<<<<");
+//		
+//		for (int e=0; e<d.length; e++){
+//				System.out.println("Parameter d[" +e+"]: "+d[e]+"  ########");
+//		}
 		
 		DoubleDataset output1 = new DoubleDataset(len[1], len[0]);
 		
@@ -239,8 +244,13 @@ public class Polynomial2D extends AFunction {
 			
 				for (int j = 0; j < (fitPower+1); j++) {
 					for (int i = 0; i < (fitPower+1); i++) {
-						double v = d[(j*(fitPower+1)+i)]*Math.pow(x, j)*Math.pow(y, i);
-						temp += v;
+						try{
+							double v = d[(j*(fitPower+1)+i)]*Math.pow(x, j)*Math.pow(y, i);
+							temp += v;
+						}
+						catch (ArrayIndexOutOfBoundsException exc){
+							
+						}
 					}
 				}
 				

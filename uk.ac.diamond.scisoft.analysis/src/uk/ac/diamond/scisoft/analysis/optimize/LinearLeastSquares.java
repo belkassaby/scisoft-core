@@ -63,7 +63,9 @@ public class LinearLeastSquares {
 		}
 
 		final Matrix X = new Matrix((double [][]) DatasetUtils.createJavaArray(matrix.cast(Dataset.FLOAT64)));
-		final Matrix W = new Matrix((double [][]) DatasetUtils.createJavaArray(DatasetUtils.diag(Maths.reciprocal(sigmasq.cast(Dataset.FLOAT64)), 0)));
+		Dataset diag = DatasetUtils.diag(Maths.reciprocal(sigmasq.cast(Dataset.FLOAT64)), 0);
+		Object Wprimer = DatasetUtils.createJavaArray(diag);
+		final Matrix W = new Matrix((double [][]) Wprimer);
 
 		final Matrix XtW = X.transpose().times(W);
 		final Matrix A = XtW.times(X);

@@ -154,6 +154,110 @@ public class BoxSlicerRodScans2D {
 	return output;
 	}	
 	
+	public static Dataset[] subRange (IDataset input , IMonitor monitor, 
+			int[] len, int[] pt, int boundaryBox, int size) throws OperationException{
+		   
+		long startTime = System.currentTimeMillis();
+		
+		Dataset[] ranges = LeftRightTopBottomBoxes(input, monitor, len, pt, boundaryBox);
+		
+		int subRangeNo = (int) ((int) size*0.01*ranges[0].getShape()[0]);
+		
+		if (subRangeNo<(size*100)){
+			subRangeNo = size*100;
+		}
+		
+		DoubleDataset xSub = new DoubleDataset(subRangeNo);
+		DoubleDataset ySub = new DoubleDataset(subRangeNo);
+		DoubleDataset zSub = new DoubleDataset(subRangeNo);
+		
+		Random rng = new Random(); 
+		
+		Set<Integer> subSet = new HashSet<Integer>();
+		
+		while (subSet.size() < subRangeNo){
+		    Integer next = rng.nextInt(subRangeNo) + 1;
+		    // As we're adding to a set, this will automatically do a containment check
+		    subSet.add(next);
+		}
+		
+		java.util.Iterator<Integer> itr = subSet.iterator();
+		
+		while(itr.hasNext()){
+			int p = itr.next();
+			xSub.set(ranges[0].getObject(itr.next()),p);
+			ySub.set(ranges[1].getObject(itr.next()),p);
+			zSub.set(ranges[2].getObject(itr.next()),p);
+		}
+		
+		Dataset[] output = new Dataset[3];
+		
+		output[0] = xSub;
+		output[1] = ySub;
+		output[2] = zSub;
+		
+		
+		long endTime = System.currentTimeMillis();
+		
+		long elapsedTime = endTime-startTime;
+		
+		System.out.println("subRange method took: " + elapsedTime);
+	
+	return output;
+	}
+	
+	public static Dataset[] subRangeDownSample (IDataset input , IMonitor monitor, 
+			int[] len, int[] pt, int boundaryBox, int size, String enc) throws OperationException{
+		   
+		long startTime = System.currentTimeMillis();
+		
+		Dataset[] ranges = LeftRightTopBottomBoxes(input, monitor, len, pt, boundaryBox);
+		
+		int subRangeNo = (int) ((int) size*0.01*ranges[0].getShape()[0]);
+		
+		if (subRangeNo<(size*100)){
+			subRangeNo = size*100;
+		}
+		
+		DoubleDataset xSub = new DoubleDataset(subRangeNo);
+		DoubleDataset ySub = new DoubleDataset(subRangeNo);
+		DoubleDataset zSub = new DoubleDataset(subRangeNo);
+		
+		Random rng = new Random(); 
+		
+		Set<Integer> subSet = new HashSet<Integer>();
+		
+		while (subSet.size() < subRangeNo){
+		    Integer next = rng.nextInt(subRangeNo) + 1;
+		    // As we're adding to a set, this will automatically do a containment check
+		    subSet.add(next);
+		}
+		
+		java.util.Iterator<Integer> itr = subSet.iterator();
+		
+		while(itr.hasNext()){
+			int p = itr.next();
+			xSub.set(ranges[0].getObject(itr.next()),p);
+			ySub.set(ranges[1].getObject(itr.next()),p);
+			zSub.set(ranges[2].getObject(itr.next()),p);
+		}
+		
+		Dataset[] output = new Dataset[3];
+		
+		output[0] = xSub;
+		output[1] = ySub;
+		output[2] = zSub;
+		
+		
+		long endTime = System.currentTimeMillis();
+		
+		long elapsedTime = endTime-startTime;
+		
+		System.out.println("subRange Downsample method took: " + elapsedTime);
+	
+	return output;
+	}
+	
 
 	
 	public static DoubleDataset weightingMask (IDataset input , IMonitor monitor, 
