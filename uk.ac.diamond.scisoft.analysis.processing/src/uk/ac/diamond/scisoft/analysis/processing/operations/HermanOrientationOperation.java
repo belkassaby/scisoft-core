@@ -10,11 +10,11 @@
 package uk.ac.diamond.scisoft.analysis.processing.operations;
 
 // Imports from java
-import java.util.List;
-import java.util.Arrays;
+//import java.util.List;
+//import java.util.Arrays;
 
 // Imports from org.apache
-import org.apache.commons.beanutils.ConvertUtils;
+//import org.apache.commons.beanutils.ConvertUtils;
 
 // Imports from org.eclipse
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
@@ -26,7 +26,7 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
-import org.eclipse.dawnsci.analysis.api.roi.IROI;
+//import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.january.dataset.DoubleDataset;
@@ -123,41 +123,10 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		double integrationStartInRadians = (Math.PI / 180) * model.getIntegrationStartAngle();
 		hermanSector.setAngles(integrationStartInRadians, integrationStartInRadians + hermanPiRange);
 
-				
+		@SuppressWarnings("unused")
+		Dataset[] reducedData = ROIProfile.sector(DatasetUtils.convertToDataset(dataset), null, hermanSector, false, true, false);
 		
-		/* Let's just leave this here for now and start again...
-		// Let's just work with the region of interest now
-
-
-		// Extract out some information about our data from dataset
-		//int[] frames = NcdOperationUtils.addDimension(dataset.getShape());
-	//		double integrationStartInRadians = (Math.PI / 180) * model.getIntegrationStartAngle();
-//		hermanSector.setAngles(integrationStartInRadians, integrationStartInRadians + hermanPiRange);
-//			// 2D data, should match our input rank
-		int dimension = 2;
-		// Well now...
-		//int[] areaShape = (int[]) ConvertUtils.convert(Arrays.copyOfRange(frames, frames.length - dimension, frames.length), int[].class);
-
-		// Create a home for the mask metadata and try to fetch it, if not possible raise an exception
-		List<MaskMetadata> mask;
-		try {
-			mask = dataset.getMetadata(MaskMetadata.class);
-		} catch (Exception e) {
-			throw new OperationException(this, e);
-		}
-
-		// Create a null mask and if possible, fill it with a mask from our dataset
-		Dataset maskDataset = null;
-		if (mask != null) {
-			maskDataset = DatasetUtils.convertToDataset(mask.get(0).getMask()).getSlice();
-		}
-
-		RingROI a;
-
-
-
-		IDataset userData = dataset;
-		*/
+	
 
 
 		// So we can run DAWN in the meantime for debugging/error catching
