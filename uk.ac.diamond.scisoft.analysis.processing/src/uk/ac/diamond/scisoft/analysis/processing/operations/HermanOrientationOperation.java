@@ -28,6 +28,9 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.FloatDataset;
+import org.eclipse.january.dataset.IndexIterator;
 
 // Imports from uk.ac.diamond
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
@@ -67,12 +70,46 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	@Override
 	public OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
 
+
+		// Lets apply an image mask using NaN's
+		Dataset nanMaskDataset = DatasetUtils.convertToDataset(dataset);
+
+		// If there is masking data we shall replaced the masked values by NaN's
+		Object nanMaskValue = Double.NaN;
+
+		// Better make sure it's the right type of NaN though
+		if (dataset.getFirstMetadata(MaskMetadata.class) != null) {
+			if (nanMaskDataset.getClass() == DoubleDataset.class)
+				nanMaskValue = Double.NaN;
+			else if (nanMaskDataset.getClass() == FloatDataset.class)
+				nanMaskValue = Float.NaN;
+			else
+				nanMaskValue = 0;
+
+			// Loop over the mask and the data and replace masked values by the NaN type chosen above 
+			Dataset mask = DatasetUtils.convertToDataset(dataset.getFirstMetadata(MaskMetadata.class).getMask());
+			for (IndexIterator iter = nanMaskDataset.getIterator(); iter.hasNext();) {
+				if (!(boolean) mask.getElementBooleanAbs(iter.index))
+					nanMaskDataset.setObjectAbs(iter.index, nanMaskValue);
+			}
+		}
+		// Now any masked pixel has the value NaN and will not be considered for subsequent evaluation
+
+
+
+
+
+
+		/* Let's just leave this here for now and start again...
+
 		// We will need to change the integration range as given here into an ROI at some point...
 		//double piMultiplier = model.getIntegrationRange.getValue();
 		
 		//double hermanPiROI = piMultiplier * Math.PI;
 		// First get the region that we're interested in examining
 		IROI roiToIntegrate = model.getRegion();
+
+
 
 		// Now that we have a potentially valid ROI, let's check that it is valid
 		// Did the user provide co-ordinates
@@ -130,10 +167,10 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 
 
 		IDataset userData = dataset;
+		*/
 
 
-
-
+		// So we can run DAWN in the meantime for debugging/error catching
 		OperationData toReturn = new OperationData();
 		return toReturn;	
 	}
