@@ -11,11 +11,7 @@ package uk.ac.diamond.scisoft.analysis.processing.operations;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.OperationModelField;
 import uk.ac.diamond.scisoft.analysis.processing.operations.IntegrationModel;
-import org.eclipse.dawnsci.analysis.api.processing.model.FileType;
-
-// Might not need these later on, let's see...
-// import org.eclipse.dawnsci.analysis.api.processing.model.FileType;
-// import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationModel.NumberOfPis;
+import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 
 
 // The model for a DAWN process to perform a Herman Orientation calculation on a given image
@@ -73,16 +69,9 @@ public class HermanOrientationModel extends IntegrationModel {
 	}
 
 
-	// For the ROI, we can certainly use a file, but can the user do any drawing? How is an ROI file formatted?
-	@OperationModelField(hint="The path to the a NeXus file containing a ROI.\nYou can click and drag a file into this field.", file = FileType.EXISTING_FILE, label = "Region of Interest File")
-	private String filePath = "";
-
-	public String getFilePath() {
-		return filePath;
-	}
-
-	public void setFilePath(String filePath) {
-		firePropertyChange("filePath", this.filePath, this.filePath = filePath);
+	public HermanOrientationModel() {
+		super();
+		setRegion(new RingROI(0d, 0d, 10d, 10d));
 	}
 
 }

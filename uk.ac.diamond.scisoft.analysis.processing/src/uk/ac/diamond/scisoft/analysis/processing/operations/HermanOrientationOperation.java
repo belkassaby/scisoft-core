@@ -27,7 +27,6 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 
 // Imports from uk.ac.diamond
@@ -69,8 +68,9 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	public OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
 
 		// We will need to change the integration range as given here into an ROI at some point...
-		double piMultiplier = integrationRange.getNumberOfPis() / 2.00;
-		double hermanPiROI = piMultiplier * Math.PI;
+		//double piMultiplier = model.getIntegrationRange.getValue();
+		
+		//double hermanPiROI = piMultiplier * Math.PI;
 		// First get the region that we're interested in examining
 		IROI roiToIntegrate = model.getRegion();
 
@@ -79,8 +79,8 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		if (model.getRegion() == null) {
 			try {
 				// Or provide a file path?
-				NexusNcdMetadataReader reader = new NexusNcdMetadataReader(model.getFilePath());
-				roiToIntegrate = reader.getROIDataFromFile();
+				//NexusNcdMetadataReader reader = new NexusNcdMetadataReader(model.getFilePath());
+				//roiToIntegrate = reader.getROIDataFromFile();
 				// Or fail to provide an ROI
 				if (roiToIntegrate == null) {
 					throw new Exception("ROI must be defined for this operation");
