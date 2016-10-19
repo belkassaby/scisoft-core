@@ -32,6 +32,7 @@ import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IndexIterator;
 
+import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationModel.NumberOfPis;
 // Imports from uk.ac.diamond
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 //import uk.ac.diamond.scisoft.ncd.processing.NcdOperationUtils;
@@ -70,8 +71,7 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	@Override
 	public OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
 
-
-		// Lets apply an image mask using NaN's
+		// Lets apply an image mask, if present, using NaN's
 		Dataset nanMaskDataset = DatasetUtils.convertToDataset(dataset);
 
 		// If there is masking data we shall replaced the masked values by NaN's
@@ -95,11 +95,13 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		}
 		// Now any masked pixel has the value NaN and will not be considered for subsequent evaluation
 
-
-
-
-
-
+		// Next, let's consider how much of the ring we're going to be evaluating as a function of pi
+		//double piMultiplier = model.getIntegrationRange.getValue();
+		NumberOfPis piEnum = model.getIntegrationRange();
+		double piMultiplier = ((double) piEnum.getNumberOfPis()) / 2;
+		double hermanPiRange = piMultiplier * Math.PI;
+		
+		
 		/* Let's just leave this here for now and start again...
 
 		// We will need to change the integration range as given here into an ROI at some point...
