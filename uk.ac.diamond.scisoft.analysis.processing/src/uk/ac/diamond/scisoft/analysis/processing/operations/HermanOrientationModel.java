@@ -11,6 +11,7 @@ package uk.ac.diamond.scisoft.analysis.processing.operations;
 
 import org.eclipse.dawnsci.analysis.api.processing.model.OperationModelField;
 import uk.ac.diamond.scisoft.analysis.processing.operations.IntegrationModel;
+import org.eclipse.dawnsci.analysis.api.processing.model.FileType;
 
 // Might not need these later on, let's see...
 // import org.eclipse.dawnsci.analysis.api.processing.model.FileType;
@@ -21,7 +22,7 @@ import uk.ac.diamond.scisoft.analysis.processing.operations.IntegrationModel;
 public class HermanOrientationModel extends IntegrationModel {
 
 
-	// Let's give the user a fixed choice so they don't go too nuts...
+	// Let's give the user a fixed choice on the integration range so they don't go too nuts...
 	enum NumberOfPis {
 		HALF_PI(1),
 		WHOLE_PI(2);
@@ -63,14 +64,25 @@ public class HermanOrientationModel extends IntegrationModel {
 	private NumberOfPis integrationRange = NumberOfPis.WHOLE_PI;
 
 	// Now the getters and setters
-	public double getIntegrationRange() {
-		double piMultiplier = integrationRange.getNumberOfPis() / 2
-		return piMultiplier * Math.PI;
+	public NumberOfPis getIntegrationRange() {
+		return integrationRange;
 	}
-
 
 	public void setIntegrationRange(NumberOfPis integrationRange) {
 		firePropertyChange("IntegrationRange", this.integrationRange, this.integrationRange = integrationRange);
+	}
+
+
+	// For the ROI, we can certainly use a file, but can the user do any drawing? How is an ROI file formatted?
+	@OperationModelField(hint="The path to the a NeXus file containing a ROI.\nYou can click and drag a file into this field.", file = FileType.EXISTING_FILE, label = "Region of Interest File")
+	private String filePath = "";
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		firePropertyChange("filePath", this.filePath, this.filePath = filePath);
 	}
 
 }

@@ -13,18 +13,27 @@ package uk.ac.diamond.scisoft.analysis.processing.operations;
 import java.util.List;
 import java.util.Arrays;
 
+// Imports from org.apache
+import org.apache.commons.beanutils.ConvertUtils;
+
 // Imports from org.eclipse
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.api.processing.OperationRank;
+import org.eclipse.dawnsci.analysis.api.processing.OperationException;
 import org.eclipse.dawnsci.analysis.dataset.operations.AbstractOperation;
 import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 
 // Imports from uk.ac.diamond
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
-import uk.ac.diamond.scisoft.ncd.processing.NcdOperationUtils;
-import uk.ac.diamond.scisoft.analysis.processing.io.NexusNcdMetadataReader;
+//import uk.ac.diamond.scisoft.ncd.processing.NcdOperationUtils;
+//import uk.ac.diamond.scisoft.analysis.processing.io.NexusNcdMetadataReader;
 
 // Might not need this, we shall see...
 //import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
@@ -59,19 +68,48 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	@Override
 	public OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
 
-	// We will need to change the integration range as given here into an ROI at some point...
-		int hermanPiROI = model.getIntegrationRange();
+		// We will need to change the integration range as given here into an ROI at some point...
+		double piMultiplier = integrationRange.getNumberOfPis() / 2.00;
+		double hermanPiROI = piMultiplier * Math.PI;
 		// First get the region that we're interested in examining
-		IROI regionOfInterest = 1; // This is where the magic will need to come in.
-		// e.g. IROI roi = model.getRegion();
+		IROI roiToIntegrate = model.getRegion();
+
+		// Now that we have a potentially valid ROI, let's check that it is valid
+		// Did the user provide co-ordinates
+		if (model.getRegion() == null) {
+			try {
+				// Or provide a file path?
+				NexusNcdMetadataReader reader = new NexusNcdMetadataReader(model.getFilePath());
+				roiToIntegrate = reader.getROIDataFromFile();
+				// Or fail to provide an ROI
+				if (roiToIntegrate == null) {
+					throw new Exception("ROI must be defined for this operation");
+				}
+			// If they have failed, let's catch the error here
+			} catch (Exception e) {
+				throw new OperationException(this, e);
+			}
+		}
+
+		// Next up, if they have provided an ROI, was it the right kind of ROI
+		if (!(roiToIntegrate instanceof RingROI)) {
+			throw new OperationException(this, new IllegalArgumentException("The ROI must be a ring ROI"));
+		}
+
+		//
+		RingROI ringRoi = (RingROI) roiToIntegrate;
+
+
 
 		// Let's just work with the region of interest now
-		SectorROI sectorRoi = (SectorROI) hermanPiROI;
+
 
 		// Extract out some information about our data from dataset
-		int[] frames = NcdOperationUtils.addDimension(dataset.getShape());
-		int dimension = 2; // Matching our input rank
-		int[] areaShape = (int[]) ConvertUtils.convert(Arrays.copyOfRange(frames, frames.length - dimension, frames.length), int[].class);
+		//int[] frames = NcdOperationUtils.addDimension(dataset.getShape());
+		// 2D data, should match our input rank
+		int dimension = 2;
+		// Well now...
+		//int[] areaShape = (int[]) ConvertUtils.convert(Arrays.copyOfRange(frames, frames.length - dimension, frames.length), int[].class);
 
 		// Create a home for the mask metadata and try to fetch it, if not possible raise an exception
 		List<MaskMetadata> mask;
@@ -87,6 +125,7 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 			maskDataset = DatasetUtils.convertToDataset(mask.get(0).getMask()).getSlice();
 		}
 
+		RingROI a;
 
 
 
