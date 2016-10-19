@@ -123,14 +123,21 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		double integrationStartInRadians = (Math.PI / 180) * model.getIntegrationStartAngle();
 		hermanSector.setAngles(integrationStartInRadians, integrationStartInRadians + hermanPiRange);
 
-		@SuppressWarnings("unused")
-		Dataset[] reducedData = ROIProfile.sector(DatasetUtils.convertToDataset(dataset), null, hermanSector, false, true, false);
+		// Ok, with the mask applied and the ROI defined it's time to reduce the data
+		Dataset[] reducedDataset = ROIProfile.sector(DatasetUtils.convertToDataset(dataset), null, hermanSector, false, true, false);
 		
-	
+		// Then we can take the data and turn it into single dataset
+		IDataset reducedData = reducedDataset[1];
 
-
-		// So we can run DAWN in the meantime for debugging/error catching
+		// In here we will extract the data and do some mathematics on it to calculate the HoF...
+		//
+		//
+		
+		// Let's give DAWN a little something to plot on screen for the user
 		OperationData toReturn = new OperationData();
+		toReturn.setData(reducedData);
+
+		// And then return the data
 		return toReturn;	
 	}
 
