@@ -28,6 +28,7 @@ import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.IndexIterator;
@@ -95,57 +96,44 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		}
 		// Now any masked pixel has the value NaN and will not be considered for subsequent evaluation
 
-		// Next, let's consider how much of the ring we're going to be evaluating as a function of pi
-		//double piMultiplier = model.getIntegrationRange.getValue();
+
+		// With this in mind, let's move on to the ROI that the HoF calculation will be performed on
+		// First, let's check we've got the right kind of ROI
+		if (!(model.getRegion() instanceof RingROI)) {
+			throw new OperationException(this, new IllegalArgumentException("The ROI must be a ring ROI"));
+		}
+
+		SectorROI hermanSector = new SectorROI();
+		RingROI modelRingROI = (RingROI) model.getRegion();
+		
+		// Then we'll set the centre point
+		double[] centrePoint = modelRingROI.getPoint();
+		hermanSector.setPoint(centrePoint[0], centrePoint[1]);
+
+		// Then set the radius of interest
+		double[] radiiPoint = modelRingROI.getRadii();
+		hermanSector.setRadii(radiiPoint[0], radiiPoint[1]);
+		
+		// And finally, let's consider how much of the ring we're going to be evaluating as a function of pi
 		NumberOfPis piEnum = model.getIntegrationRange();
 		double piMultiplier = ((double) piEnum.getNumberOfPis()) / 2;
 		double hermanPiRange = piMultiplier * Math.PI;
 		
+		// Before setting the angle to investigate
+		double integrationStartInRadians = (Math.PI / 180) * model.getIntegrationStartAngle();
+		hermanSector.setAngles(integrationStartInRadians, integrationStartInRadians + hermanPiRange);
+
+				
 		
 		/* Let's just leave this here for now and start again...
-
-		// We will need to change the integration range as given here into an ROI at some point...
-		//double piMultiplier = model.getIntegrationRange.getValue();
-		
-		//double hermanPiROI = piMultiplier * Math.PI;
-		// First get the region that we're interested in examining
-		IROI roiToIntegrate = model.getRegion();
-
-
-
-		// Now that we have a potentially valid ROI, let's check that it is valid
-		// Did the user provide co-ordinates
-		if (model.getRegion() == null) {
-			try {
-				// Or provide a file path?
-				//NexusNcdMetadataReader reader = new NexusNcdMetadataReader(model.getFilePath());
-				//roiToIntegrate = reader.getROIDataFromFile();
-				// Or fail to provide an ROI
-				if (roiToIntegrate == null) {
-					throw new Exception("ROI must be defined for this operation");
-				}
-			// If they have failed, let's catch the error here
-			} catch (Exception e) {
-				throw new OperationException(this, e);
-			}
-		}
-
-		// Next up, if they have provided an ROI, was it the right kind of ROI
-		if (!(roiToIntegrate instanceof RingROI)) {
-			throw new OperationException(this, new IllegalArgumentException("The ROI must be a ring ROI"));
-		}
-
-		//
-		RingROI ringRoi = (RingROI) roiToIntegrate;
-
-
-
 		// Let's just work with the region of interest now
 
 
 		// Extract out some information about our data from dataset
 		//int[] frames = NcdOperationUtils.addDimension(dataset.getShape());
-		// 2D data, should match our input rank
+	//		double integrationStartInRadians = (Math.PI / 180) * model.getIntegrationStartAngle();
+//		hermanSector.setAngles(integrationStartInRadians, integrationStartInRadians + hermanPiRange);
+//			// 2D data, should match our input rank
 		int dimension = 2;
 		// Well now...
 		//int[] areaShape = (int[]) ConvertUtils.convert(Arrays.copyOfRange(frames, frames.length - dimension, frames.length), int[].class);

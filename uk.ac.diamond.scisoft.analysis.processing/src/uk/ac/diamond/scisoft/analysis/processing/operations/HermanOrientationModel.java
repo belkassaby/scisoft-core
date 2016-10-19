@@ -12,6 +12,7 @@ package uk.ac.diamond.scisoft.analysis.processing.operations;
 import org.eclipse.dawnsci.analysis.api.processing.model.OperationModelField;
 import uk.ac.diamond.scisoft.analysis.processing.operations.IntegrationModel;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
+import org.eclipse.dawnsci.analysis.api.roi.IROI;
 
 
 // The model for a DAWN process to perform a Herman Orientation calculation on a given image
@@ -72,7 +73,12 @@ public class HermanOrientationModel extends IntegrationModel {
 	// Now let's get the user to tell us where the center of the beam is and which ring they're interested in evaluating
 	public HermanOrientationModel() {
 		super();
-		setRegion(new RingROI(0d, 0d, 10d, 10d));
+		setRegion(new RingROI(0, 0, 10, 20));
 	}
 
+	public HermanOrientationModel(IROI sector) {
+		super();
+		setRegion(sector);
+	}
+	
 }
