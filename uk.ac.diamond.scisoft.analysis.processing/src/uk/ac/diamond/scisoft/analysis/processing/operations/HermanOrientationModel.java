@@ -69,6 +69,7 @@ public class HermanOrientationModel extends IntegrationModel {
 	}
 
 
+	// Now let's get the user to tell us where the center of the beam is and which ring they're interested in evaluating
 	public HermanOrientationModel() {
 		super();
 		setRegion(new RingROI(0d, 0d, 10d, 10d));
