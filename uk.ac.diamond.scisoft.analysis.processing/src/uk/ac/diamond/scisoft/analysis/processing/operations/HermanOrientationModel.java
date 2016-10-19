@@ -42,7 +42,7 @@ public class HermanOrientationModel extends IntegrationModel {
 	
 	//@OperationModelField annotations for the UI setup
 	// First the start angle of the integration N.B. 0 = North, going clockwise.
-	@OperationModelField(label = "Start Angle", hint = "A value between zero and 180 degrees, where zero is north and increasing angle is clockwise")
+	@OperationModelField(label = "Start Angle", hint = "A value between zero and 180 degrees, where zero is north and increasing angle is clockwise", fieldPosition = 1)
 	private double integrationStartAngle = 0.00;
 
 	// Now the getters and setters
@@ -56,7 +56,7 @@ public class HermanOrientationModel extends IntegrationModel {
 
 
 	// Should we be integrating over a half or one Pi radians?
-	@OperationModelField(label = "Integration Range", hint = "Integrate over half the ring (Pi) or the whole ring (Two Pi)")
+	@OperationModelField(label = "Integration Range", hint = "Integrate over half the ring (Pi) or the whole ring (Two Pi)", fieldPosition = 2)
 	private NumberOfPis integrationRange = NumberOfPis.WHOLE_PI;
 
 	// Now the getters and setters
