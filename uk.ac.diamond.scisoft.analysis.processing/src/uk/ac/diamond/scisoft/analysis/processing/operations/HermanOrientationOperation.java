@@ -9,6 +9,9 @@
 
 package uk.ac.diamond.scisoft.analysis.processing.operations;
 
+
+//import org.apache.commons.lang.ArrayUtils;
+
 // Imports from org.eclipse
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.Dataset;
@@ -16,6 +19,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.FloatDataset;
 import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.metadata.MaskMetadata;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
@@ -150,13 +154,18 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		// Before printing to the console the result
 		System.out.println(hermanOrientationFactor);
 
-		// Let's give DAWN a little something to plot on screen for the user
+		// Must move the HoF into a dataset for DAWN
+		// First up, let's create a one element dataset of zeros
+		int[] datasetSize = {1};
+		Dataset hermanOrientationDataset = DatasetFactory.zeros(1, datasetSize, Dataset.FLOAT32);
+		// Now we can stick in the calculated factor
+		hermanOrientationDataset.set(hermanOrientationFactor, 0);
+
+		// Finally, we can create a new OperationData object for DAWN and return the Herman Orientation Factor
 		OperationData toReturn = new OperationData();
-		toReturn.setData(reducedData);
+		toReturn.setData(hermanOrientationDataset);
 		
 		// And then return the data
 		return toReturn;	
 	}
-
-
 }
