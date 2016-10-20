@@ -19,6 +19,7 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Import-Package: org.dawb.common.services,
+ org.eclipse.pde.api.tools.internal.provisional.search,
  org.eclipse.scanning.api.event.status,
  org.osgi.framework;version="1.7.0",
  org.slf4j;version="1.7.6"

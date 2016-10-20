@@ -24,6 +24,7 @@ import org.eclipse.dawnsci.analysis.dataset.operations.AbstractOperation;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.ILazyDataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.MaskMetadata;
 //import org.eclipse.dawnsci.analysis.api.roi.IROI;
@@ -128,15 +129,35 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		
 		// Then we can take the data and turn it into single dataset
 		IDataset reducedData = reducedDataset[1];
+		
+		
+		//double a = reducedData.getDouble(2);
+		
 
-		// In here we will extract the data and do some mathematics on it to calculate the HoF...
-		//
-		//
+		// TODO this is lazy as we're only going to investigate one frame for now, as a test.
+		int dataShape = reducedData.getSize();
+		
+		// In future use:
+		// int[] dataShape = reducedData.getShape();
+
+		// TODO make this 2D later
+		
+		// Set up the data value array
+		double[] hermanValues = new double[dataShape];
+		
+		// Extract out all the values for doing maths - TODO check with Jacob as this may NOT be the most efficient way to do this!
+		for(int loopIter = 0; loopIter < dataShape; loopIter++) {
+			hermanValues[loopIter] = reducedData.getDouble(loopIter);
+		}
+		
+		
+		
 		
 		// Let's give DAWN a little something to plot on screen for the user
 		OperationData toReturn = new OperationData();
 		toReturn.setData(reducedData);
 
+		
 		// And then return the data
 		return toReturn;	
 	}
