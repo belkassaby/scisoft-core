@@ -122,42 +122,33 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		IDataset reducedData = reducedDataset[1];
 		
 		// TODO this is lazy as we're only going to investigate one frame for now, as a test.
-		int[] dataShape = reducedData.getShape();
+		int dataSize = reducedData.getSize();
 
 		// Set up the data value array
-		double integrationRadianStep = 0.00;
+		double integrationRadianStep = hermanPiRange / dataSize;
 		double fractionNumerator = 0.00;
 		double fractionDenominator = 0.00;
 		double loopStepRadianValue = 0.00;
 
 		// Now let's set up the final variables required for the calculation
-		double[] hermanOrientationFactor = new double[dataShape.length];
 		double hermanCReciprocal = 1 / model.getHermanCValue();
 
-
-		// Level one of the loop, this is to loop through the frames in the source data
-		for (int loopIter = 0; loopIter < dataShape.length; loopIter++) {
-
-		// Work out the radian step for this frame
-		integrationRadianStep = hermanPiRange / dataShape[loopIter];
-
-			// Do the HoF mathematics
-			// Level two of the loop, this is to loop through the data points in the frame
-			// TODO check with Jacob as this may NOT be the most efficient way to do this!
-			for(int loopIter2 = 0; loopIter2 < dataShape[loopIter]; loopIter2++) {
-				// To save this from being calculated many times
-				loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter2);
-				// The component parts of the fraction
-				fractionNumerator += Math.pow(Math.cos(loopStepRadianValue), 2) * Math.sin(loopStepRadianValue) * reducedData.getDouble(loopIter2);
-				fractionDenominator += reducedData.getDouble(loopIter2) * Math.sin(loopStepRadianValue);
-			}
-			
-			// Perform the calculation for this frame
-			hermanOrientationFactor[loopIter] = hermanCReciprocal * (((3 * (fractionNumerator / fractionDenominator)) - 1) / 2);
+		// Do the HoF mathematics
+		// Level two of the loop, this is to loop through the data points in the frame
+		// TODO check with Jacob as this may NOT be the most efficient way to do this!
+		for(int loopIter = 0; loopIter < dataSize; loopIter++) {
+			// To save this from being calculated many times
+			loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter);
+			// The component parts of the fraction
+			fractionNumerator += Math.pow(Math.cos(loopStepRadianValue), 2) * Math.sin(loopStepRadianValue) * reducedData.getDouble(loopIter);
+			fractionDenominator += reducedData.getDouble(loopIter) * Math.sin(loopStepRadianValue);
 		}
+			
+		// Perform the calculation for this frame
+		double hermanOrientationFactor = hermanCReciprocal * (((3 * (fractionNumerator / fractionDenominator)) - 1) / 2);
 		
 		// Before printing to the console the result
-		System.out.println(hermanOrientationFactor[0]);
+		System.out.println(hermanOrientationFactor);
 
 		// Let's give DAWN a little something to plot on screen for the user
 		OperationData toReturn = new OperationData();
