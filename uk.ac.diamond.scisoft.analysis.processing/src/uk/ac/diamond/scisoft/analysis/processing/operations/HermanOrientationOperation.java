@@ -60,7 +60,7 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	// ...and out
 	@Override
 	public OperationRank getOutputRank() {
-		return OperationRank.ONE;
+		return OperationRank.ZERO;
 	}
 
 
@@ -163,9 +163,9 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 
 		// Finally, we can create a new OperationData object for DAWN and return the Herman Orientation Factor
 		OperationData toReturn = new OperationData();
+		// Fill it
 		toReturn.setData(hermanOrientationDataset);
-		
-		// And then return the data
+		// And then return it
 		return toReturn;	
 	}
 }
