@@ -70,7 +70,7 @@ public class HermanOrientationModel extends IntegrationModel {
 	}
 
 
-	// Now let's get the user to tell us where the center of the beam is and which ring they're interested in evaluating
+	// Now let's get the user to tell us where the centre of the beam is and which ring they're interested in evaluating
 	public HermanOrientationModel() {
 		super();
 		setRegion(new RingROI(742, 79, 20, 50));
@@ -81,4 +81,18 @@ public class HermanOrientationModel extends IntegrationModel {
 		setRegion(sector);
 	}
 	
+	
+	// Finally, see if the user wants to use a non-standard C value for the calculation
+	@OperationModelField(label = "Herman C Value", hint = "Leave this set to 1, unless you have a good reason", fieldPosition = 4)
+	private double hermanCValue = 1.00;
+
+	// Now the getters and setters
+	public double getHermanCValue() {
+		return integrationStartAngle;
+	}
+
+	public void setHermanCValue(double hermanCValue) {
+		firePropertyChange("IntegrationStartAngle", this.hermanCValue, this.hermanCValue = hermanCValue);
+	}
+
 }

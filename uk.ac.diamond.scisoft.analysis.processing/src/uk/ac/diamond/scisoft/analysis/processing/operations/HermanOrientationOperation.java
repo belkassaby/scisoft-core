@@ -9,39 +9,25 @@
 
 package uk.ac.diamond.scisoft.analysis.processing.operations;
 
-// Imports from java
-//import java.util.List;
-//import java.util.Arrays;
-
-// Imports from org.apache
-//import org.apache.commons.beanutils.ConvertUtils;
-
 // Imports from org.eclipse
+import org.eclipse.january.IMonitor;
+import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.FloatDataset;
+import org.eclipse.january.dataset.DoubleDataset;
+import org.eclipse.january.dataset.IndexIterator;
+import org.eclipse.january.metadata.MaskMetadata;
+import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
+import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.api.processing.OperationRank;
 import org.eclipse.dawnsci.analysis.api.processing.OperationException;
 import org.eclipse.dawnsci.analysis.dataset.operations.AbstractOperation;
-import org.eclipse.january.IMonitor;
-import org.eclipse.january.dataset.Dataset;
-import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.ILazyDataset;
-import org.eclipse.january.dataset.DatasetUtils;
-import org.eclipse.january.metadata.MaskMetadata;
-//import org.eclipse.dawnsci.analysis.api.roi.IROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
-import org.eclipse.dawnsci.analysis.dataset.roi.SectorROI;
-import org.eclipse.january.dataset.DoubleDataset;
-import org.eclipse.january.dataset.FloatDataset;
-import org.eclipse.january.dataset.IndexIterator;
 
-import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationModel.NumberOfPis;
 // Imports from uk.ac.diamond
 import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
-//import uk.ac.diamond.scisoft.ncd.processing.NcdOperationUtils;
-//import uk.ac.diamond.scisoft.analysis.processing.io.NexusNcdMetadataReader;
-
-// Might not need this, we shall see...
-//import org.eclipse.dawnsci.analysis.dataset.slicer.SliceFromSeriesMetadata;
+import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationModel.NumberOfPis;
 
 
 // The operation for a DAWN process to perform a Herman Orientation calculation on a given image
@@ -148,36 +134,32 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		double fNormal = 0.00;
 		double f = 0.00;
 		double loopStepRadianValue = 0.00;
+
 		
-		//integrationStartInRadians
-		
-		// Extract out all the values for doing maths - TODO check with Jacob as this may NOT be the most efficient way to do this!
+		// Do the HoF mathematics
+		// TODO check with Jacob as this may NOT be the most efficient way to do this!
 		for(int loopIter = 0; loopIter < dataShape; loopIter++) {
 			loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter);
 			fNormal += reducedData.getDouble(loopIter) * Math.sin(loopStepRadianValue);
-			// TODO Got to here, finish this.
-			f += Math.cos(loopStepRadianValue);
-			hermanValues[loopIter] = reducedData.getDouble(loopIter);
+			f += Math.pow(Math.cos(loopStepRadianValue), 2) * Math.sin(loopStepRadianValue) * reducedData.getDouble(loopIter);
+			
+			// TODO Leaving this here for testing, delete later
+			//hermanValues[loopIter] = reducedData.getDouble(loopIter);
 		}
 		
+		// Now let's set up the final variables required for the calculation
+		double hermanOrientationFactor = 0.00;
+		double hermanCReciprocal = 1 / model.getHermanCValue();
 		
-		/*
-		 *       for( m = startHermanIntegration; m < endHermanIntegration; m++) {
-        // Herman Orientation Factor Integration
-        fNormal = fNormal + ourData[m]*sin(angularArrayRadians[angleLoopCounter]);
-        f = f + cos(angularArrayRadians[angleLoopCounter])*cos(angularArrayRadians[angleLoopCounter])*ourData[m]*sin(angularArrayRadians[angleLoopCounter]);
-        angleLoopCounter = angleLoopCounter + 1;
-      }
-      
-          hermanOrientationFactor = hermanCReciprocal * (((3*(f/fNormal))-1)/2);
+		// And perform the calculation
+		hermanOrientationFactor = hermanCReciprocal * (((3 * (f / fNormal)) - 1) / 2);
 
+		// Before printing to the console the result
+		System.out.println(hermanOrientationFactor);
 
-		 */
-		
 		// Let's give DAWN a little something to plot on screen for the user
 		OperationData toReturn = new OperationData();
 		toReturn.setData(reducedData);
-
 		
 		// And then return the data
 		return toReturn;	
