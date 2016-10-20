@@ -14,6 +14,10 @@ import uk.ac.diamond.scisoft.analysis.processing.operations.IntegrationModel;
 import org.eclipse.dawnsci.analysis.dataset.roi.RingROI;
 import org.eclipse.dawnsci.analysis.api.roi.IROI;
 
+// More information and the equation for the Herman Orientation Factor can be found in:
+// Crystallization and orientation studies in polypropylene/single wall carbon nanotube composite
+// A. R. Bhattacharyya, T. Sreekumar, T. Liu, S. Kumar, L. M. Ericson, R. H. Hauge and R. E. Smalley, Polymer, 2003, 44, 2373-2377.
+// DOI: 10.1016/S0032-3861(03)00073-9 
 
 // The model for a DAWN process to perform a Herman Orientation calculation on a given image
 public class HermanOrientationModel extends IntegrationModel {
@@ -76,23 +80,24 @@ public class HermanOrientationModel extends IntegrationModel {
 		setRegion(new RingROI(742, 79, 20, 50));
 	}
 
-	public HermanOrientationModel(IROI sector) {
+	public HermanOrientationModel(IROI region) {
 		super();
-		setRegion(sector);
+		//setRegion(sector);
+		firePropertyChange("region", this.region, this.region = region);
 	}
-	
+
 	
 	// Finally, see if the user wants to use a non-standard C value for the calculation
-	@OperationModelField(label = "Herman C Value", hint = "Leave this set to 1, unless you have a good reason", fieldPosition = 4)
+	@OperationModelField(label = "Herman C Value", hint = "Leave this set to 1, unless you have a good reason", fieldPosition = 3)
 	private double hermanCValue = 1.00;
 
 	// Now the getters and setters
 	public double getHermanCValue() {
-		return integrationStartAngle;
+		return hermanCValue;
 	}
 
 	public void setHermanCValue(double hermanCValue) {
-		firePropertyChange("IntegrationStartAngle", this.hermanCValue, this.hermanCValue = hermanCValue);
+		firePropertyChange("HermanCValue", this.hermanCValue, this.hermanCValue = hermanCValue);
 	}
 
 }

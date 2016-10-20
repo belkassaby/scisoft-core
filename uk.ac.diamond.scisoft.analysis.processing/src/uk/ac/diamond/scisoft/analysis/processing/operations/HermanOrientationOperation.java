@@ -30,6 +30,11 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIProfile;
 import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationModel.NumberOfPis;
 
 
+// More information and the equation for the Herman Orientation Factor can be found in:
+// Crystallization and orientation studies in polypropylene/single wall carbon nanotube composite
+// A. R. Bhattacharyya, T. Sreekumar, T. Liu, S. Kumar, L. M. Ericson, R. H. Hauge and R. E. Smalley, Polymer, 2003, 44, 2373-2377.
+// DOI: 10.1016/S0032-3861(03)00073-9 
+
 // The operation for a DAWN process to perform a Herman Orientation calculation on a given image
 public class HermanOrientationOperation extends AbstractOperation<HermanOrientationModel, OperationData> {
 
@@ -116,10 +121,6 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		// Then we can take the data and turn it into single dataset
 		IDataset reducedData = reducedDataset[1];
 		
-		
-		//double a = reducedData.getDouble(2);
-		
-
 		// TODO this is lazy as we're only going to investigate one frame for now, as a test.
 		int dataShape = reducedData.getSize();
 		
@@ -129,22 +130,20 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		// TODO make this 2D later
 		
 		// Set up the data value array
-		double[] hermanValues = new double[dataShape];
 		double integrationRadianStep = hermanPiRange / dataShape;
-		double fNormal = 0.00;
-		double f = 0.00;
+		double fractionNumerator = 0.00;
+		double fractionDenominator = 0.00;
 		double loopStepRadianValue = 0.00;
 
 		
 		// Do the HoF mathematics
 		// TODO check with Jacob as this may NOT be the most efficient way to do this!
 		for(int loopIter = 0; loopIter < dataShape; loopIter++) {
+			// To save this from being calculated many times
 			loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter);
-			fNormal += reducedData.getDouble(loopIter) * Math.sin(loopStepRadianValue);
-			f += Math.pow(Math.cos(loopStepRadianValue), 2) * Math.sin(loopStepRadianValue) * reducedData.getDouble(loopIter);
-			
-			// TODO Leaving this here for testing, delete later
-			//hermanValues[loopIter] = reducedData.getDouble(loopIter);
+			// The component parts of the fraction
+			fractionNumerator += Math.pow(Math.cos(loopStepRadianValue), 2) * Math.sin(loopStepRadianValue) * reducedData.getDouble(loopIter);
+			fractionDenominator += reducedData.getDouble(loopIter) * Math.sin(loopStepRadianValue);
 		}
 		
 		// Now let's set up the final variables required for the calculation
@@ -152,7 +151,7 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		double hermanCReciprocal = 1 / model.getHermanCValue();
 		
 		// And perform the calculation
-		hermanOrientationFactor = hermanCReciprocal * (((3 * (f / fNormal)) - 1) / 2);
+		hermanOrientationFactor = hermanCReciprocal * (((3 * (fractionNumerator / fractionDenominator)) - 1) / 2);
 
 		// Before printing to the console the result
 		System.out.println(hermanOrientationFactor);
