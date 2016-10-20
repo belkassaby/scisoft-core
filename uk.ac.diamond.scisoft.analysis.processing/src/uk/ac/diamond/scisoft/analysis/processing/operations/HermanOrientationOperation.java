@@ -56,7 +56,7 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	// ...and out
 	@Override
 	public OperationRank getOutputRank() {
-		return OperationRank.TWO;
+		return OperationRank.ONE;
 	}
 
 
