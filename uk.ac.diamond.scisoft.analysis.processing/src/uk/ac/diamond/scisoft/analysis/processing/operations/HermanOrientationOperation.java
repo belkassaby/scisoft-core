@@ -144,14 +144,35 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		
 		// Set up the data value array
 		double[] hermanValues = new double[dataShape];
+		double integrationRadianStep = hermanPiRange / dataShape;
+		double fNormal = 0.00;
+		double f = 0.00;
+		double loopStepRadianValue = 0.00;
+		
+		//integrationStartInRadians
 		
 		// Extract out all the values for doing maths - TODO check with Jacob as this may NOT be the most efficient way to do this!
 		for(int loopIter = 0; loopIter < dataShape; loopIter++) {
+			loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter);
+			fNormal += reducedData.getDouble(loopIter) * Math.sin(loopStepRadianValue);
+			// TODO Got to here, finish this.
+			f += Math.cos(loopStepRadianValue);
 			hermanValues[loopIter] = reducedData.getDouble(loopIter);
 		}
 		
 		
-		
+		/*
+		 *       for( m = startHermanIntegration; m < endHermanIntegration; m++) {
+        // Herman Orientation Factor Integration
+        fNormal = fNormal + ourData[m]*sin(angularArrayRadians[angleLoopCounter]);
+        f = f + cos(angularArrayRadians[angleLoopCounter])*cos(angularArrayRadians[angleLoopCounter])*ourData[m]*sin(angularArrayRadians[angleLoopCounter]);
+        angleLoopCounter = angleLoopCounter + 1;
+      }
+      
+          hermanOrientationFactor = hermanCReciprocal * (((3*(f/fNormal))-1)/2);
+
+
+		 */
 		
 		// Let's give DAWN a little something to plot on screen for the user
 		OperationData toReturn = new OperationData();
