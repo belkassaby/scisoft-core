@@ -19,6 +19,8 @@ import org.eclipse.dawnsci.analysis.api.roi.IROI;
 // A. R. Bhattacharyya, T. Sreekumar, T. Liu, S. Kumar, L. M. Ericson, R. H. Hauge and R. E. Smalley, Polymer, 2003, 44, 2373-2377.
 // DOI: 10.1016/S0032-3861(03)00073-9 
 
+// @author Tim Snow
+
 // The model for a DAWN process to perform a Herman Orientation calculation on a given image
 public class HermanOrientationModel extends IntegrationModel {
 

@@ -20,6 +20,7 @@ import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.api.processing.OperationRank;
 import org.eclipse.dawnsci.analysis.api.processing.OperationException;
 
+// @author Tim Snow
 
 //The operation for a DAWN process to perform a 2D FFT on images
 public class FourierTransformImageOperation extends AbstractSimpleImageOperation<FourierTransformImageModel> {

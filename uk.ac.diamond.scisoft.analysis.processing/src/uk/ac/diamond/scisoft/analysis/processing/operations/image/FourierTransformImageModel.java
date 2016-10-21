@@ -12,6 +12,7 @@ package uk.ac.diamond.scisoft.analysis.processing.operations.image;
 // Imports from org.eclipse
 import org.eclipse.dawnsci.analysis.api.processing.model.AbstractOperationModel;
 
+// @author Tim Snow
 
 //The operation for a DAWN process to perform a 2D FFT on images
 public class FourierTransformImageModel extends AbstractOperationModel {

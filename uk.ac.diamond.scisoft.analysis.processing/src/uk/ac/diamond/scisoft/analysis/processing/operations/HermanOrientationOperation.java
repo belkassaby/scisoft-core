@@ -39,6 +39,8 @@ import uk.ac.diamond.scisoft.analysis.processing.operations.HermanOrientationMod
 // A. R. Bhattacharyya, T. Sreekumar, T. Liu, S. Kumar, L. M. Ericson, R. H. Hauge and R. E. Smalley, Polymer, 2003, 44, 2373-2377.
 // DOI: 10.1016/S0032-3861(03)00073-9 
 
+// @author Tim Snow
+
 // The operation for a DAWN process to perform a Herman Orientation calculation on a given image
 public class HermanOrientationOperation extends AbstractOperation<HermanOrientationModel, OperationData> {
 
@@ -60,11 +62,11 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 	// ...and out
 	@Override
 	public OperationRank getOutputRank() {
-		return OperationRank.ZERO;
+		return OperationRank.ONE;
 	}
 
 
-	// Now let's define the 'meat' of the process
+	// Now let's define the main calculation process
 	@Override
 	public OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
 
@@ -121,11 +123,11 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 
 		// Ok, with the mask applied and the ROI defined it's time to reduce the data
 		Dataset[] reducedDataset = ROIProfile.sector(DatasetUtils.convertToDataset(dataset), null, hermanSector, false, true, false);
-		
+
 		// Then we can take the data and turn it into single dataset
 		IDataset reducedData = reducedDataset[1];
 		
-		// TODO this is lazy as we're only going to investigate one frame for now, as a test.
+		// Let's find out how many points of data we have to work with
 		int dataSize = reducedData.getSize();
 
 		// Set up the data value array
@@ -139,7 +141,6 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 
 		// Do the HoF mathematics
 		// Level two of the loop, this is to loop through the data points in the frame
-		// TODO check with Jacob as this may NOT be the most efficient way to do this!
 		for(int loopIter = 0; loopIter < dataSize; loopIter++) {
 			// To save this from being calculated many times
 			loopStepRadianValue = integrationStartInRadians + (integrationRadianStep * loopIter);
@@ -153,18 +154,21 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		
 		// Before printing to the console the result
 		System.out.println(hermanOrientationFactor);
-
+		
 		// Must move the HoF into a dataset for DAWN
-		// First up, let's create a one element dataset of zeros
+		// First up, let's create a one element dataset of a zero
 		int[] datasetSize = {1};
 		Dataset hermanOrientationDataset = DatasetFactory.zeros(1, datasetSize, Dataset.FLOAT32);
+		
+		hermanOrientationDataset.setName("Herman Orientation Factor");
 		// Now we can stick in the calculated factor
 		hermanOrientationDataset.set(hermanOrientationFactor, 0);
-
+		
 		// Finally, we can create a new OperationData object for DAWN and return the Herman Orientation Factor
 		OperationData toReturn = new OperationData();
 		// Fill it
-		toReturn.setData(hermanOrientationDataset);
+		toReturn.setData(reducedData);
+		toReturn.setAuxData(hermanOrientationDataset);
 		// And then return it
 		return toReturn;	
 	}
