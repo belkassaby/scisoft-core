@@ -970,7 +970,16 @@
             name="Herman Orientation"
             visible="true">
       </operation>
-      
+      <operation
+            category="uk.ac.diamond.scisoft.analysis.processing.tempCategory"
+            class="uk.ac.diamond.scisoft.analysis.processing.operations.image.FourierTransformImageOperation"
+            description="Perform a 2D Fourier transform on an image"
+            icon="icons/mask.png"
+            id="uk.ac.diamond.scisoft.analysis.processing.operations.FourierTransformImageOperation"
+            model="uk.ac.diamond.scisoft.analysis.processing.operations.image.FourierTransformImageModel"
+            name="Image Fourier Transform"
+            visible="true">
+      </operation>  
    </extension>
    <extension
          point="org.eclipse.dawnsci.analysis.classloader">

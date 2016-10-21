@@ -41,16 +41,38 @@ public class FourierTransformImageOperation extends AbstractSimpleImageOperation
 	}
 	
 		
-	// Now let's define the 'meat' of the process
+	// Now let's define the processImage method
 	@Override
 	public IDataset processImage(IDataset dataset, IMonitor monitor) throws OperationException {
 
+		// So that DAWN doesn't crash whilst testing/developing
+		return dataset;
+	}
+
+	
+	// Now let's define the process method
+	@Override
+	protected OperationData process(IDataset dataset, IMonitor monitor) throws OperationException {
+		// Let's find out how big the image is datasetShape[height, width]
+		int[] datasetShape = dataset.getShape();
+
+		double[][] transformedData = new double[datasetShape[0]][datasetShape[1]];
+		
+		for (int yWave = 0; yWave < datasetShape[0]; yWave++) {
+			for (int xWave = 0; xWave < datasetShape[1]; xWave++) {
+				for (int ySpace = 0; ySpace < datasetShape[0]; ySpace++) {
+					for (int xSpace = 0; xSpace < datasetShape[1]; xSpace++) {
+						transformedData[yWave][xWave] += (dataset.getDouble(ySpace * xSpace) * Math.cos(2.0 * Math.PI * ((1.0 * xWave * xSpace / datasetShape[1]) + (1.0 * yWave * ySpace / datasetShape[0])))) / Math.sqrt(datasetShape[0] * datasetShape[1]);
+					}
+				}
+			}
+		}
 		
 		// So that DAWN doesn't crash whilst testing/developing
 		//OperationData toReturn = (OperationData) dataset;
-		IDataset toReturn = null;
+		OperationData toReturn = null;
 		
 		return toReturn;
 	}
-
+	
 }
