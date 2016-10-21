@@ -152,9 +152,6 @@ public class HermanOrientationOperation extends AbstractOperation<HermanOrientat
 		// Perform the calculation for this frame
 		double hermanOrientationFactor = hermanCReciprocal * (((3 * (fractionNumerator / fractionDenominator)) - 1) / 2);
 		
-		// Before printing to the console the result
-		System.out.println(hermanOrientationFactor);
-		
 		// Must move the HoF into a dataset for DAWN
 		// First up, let's create a one element dataset of a zero
 		int[] datasetSize = {1};
