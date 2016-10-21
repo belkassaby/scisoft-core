@@ -8,7 +8,6 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.dawnsci.analysis.dataset.impl.FFT;
 import org.eclipse.january.dataset.FloatDataset;
-import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 
 public class FourierTransformImageOperation extends AbstractSimpleImageOperation<FourierTransformImageModel> {
@@ -49,11 +48,8 @@ public class FourierTransformImageOperation extends AbstractSimpleImageOperation
 		// Now we can do the FFT itself
 		transformedData = FFT.fft2(floatDataset, null, null);
 
-		// Now we can make the dataset, ready to return it to DAWN
-		OperationData toReturn = new OperationData(transformedData);
-		
 		// And then return it!
-		return toReturn;
+		return transformedData;
 		
 	}
 
@@ -62,17 +58,13 @@ public class FourierTransformImageOperation extends AbstractSimpleImageOperation
 	@Override
 	protected OperationData process(IDataset iDataset, IMonitor monitor) throws OperationException {
 
-		// First we need to create a placeholder for typecasting the data as the FFT algorithm can't take integers (needs floats)
-		Dataset floatDataset;
-		// Now, let's typecast the data
-		floatDataset = DatasetUtils.cast(FloatDataset.class, iDataset);
-		
-		// Now we need a container for the transformed data
+		// Let's create somewhere for the data
 		IDataset transformedData;
-		// Now we can do the FFT itself
-		transformedData = FFT.fft2(floatDataset, null, null);
+		
+		// Then use the processImage routine to transform the data
+		transformedData = processImage(iDataset, monitor);
 
-		// Now we can make the dataset, ready to return it to DAWN
+		// Now we can make the convert the IDataset to an OperationData(set), ready to return it to DAWN
 		OperationData toReturn = new OperationData(transformedData);
 		
 		// And then return it!
