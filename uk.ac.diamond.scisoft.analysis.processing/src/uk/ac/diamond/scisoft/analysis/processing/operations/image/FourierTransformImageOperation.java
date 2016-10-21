@@ -60,6 +60,9 @@ public class FourierTransformImageOperation extends AbstractSimpleImageOperation
 		// Now we can do the FFT itself
 		transformedData = FFT.fft2(floatDataset, null, null);
 
+		// Strip out the imaginary component of the FFT result
+		transformedData = DatasetUtils.cast(FloatDataset.class, transformedData);
+
 		// And then return it!
 		return transformedData;
 		
