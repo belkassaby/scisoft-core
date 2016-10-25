@@ -34,22 +34,49 @@ public class HermanOrientationModel extends IntegrationModel {
 		
 		NumberOfPis(int pis) {
 			this.pis = pis;
+//			if (piDescriptor == "Half Pi") {
+//				this.pis = 1;
+//			}
+//			else if (piDescriptor == "Pi") {
+//				this.pis = 2;
+//			}
+//			else {
+//				this.pis = 2;
+//			}
 		}
 		
 		public int getNumberOfPis() {
-			return pis;
+			return this.pis;
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("%d", this.pis);
+			switch (this.pis) {
+				case 1:		return String.format("Half Pi Radians");
+				case 2:		return String.format("Pi Radians");
+				default:	return String.format("Error!");
+			}
 		}
+	}
+	
+
+	// Should we be integrating over a half or one Pi radians?
+	@OperationModelField(label = "Integration Range", hint = "Integrate over half the ring (Half Pi) or the whole ring (Pi)", fieldPosition = 1)
+	private NumberOfPis integrationRange = NumberOfPis.WHOLE_PI;
+
+	// Now the getters and setters
+	public NumberOfPis getIntegrationRange() {
+		return integrationRange;
+	}
+
+	public void setIntegrationRange(NumberOfPis integrationRange) {
+		firePropertyChange("IntegrationRange", this.integrationRange, this.integrationRange = integrationRange);
 	}
 	
 	
 	//@OperationModelField annotations for the UI setup
 	// First the start angle of the integration N.B. 0 = North, going clockwise.
-	@OperationModelField(label = "Start Angle", hint = "A value between zero and 180 degrees, where zero is north and increasing angle is clockwise", fieldPosition = 1)
+	@OperationModelField(label = "Start Angle", hint = "A value between zero and 180 degrees, where zero is north and increasing angle goes clockwise", fieldPosition = 2)
 	private double integrationStartAngle = 135.00;
 
 	// Now the getters and setters
@@ -62,24 +89,10 @@ public class HermanOrientationModel extends IntegrationModel {
 	}
 
 
-	// Should we be integrating over a half or one Pi radians?
-	@OperationModelField(label = "Integration Range", hint = "Integrate over half the ring (Pi) or the whole ring (Two Pi)", fieldPosition = 2)
-	private NumberOfPis integrationRange = NumberOfPis.HALF_PI;
-
-	// Now the getters and setters
-	public NumberOfPis getIntegrationRange() {
-		return integrationRange;
-	}
-
-	public void setIntegrationRange(NumberOfPis integrationRange) {
-		firePropertyChange("IntegrationRange", this.integrationRange, this.integrationRange = integrationRange);
-	}
-
-
 	// Now let's get the user to tell us where the centre of the beam is and which ring they're interested in evaluating
 	public HermanOrientationModel() {
 		super();
-		setRegion(new RingROI(742, 79, 20, 50));
+		setRegion(new RingROI());
 	}
 
 	public HermanOrientationModel(IROI region) {
