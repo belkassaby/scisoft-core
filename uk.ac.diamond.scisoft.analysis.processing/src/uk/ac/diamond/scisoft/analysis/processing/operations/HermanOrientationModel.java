@@ -103,7 +103,7 @@ public class HermanOrientationModel extends IntegrationModel {
 
 	
 	// Finally, see if the user wants to use a non-standard C value for the calculation
-	@OperationModelField(label = "Herman C Value", hint = "Leave this set to 1, unless you have a good reason", fieldPosition = 3)
+	@OperationModelField(label = "Herman C Value", hint = "Leave this set to 1, unless you have a good reason. See DOI: 10.1016/S0032-3861(03)00073-9 for more information about this variable.", fieldPosition = 3)
 	private double hermanCValue = 1.00;
 
 	// Now the getters and setters
