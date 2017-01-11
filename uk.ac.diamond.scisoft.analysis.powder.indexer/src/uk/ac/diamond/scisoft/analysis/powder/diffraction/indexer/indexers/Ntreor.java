@@ -32,7 +32,7 @@ import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
  *
  *         See Ntreor documentation for further input file and output file
  *         information.
-
+`1
  * @author Dean P. Ottewell
  */
 public class Ntreor extends AbstractAutoIndexerProcess {
@@ -43,7 +43,7 @@ public class Ntreor extends AbstractAutoIndexerProcess {
 
 	private static String CELLFILEINDETIFIER = "has been reduced into the following one";
 
-	private static String BINNAME = "ntreor";
+	private static String BINNAME = "ntreor_new";
 
 	public Ntreor() {
 		binName = BINNAME;
