@@ -29,9 +29,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer implements IProcessingIndexer {
 
 	protected final Logger logger = LoggerFactory.getLogger(AbstractAutoIndexerProcess.class);
-
-	protected String indexerStore = "/scratch/Data/"; //TODO: check indexer on path
-	protected String filepath = System.getProperty("java.io.tmpdir") + "/";
+	
+	protected String indexerPathStore = System.getProperty("user.home") + "/bin/"; //TODO: check indexer on path for windows. Not cross platform. Get env vars
+	
+	protected String filepath = System.getProperty("java.io.tmpdir") + "/"; 
 
 	protected static String binName = null;
 
@@ -79,7 +80,7 @@ public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer imp
 
 		generateIndexFile(fullPath);
 
-		procBuilder = new ProcessBuilder(indexerStore + binName);
+		procBuilder = new ProcessBuilder(indexerPathStore + binName);
 	}
 
 	private String processIndexOutput() {
