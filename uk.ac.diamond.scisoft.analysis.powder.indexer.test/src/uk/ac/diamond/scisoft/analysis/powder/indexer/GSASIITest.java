@@ -17,6 +17,8 @@ import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 public class GSASIITest {
 
+	//TODO: will just not work if the gsasII module is not valaible in python file. Itll just crash on attempt
+	
 	class GsasIITestMode extends GsasIIWrap {
 		public GsasIITestMode() {
 			urlGsasIIPyServer = getClass().getResource("dummyGsasII.py");

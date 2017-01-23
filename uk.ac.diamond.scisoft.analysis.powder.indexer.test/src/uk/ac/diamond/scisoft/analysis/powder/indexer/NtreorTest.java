@@ -28,8 +28,7 @@ import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.Ntreor
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 public class NtreorTest {
-	//TODO:test if change standard key words
-	
+
 	@Test
 	public void testSetData() {
 		Ntreor test = new Ntreor();
@@ -39,81 +38,6 @@ public class NtreorTest {
 		test.setPeakData(data);
 
 		assertEquals(data, test.getPeakData());
-	}
-	
-	@Test
-	public void generateIndexTest() {
-		Ntreor test = new Ntreor();
-
-		Double[] singalPeakVal = { 1.0 };
-
-		// Set as sigal value
-		test.setPeakData(DatasetFactory.createFromObject(singalPeakVal));
-		test.setOutFileTitle("tmpGenerateTest");
-
-		// Index file location
-		String path = System.getProperty("java.io.tmpdir") + "/" + test.getOutFileTitle() + ".dat";
-		test.generateIndexFile(path);
-
-		// Establish file stream
-		FileInputStream fis = null;
-		BufferedReader reader = null;
-
-		try {
-			fis = new FileInputStream(path);
-			reader = new BufferedReader(new InputStreamReader(fis));
-
-			String line = null; // output
-
-			// Check title Named correct on first line
-			line = reader.readLine();
-			assertEquals(test.getOutFileTitle(), line);
-
-			// Check peaks were all correctly added
-			for (Object peakVal : singalPeakVal) {
-				line = reader.readLine();
-				// Every line should be eqaul to the nput valuess
-				assertEquals(peakVal, Double.parseDouble(line));
-			}
-
-			// Should be empty line to seperate commands
-			line = reader.readLine();
-			assertTrue(line.isEmpty());
-
-			Map<String, String> keyVals = test.getStdKeyVals();
-			// Check if keyset are correctly added
-			for (Object key : keyVals.keySet()) {
-				line = reader.readLine();
-
-				// line = line.split("\\s+"); //remove whitespace .. although
-				// there shouldnt be any
-
-				String[] hasKeyVal = line.split("="); // should be able to split
-														// on equals
-
-				// Expected length for each line is to be 2. This being as
-				// should only have one key and one value on a line for NTreor
-				// to functio ncorrectly
-				assertEquals("Format of Keys assigned to values incorrect", 2, hasKeyVal.length);
-
-				// Check has a a comma at the end on the line
-				char endCh = line.charAt(line.length() - 1);
-				assertEquals(',', endCh);
-			}
-
-			// Check end callers worked
-			line = reader.readLine();
-			assertEquals("END*", line);
-
-			line = reader.readLine();
-			assertEquals("0.00", line); 
-
-		} catch (FileNotFoundException ex) {
-			fail("File never created failure " + ex);
-		} catch (IOException ex) {
-			fail("File format missing values " + ex);
-		}
-
 	}
 
 	@Test
@@ -193,6 +117,82 @@ public class NtreorTest {
 		// call a equality operator on cell paramters? do cell paramter have a
 		// overloaded equaltu operator...
 		assertEquals(resultCells.get(0), cell);
+	}
+
+	//CHECK PATH BEFORE RUN THESE TESTS
+	@Test
+	public void generateIndexTest() {
+		Ntreor test = new Ntreor();
+
+		Double[] singalPeakVal = { 1.0 };
+
+		// Set as sigal value
+		test.setPeakData(DatasetFactory.createFromObject(singalPeakVal));
+		test.setOutFileTitle("tmpGenerateTest");
+
+		// Index file location
+		String path = System.getProperty("java.io.tmpdir") + "/" + test.getOutFileTitle() + ".dat";
+		test.generateIndexFile(path);
+
+		// Establish file stream
+		FileInputStream fis = null;
+		BufferedReader reader = null;
+
+		try {
+			fis = new FileInputStream(path);
+			reader = new BufferedReader(new InputStreamReader(fis));
+
+			String line = null; // output
+
+			// Check title Named correct on first line
+			line = reader.readLine();
+			assertEquals(test.getOutFileTitle(), line);
+
+			// Check peaks were all correctly added
+			for (Object peakVal : singalPeakVal) {
+				line = reader.readLine();
+				// Every line should be eqaul to the nput valuess
+				assertEquals(peakVal, Double.parseDouble(line));
+			}
+
+			// Should be empty line to seperate commands
+			line = reader.readLine();
+			assertTrue(line.isEmpty());
+
+			Map<String, String> keyVals = test.getStdKeyVals();
+			// Check if keyset are correctly added
+			for (Object key : keyVals.keySet()) {
+				line = reader.readLine();
+
+				// line = line.split("\\s+"); //remove whitespace .. although
+				// there shouldnt be any
+
+				String[] hasKeyVal = line.split("="); // should be able to split
+														// on equals
+
+				// Expected length for each line is to be 2. This being as
+				// should only have one key and one value on a line for NTreor
+				// to functio ncorrectly
+				assertEquals("Format of Keys assigned to values incorrect", 2, hasKeyVal.length);
+
+				// Check has a a comma at the end on the line
+				char endCh = line.charAt(line.length() - 1);
+				assertEquals(',', endCh);
+			}
+
+			// Check end callers worked
+			line = reader.readLine();
+			assertEquals("END*", line);
+
+			line = reader.readLine();
+			assertEquals("0.00", line); 
+
+		} catch (FileNotFoundException ex) {
+			fail("File never created failure " + ex);
+		} catch (IOException ex) {
+			fail("File format missing values " + ex);
+		}
+
 	}
 	
 	@Test
