@@ -11,6 +11,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +27,7 @@ public class AutoIndexerProcessTest {
 		protected final Logger logger = LoggerFactory.getLogger(DummyExecutableIndexer.class); 
 		
 		public DummyExecutableIndexer() {
-			binName = "testAsynRead.sh"; //THIS IS WHAT WE NEED TO MAKE WORJ --> 'new ProcessBuilder(filepath + binName);' 
+			binName = "testAsynRead.sh"; 
 
 			URL url = getClass().getResource(binName);
 			File f = new File(url.getPath());
@@ -67,11 +68,10 @@ public class AutoIndexerProcessTest {
 
 	}
 	
-	//This is not set to 2 theta 
+	//This data is not set to 2 theta 
 	Double[] testdata1 = { 10.7569, 9.72681, 7.22681, 7.20256, 6.62982, 6.62892, 6.48072, 6.47279, 5.37845, 4.99818,
 			4.99703, 4.9365, 4.92599, 4.86341, 4.83522, 4.83123, 4.71355, 4.70008, 4.66244, 4.65622 };
 
-	
 	private DummyExecutableIndexer processIndexer;
 	
 	@Before 
@@ -82,11 +82,13 @@ public class AutoIndexerProcessTest {
 	@Test 
 	public void configureTest() {
 		//TODO:
+		Assert.fail();
 	}
 	
 	@Test 
 	public void stepIndexerTest() {
 		//TODO:
+		Assert.fail();
 	}
 	
 	@Test
@@ -100,52 +102,52 @@ public class AutoIndexerProcessTest {
 		assertTrue(indexer.getStatus() == null);
 	}
 	
-	@Test //(timeout=7000) //Slighty arbitary number... IT IS NOT! its the exact time of the executable for testAsynRead + a degree of process time by a gneerous second...
-	public void asynchonousStepCallTest() {
-		DummyExecutableIndexer indexer = new DummyExecutableIndexer();
-		
-		DoubleDataset data = (DoubleDataset) DatasetFactory.createFromObject(testdata1);
-		
-		indexer.setPeakData(data);
-		
-		indexer.configureIndexer();
-		
-		indexer.runIndexer();
-		
-		//indexer.checkifreadlineisnotpossible
-		String status = null;
-		
-		Double accurayError = 4000.0; //need a better wya to determine error range
-		
-		StopWatch timer = new StopWatch();//TODO: maybe just setup using junit testing stopwatch rather than improting apache commons method
-		
-		while (status == null){
-			status = indexer.getStatus();
-		}
-
-		//Waiting for ability to read
-		assertEquals("Hello in 2", status);
-		status = null;
-		
-		timer.start();
-		while (status == null){
-			status = indexer.getStatus();
-		}
-		assertEquals(2000, timer.getTime(), accurayError);
-		timer.stop();
-		timer.reset();
-		
-		assertEquals("Hello in 4", status);
-		status = null;
-	
-		timer.start();
-		while (status == null){
-			status = indexer.getStatus();			
-		}
-		assertEquals(4000, timer.getTime(), accurayError);
-		timer.stop();
-		timer.reset();
-		
-		assertEquals("Hello That is all", status);
-	}
+//	@Test //(timeout=7000) //Slighty arbitary number... IT IS NOT! its the exact time of the executable for testAsynRead + a degree of process time by a gneerous second...
+//	public void asynchonousStepCallTest() {
+//		DummyExecutableIndexer indexer = new DummyExecutableIndexer();
+//		
+//		DoubleDataset data = (DoubleDataset) DatasetFactory.createFromObject(testdata1);
+//		
+//		indexer.setPeakData(data);
+//		
+//		indexer.configureIndexer();
+//		
+//		indexer.runIndexer();
+//		
+//		//indexer.checkifreadlineisnotpossible
+//		String status = null;
+//		
+//		Double accurayError = 4000.0; //need a better wya to determine error range
+//		
+//		StopWatch timer = new StopWatch();//TODO: maybe just setup using junit testing stopwatch rather than improting apache commons method
+//		
+//		while (status == null){
+//			status = indexer.getStatus();
+//		}
+//
+//		//Waiting for ability to read
+//		assertEquals("Hello in 2", status);
+//		status = null;
+//		
+//		timer.start();
+//		while (status == null){
+//			status = indexer.getStatus();
+//		}
+//		assertEquals(2000, timer.getTime(), accurayError);
+//		timer.stop();
+//		timer.reset();
+//		
+//		assertEquals("Hello in 4", status);
+//		status = null;
+//	
+//		timer.start();
+//		while (status == null){
+//			status = indexer.getStatus();			
+//		}
+//		assertEquals(4000, timer.getTime(), accurayError);
+//		timer.stop();
+//		timer.reset();
+//		
+//		assertEquals("Hello That is all", status);
+//	}
 }

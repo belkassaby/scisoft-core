@@ -101,7 +101,7 @@ public class DicvolTest {
          
         } catch (FileNotFoundException ex) {
         	//assert here to say everything is not okay
-        	fail("File never created failure " + ex); //TODO: remove to catch excpetions if want to test I expect it too
+        	fail("File never created failure " + ex); //TODO: remove to catch exceptions if want to test I expect it too
         } catch (IOException ex) {
         	fail("File format missing values " + ex);
         }
