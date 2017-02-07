@@ -132,9 +132,6 @@ public class Ntreor extends AbstractAutoIndexerProcess {
 		List<String> rawIndexes = extractRawCellInfo(resultFilePath, CELLFILEINDETIFIER, 9);
 
 		for (String i : rawIndexes) {
-			if (i == null) {
-				String test = "this was null";
-			}
 			CellParameter cell = new CellParameter();
 
 			String id = "Crystal system: ";
