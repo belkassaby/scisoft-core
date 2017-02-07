@@ -29,10 +29,9 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer implements IProcessingIndexer {
 
 	protected final Logger logger = LoggerFactory.getLogger(AbstractAutoIndexerProcess.class);
-	
-	protected String indexerPathStore = System.getProperty("user.home") + "/bin/"; //TODO: check indexer on path for windows. Not cross platform. Get env vars
-	
-	protected String filepath = System.getProperty("java.io.tmpdir") + "/"; 
+
+	protected String indexerStore = "/scratch/Data/"; //TODO: check indexer on path
+	protected String filepath = "/scartch/Data/";//System.getProperty("java.io.tmpdir") + "/"; - TODO: until can properly kill process if i cancel during dev shouldnt place here
 
 	protected static String binName = null;
 
@@ -80,7 +79,7 @@ public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer imp
 
 		generateIndexFile(fullPath);
 
-		procBuilder = new ProcessBuilder(indexerPathStore + binName);
+		procBuilder = new ProcessBuilder(indexerStore + binName);
 	}
 
 	private String processIndexOutput() {
@@ -88,9 +87,9 @@ public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer imp
 		String status = null;
 
 		// Check on process status
-		if (!indexerProcess.isAlive()) {
-			logger.debug("process is no longer active");
-		}
+//		if (!indexerProcess.isAlive()) {
+//			logger.debug("process is no longer active");
+//		}
 
 		try {
 			if ((status = readerIndexer.readLine()) != null) {
@@ -102,7 +101,7 @@ public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer imp
 
 		return status;
 	}
-
+	
 	@Override
 	public String getStatus() {
 		String status = null;
