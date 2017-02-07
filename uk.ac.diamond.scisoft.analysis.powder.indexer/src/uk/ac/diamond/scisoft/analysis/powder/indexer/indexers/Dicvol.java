@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Iterator;
  *         information
  * 
  */
-public class Dicvol extends AbstractAutoIndexerProcess implements IProcessingIndexer {
+public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProcessingIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Dicvol.class);
 

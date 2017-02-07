@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class IndexerFactory {
 	 * @param ID
 	 * @return auto-indexer 
 	 */
-	public static AbstractAutoIndexer createIndexer(String ID) {
+	public static AbstractPowderIndexer createIndexer(String ID) {
 
 		if (ID.equals(Dicvol.ID))
 			return new Dicvol();

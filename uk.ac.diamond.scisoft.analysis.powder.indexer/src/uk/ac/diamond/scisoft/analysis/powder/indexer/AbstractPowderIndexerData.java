@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer;
+package uk.ac.diamond.scisoft.analysis.powder.indexer;
 
 import java.util.ArrayList;
 import java.util.List;

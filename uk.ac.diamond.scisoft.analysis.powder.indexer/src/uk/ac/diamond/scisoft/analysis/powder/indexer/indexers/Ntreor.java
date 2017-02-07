@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 `1
  * @author Dean P. Ottewell
  */
-public class Ntreor extends AbstractAutoIndexerProcess {
+public class Ntreor extends AbstractPowderIndexerProcess {
 
 	private final Logger logger = LoggerFactory.getLogger(Ntreor.class);
 

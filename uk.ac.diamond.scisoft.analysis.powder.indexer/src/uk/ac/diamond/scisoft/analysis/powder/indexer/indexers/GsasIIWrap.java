@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dean P. Ottewell
  */
-public class GsasIIWrap extends AbstractAutoIndexer {
+public class GsasIIWrap extends AbstractPowderIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(GsasIIWrap.class);
 

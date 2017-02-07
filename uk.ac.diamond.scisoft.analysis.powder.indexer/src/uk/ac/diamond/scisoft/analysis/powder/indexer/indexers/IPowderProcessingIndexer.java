@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.io.BufferedWriter;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author Dean P. Ottewell
  */
-public interface IProcessingIndexer {
+public interface IPowderProcessingIndexer {
 
 	/**
 	 * Creates a formated file that can then be inputed and interpreted by the
