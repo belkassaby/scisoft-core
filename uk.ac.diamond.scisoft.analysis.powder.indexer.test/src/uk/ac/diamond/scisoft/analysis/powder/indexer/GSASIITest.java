@@ -11,8 +11,8 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.CellParameter;
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.GsasIIWrap;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrap;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 public class GSASIITest {

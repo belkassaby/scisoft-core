@@ -17,12 +17,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.AbstractAutoIndexerProcess;
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.CellParameter;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.AbstractPowderIndexerProcess;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
 
 public class AutoIndexerProcessTest {
 	
-	public class DummyExecutableIndexer  extends AbstractAutoIndexerProcess {
+	public class DummyExecutableIndexer  extends AbstractPowderIndexerProcess {
 
 		protected final Logger logger = LoggerFactory.getLogger(DummyExecutableIndexer.class); 
 		

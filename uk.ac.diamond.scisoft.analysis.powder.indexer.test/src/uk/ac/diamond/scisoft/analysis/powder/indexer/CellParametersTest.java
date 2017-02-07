@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.CellParameter;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
 import uk.ac.diamond.scisoft.xpdf.views.XPDFPhase;
 import uk.ac.diamond.scisoft.xpdf.views.XPDFPhaseForm;
 import uk.ac.diamond.scisoft.xpdf.views.XPDFPhaseForm.Forms;

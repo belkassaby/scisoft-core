@@ -10,14 +10,14 @@ import org.eclipse.january.dataset.IDataset;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.CellParameter;
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.IProcessingIndexer;
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.Ntreor;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.IPowderProcessingIndexer;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Ntreor;
 
 
 public class ProcessIndexerTest {
 
-	public class ProcessingIndexerImpl implements IProcessingIndexer{
+	public class ProcessingIndexerImpl implements IPowderProcessingIndexer{
 
 		public List<CellParameter> runIndexing(IDataset inData) {
 			//Not Applicable
