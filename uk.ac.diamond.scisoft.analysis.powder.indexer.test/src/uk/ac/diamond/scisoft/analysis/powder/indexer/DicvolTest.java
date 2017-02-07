@@ -24,8 +24,8 @@ import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.junit.Test;
 
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.CellParameter;
-import uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers.Dicvol;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Dicvol;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 public class DicvolTest {
