@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.eclipse.january.dataset.IDataset;
 
  * @author Dean P. Ottewell
  */
-public abstract class AbstractAutoIndexer implements IAutoIndexer {
+public abstract class AbstractPowderIndexer implements IPowderIndexer {
 
 	protected IDataset peakData;
 

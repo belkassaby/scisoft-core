@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Indexing
-Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer;singleton:=true
+Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.powder.indexer;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.Activator
+Bundle-Activator: uk.ac.diamond.scisoft.analysis.powder.indexer.Activator
 Bundle-Vendor: Diamond Light Source
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: org.apache.commons.cli,
@@ -19,9 +19,8 @@ Require-Bundle: org.eclipse.january;bundle-version="1.0.0",
  uk.ac.diamond.org.apache.xmlrpc.server;bundle-version="3.1.3",
  org.apache.commons.lang;bundle-version="2.6.0",
  uk.ac.diamond.org.apache.ws.commons.util;bundle-version="1.0.2",
- uk.ac.diamond.scisoft.analysis.peakfinding;bundle-version="1.0.0",
  org.dawnsci.commandserver
 Service-Component: OSGI-INF/IndexerService.xml
-Export-Package: uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer,
- uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers
+Export-Package: uk.ac.diamond.scisoft.analysis.powder.indexer,
+ uk.ac.diamond.scisoft.analysis.powder.indexer.indexers
 Bundle-ActivationPolicy: lazy

@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import org.eclipse.january.dataset.IDataset;
  *         
  * @author Dean P. Ottewell
  */
-public interface IAutoIndexer {
+public interface IPowderIndexer {
 
 	/**
 	 * Configure indexer setup to load in specfied parameter sets and run

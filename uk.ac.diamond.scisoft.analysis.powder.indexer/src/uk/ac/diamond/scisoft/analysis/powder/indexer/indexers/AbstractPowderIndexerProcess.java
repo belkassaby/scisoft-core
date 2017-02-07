@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 
  * @author Dean P. Ottewell
  */
-public abstract class AbstractAutoIndexerProcess extends AbstractAutoIndexer implements IProcessingIndexer {
+public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer implements IPowderProcessingIndexer {
 
-	protected final Logger logger = LoggerFactory.getLogger(AbstractAutoIndexerProcess.class);
+	protected final Logger logger = LoggerFactory.getLogger(AbstractPowderIndexerProcess.class);
 
 	protected String indexerStore = "/scratch/Data/"; //TODO: check indexer on path
 	protected String filepath = "/scartch/Data/";//System.getProperty("java.io.tmpdir") + "/"; - TODO: until can properly kill process if i cancel during dev shouldnt place here

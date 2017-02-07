@@ -1,4 +1,4 @@
-package uk.ac.diamond.scisoft.analysis.powder.diffraction.indexer.indexers;
+package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
@@ -9,7 +9,7 @@ import uk.ac.diamond.scisoft.xpdf.views.XPDFPhaseForm;
  *
  *         Structure of cell parameters receive after indexing.
  *
- *         A wrapper over XPDFPhase to add specfic factors found with cells.
+ *         A wrapper over XPDFPhase to add specific factors found with cells.
  *         
  * @author Dean P. Ottewell
  */
