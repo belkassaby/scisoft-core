@@ -3,7 +3,7 @@
 <schema targetNamespace="uk.ac.diamond.scisoft.analysis.powder.indexer" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appInfo>
-         <meta.schema plugin="uk.ac.diamond.scisoft.analysis.powder.indexer" id="uk.ac.diamond.scisoft.analysis.powder.indexer" name="indexers"/>
+         <meta.schema plugin="uk.ac.diamond.scisoft.analysis.powder.indexer" id="PowderIndexer" name="PowderIndexer"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
@@ -17,9 +17,9 @@
          </appInfo>
       </annotation>
       <complexType>
-       <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="indexer" minOccurs="0" maxOccurs="unbounded"/>
-        </sequence>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="indexer" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -46,42 +46,30 @@
          </attribute>
       </complexType>
    </element>
-   
+
    <element name="indexer">
-      <annotation>
-         <documentation>
-            Class, ID, Name and Description of a powder indexer
-         </documentation>
-      </annotation>
       <complexType>
-         <attribute name="id" type="string" use="required">
-            <annotation>
-               <documentation>
-                  Unique identifier for the indexer. Can be the fully qualified class name.
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="class" type="string">
+         <attribute name="id" type="string">
             <annotation>
                <documentation>
                   
                </documentation>
-               <appinfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.dawnsci.analysis.api.peakfinding.IPeakFinder"/>
-               </appinfo>
             </annotation>
          </attribute>
-         <attribute name="name" type="string">
+         <attribute name="indexer" type="string" use="required">
             <annotation>
                <documentation>
-                  A short name for the powder indexer (should be the same as the name in the class; this name however takes precedence).
+                  
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.IPowderIndexer"/>
+               </appInfo>
             </annotation>
          </attribute>
-         <attribute name="description" type="string">
+         <attribute name="Description" type="string">
             <annotation>
                <documentation>
-                  Longer description of the powder indexer used, ideally with a reference.
+                  
                </documentation>
             </annotation>
          </attribute>

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-   <extension-point id="indexer" name="indexer" schema="schema/uk.ac.diamond.scisoft.analysis.powder.indexer.exsd"/>
+   <extension-point id="PowderIndexer" name="PowderIndexer" schema="schema/PowderIndexer.exsd"/>
    <extension
          point="org.eclipse.equinox.preferences.preferences">
    </extension>
    <extension
-         point="uk.ac.diamond.scisoft.analysis.powder.indexer.indexer">
+         point="uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexer">
       <indexer
-            class="k.ac.diamond.scisoft.analysis.powder.indexer.Dicvol"
-            id="uk.ac.diamond.scisoft.analysis.powder.indexer.Dicvol"
-            name="Ntreor">
+            indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Ntreor">
       </indexer>
    </extension>
 </plugin>
