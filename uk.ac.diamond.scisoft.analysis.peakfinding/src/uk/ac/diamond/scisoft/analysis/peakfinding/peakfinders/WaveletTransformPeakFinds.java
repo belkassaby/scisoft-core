@@ -23,9 +23,9 @@ import uk.ac.diamond.scisoft.analysis.peakfinding.MexicanHatWavelet;
 /**
  * 
  * 
- * Performs a countinuous wavelet transformation peak finding algorithm. 
+ * Performs a continuous wavelet transformation peak finding algorithm. 
  * 
- * This requires a wavelet fucntion to base of the peak finding. 
+ * This requires a wavelet function to base of the peak finding. 
  * In this a Ricker(MexicanHat) Wavelet is used. 
  * 
  * Increasing widths will comb for more peaks and decreasing tends to decrease peaks.

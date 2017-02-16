@@ -16,8 +16,7 @@ import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 
 /**
- * @author Dean P. Ottewell
- *
+ 
  *         Automatic Multiscale Peak Detector
  *
  *         Best for noisy and periodic peak data. Will not work in other
@@ -31,6 +30,13 @@ import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
  *         efficient algorithm for automatic peak detection in noisy periodic
  *         and quasi-periodic signals. Algorithms, 5(4), 588–603.
  *         http://doi.org/10.3390/a5040588
+ *
+ * XXX: when large datasets are passed (10000 points) peak finder no longer performs well. 
+ * 
+ * 
+ * 
+ * @author Dean P. Ottewell
+ *
  *
  */
 public class AutoPeakFinder extends AbstractPeakFinder {
@@ -69,18 +75,6 @@ public class AutoPeakFinder extends AbstractPeakFinder {
 		} catch (Exception e) {
 			logger.error("Could not find specified peak finding parameters");
 		}
-	}
-
-	public IDataset rebinData(IDataset data, int factor) {
-		// But just choose every 3rd element isn't really rebinning. Just quick hacked to see effects
-		List<Double> bins = new ArrayList<Double>();
-		for (int i = 0; i < data.getSize(); ++i) {
-			if (i % factor == 0) {
-				bins.add(data.getDouble(i));
-			}
-		}
-
-		return DatasetFactory.createFromList(bins);
 	}
 
 	// TODO: maxPeaks is also not used in AMPD, nPeaks is used no where!??!???
@@ -175,42 +169,7 @@ public class AutoPeakFinder extends AbstractPeakFinder {
 	 * @return dataset based on yData peaks that resultant should be regressed. xData values ultimately the same so are not changed
 	 */
 	public DoubleDataset detrendSignal(IDataset xData, IDataset yData, int degree) {
-		// TODO: use differnet ployfit this is this in review below TODO: make
-		// sure to review!
-		// uk.ac.diamond.scisoft.analysis.processing.operations.oned.IterativePolynomialBaselineSubtractionOperation
-		// - to better detrend data and reduce noise platform?
-		// //TODO: how to calulate values with other regression tactics..
-		// LeastSquares lstSqrs = new LeastSquares(degree);
-		// //lstSqrs.optimize(new Dataset[] {(Dataset) xData}, (Dataset) yData,
-		// tmpTest); TODO: how create this function..
-		// Dataset lstSqrData = lstSqrs.calculateValues();
-
-		// Create a polynomial -
-		// Polynomial polynomial = new Polynomial(degree);
-		//
-		// int polyOrder = polynomial.getNoOfParameters()-1;
-		//
-		// //TODO: but kinda the same
-		// double[] values = ApachePolynomial.polynomialFit(new Dataset[]
-		// {(Dataset) xData}[0], (Dataset) yData, polyOrder);
-		//
-		//
-		// //Then pass to ApacheOptimizer
-		// ApachePolynomial tmpTest = new ApachePolynomial();
-		// Object fitSig = tmpTest.polynomialFit((Dataset) xData, (Dataset)
-		// yData, degree);
-		//
-		// ApacheOptimizer tmpOptimizePly = new
-		// ApacheOptimizer(uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer.LEVENBERG_MARQUARDT);
-		// //Using the fitting optimizers by default..
-		// //tmpOptimizePly.createJacobianFunction();
-		// Quadratic fit = new Quadratic(new double[] {0, degree, 0});
-		// try {
-		// Fitter.llsqFit(new Dataset[] {(Dataset) xData}, (Dataset) yData,
-		// fit);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
+		// TODO: use different ployfit this is this in review below 
 
 		ApacheOptimizer optimizer = new ApacheOptimizer(Optimizer.LEVENBERG_MARQUARDT);
 		Polynomial ply = new Polynomial(3);
@@ -220,7 +179,7 @@ public class AutoPeakFinder extends AbstractPeakFinder {
 			IDataset testResults = optimizer.calculateValues();
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			logger.debug("Could not detrend signal ", e);
 			e.printStackTrace();
 		}
 		
