@@ -8,7 +8,16 @@
    <extension
          point="uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexer">
       <indexer
+            id="Nreor"
             indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Ntreor">
+      </indexer>
+      <indexer
+            id="Dicvol"
+            indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Dicvol">
+      </indexer>
+      <indexer
+            id="GSASII"
+            indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrap">
       </indexer>
    </extension>
 </plugin>
