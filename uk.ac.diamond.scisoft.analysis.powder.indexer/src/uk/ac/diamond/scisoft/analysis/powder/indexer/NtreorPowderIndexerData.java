@@ -2,29 +2,29 @@ package uk.ac.diamond.scisoft.analysis.powder.indexer;
 
 import org.eclipse.january.dataset.IDataset;
 
-public class NtreorPowderIndexerData extends AbstractPowderIndexerData {
-
-	@Override
-	protected void setName() {
-		this.indexerName = "ntreor";
-	}
-
-	@Override
-	protected String getFormatedIndexerParam(IPowderIndexerParam param) {
-		return param.getName() + "=" + param.getValue() + ",";
-	}
-	
-	public String formatPeakData(IDataset peaks){
-		//TODO: validate
-		String peaksFormatted = null;
-		
-		for (int i = 0; i < peaks.getSize(); ++i) {
-			double d = peaks.getDouble(i);
-			peaksFormatted += String.valueOf(d) + "\n";
-		}
-		
-		return peaksFormatted;
-	}
+public class NtreorPowderIndexerData  {
+//
+//	@Override
+//	protected void setName() {
+//		this.indexerName = "ntreor";
+//	}
+//
+//	@Override
+//	protected String getFormatedIndexerParam(IPowderIndexerParam param) {
+//		return param.getName() + "=" + param.getValue() + ",";
+//	}
+//	
+//	public String formatPeakData(IDataset peaks){
+//		//TODO: validate
+//		String peaksFormatted = null;
+//		
+//		for (int i = 0; i < peaks.getSize(); ++i) {
+//			double d = peaks.getDouble(i);
+//			peaksFormatted += String.valueOf(d) + "\n";
+//		}
+//		
+//		return peaksFormatted;
+//	}
 	
 	//The old func
 	//	public void generateIndexFile(String fullPathFile) {

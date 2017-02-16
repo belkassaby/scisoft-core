@@ -1,8 +1,12 @@
 package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.january.dataset.IDataset;
+
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
 
 /**
  * 
@@ -13,7 +17,7 @@ import org.eclipse.january.dataset.IDataset;
  *         
  * @author Dean P. Ottewell
  */
-public interface IPowderIndexer {
+public interface IPowderIndexer extends IPowderIndexerPowderParams {
 
 	/**
 	 * Configure indexer setup to load in specfied parameter sets and run
@@ -68,4 +72,5 @@ public interface IPowderIndexer {
 	 */
 	public boolean isPeakDataValid(IDataset peakData);
 
+	
 }

@@ -1,10 +1,10 @@
 package uk.ac.diamond.scisoft.analysis.powder.indexer;
 
 
-public class PowderIndexerParam implements IPowderIndexerParam {
+public abstract class PowderIndexerParam implements IPowderIndexerParam {
 
-	private final String name;
-	private Number value;	
+	protected final String name;
+	protected Number value;	
 	
 	public PowderIndexerParam(String name, Number value) {
 		this.name = name;
@@ -57,5 +57,8 @@ public class PowderIndexerParam implements IPowderIndexerParam {
 			return false;
 		return true;
 	}
+
+	@Override
+	public abstract String formatParam();
 		
 }

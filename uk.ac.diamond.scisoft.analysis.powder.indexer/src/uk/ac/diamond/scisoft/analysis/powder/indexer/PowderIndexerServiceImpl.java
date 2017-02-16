@@ -6,13 +6,21 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.dawnsci.analysis.api.peakfinding.IPeakFinder;
 
 import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.IPowderIndexer;
 
 public class PowderIndexerServiceImpl implements IPowderIndexerService {
 
-	private final Map<String, PowderIndexerInfo> INDEXERSLOADED= new HashMap<String, PowderIndexerInfo>();
+	private final Map<String, PowderIndexerInfo> INDEXERSLOADED = new HashMap<String, PowderIndexerInfo>();
+	
+	public PowderIndexerServiceImpl() {
+		checkIndexers();
+	}
+	
+	private void checkIndexers() {
+		if (!INDEXERSLOADED.isEmpty()) return;
+		addPowderIndexersByExtension();
+	}
 	
 	@Override
 	public String getIndexerName(String id) {
@@ -22,38 +30,41 @@ public class PowderIndexerServiceImpl implements IPowderIndexerService {
 
 	@Override
 	public Collection<String> getRegisteredIndexers() {
-		// TODO Auto-generated method stub
-		return null;
+		if(INDEXERSLOADED.isEmpty())
+			checkIndexers();
+		return INDEXERSLOADED.keySet();
 	}
 
 	@Override
 	public Map<String, IPowderIndexerParam> getIndexerParameters(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		checkIndexers();
+		
+		PowderIndexerInfo powderIndexer = INDEXERSLOADED.get(id);
+		IPowderIndexer indexerParams = powderIndexer.getPowderIndexer();
+		
+		return indexerParams.getParameters();
 	}
 
 	@Override
 	public void addIndexersByClass(ClassLoader cl, String pakage)
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void addPeakFindersByExtension() {
-		IConfigurationElement[] elems = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.diamond.scisoft.analysis.powder.indexer");
+	public void addPowderIndexersByExtension() {
+		IConfigurationElement[] elems = Platform.getExtensionRegistry().getConfigurationElementsFor("uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexer");
 		for (IConfigurationElement el: elems) {
-			if (el.getName().equals("PowderIndexer")) {
+			if (el.getName().equals("indexer")) {
 				final String indexerID = el.getAttribute("id");
-				final String indexerDesc = el.getAttribute("description");
+				final String indexerDesc = el.getAttribute("Description");
 				IPowderIndexer indexer = null;
 				try {
-					indexer = (IPowderIndexer)el.createExecutableExtension("class");
+					indexer = (IPowderIndexer)el.createExecutableExtension("indexer");
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					continue;
 				}
-				
 				registerIndexer(indexerID, indexerDesc, indexer);
 			}
 		}
@@ -87,7 +98,7 @@ public class PowderIndexerServiceImpl implements IPowderIndexerService {
 			return description;
 		}
 
-		public IPowderIndexer getPeakFinder() {
+		public IPowderIndexer getPowderIndexer() {
 			return indexer;
 		}
 	}
