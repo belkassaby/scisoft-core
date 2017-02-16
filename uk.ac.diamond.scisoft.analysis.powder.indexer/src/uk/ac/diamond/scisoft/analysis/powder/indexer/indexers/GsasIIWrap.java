@@ -2,6 +2,7 @@ package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
 import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcClient;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
@@ -10,6 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.dawnsci.analysis.api.rpc.AnalysisRpcException;
 import org.eclipse.january.dataset.IDataset;
@@ -210,6 +212,12 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 			isValid = false;
 
 		return isValid;
+	}
+
+	@Override
+	public Map<String, IPowderIndexerParam> initialParamaters() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

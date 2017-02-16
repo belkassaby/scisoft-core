@@ -2,8 +2,12 @@ package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import java.util.TreeMap;
 import org.eclipse.january.dataset.IDataset;
+
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
 
 /**
  * 
@@ -16,10 +20,12 @@ import org.eclipse.january.dataset.IDataset;
  *         proecdure.
  * 
  *         Results can be acquired in {@link CellParameter} format.
+ *         
+ *         TODO: would like a way to force a extension of abstract powderindexer
 
  * @author Dean P. Ottewell
  */
-public abstract class AbstractPowderIndexer implements IPowderIndexer {
+public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIndexerPowderParams {
 
 	protected IDataset peakData;
 
@@ -29,12 +35,14 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer {
 
 	protected List<CellParameter> plausibleCells = new ArrayList<CellParameter>();
 
+	protected Map<String, IPowderIndexerParam> params = new TreeMap<String, IPowderIndexerParam>();
+	
 	protected static String ID;
 	
 	public IDataset getPeakData() {
 		return peakData;
 	}
-
+ 
 	public void setPeakData(IDataset peakData) {
 		this.peakData = peakData;
 	}
@@ -50,4 +58,26 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer {
 	public void setOutFileTitle(String outTitle) {
 		this.outFileTitle = outTitle;
 	};
+
+	@Override
+	public Map<String, IPowderIndexerParam> getParameters() {
+		return this.params;
+	}
+
+	@Override
+	public IPowderIndexerParam getParameter(String pName) throws Exception {
+		return this.params.get(pName);
+	}
+
+	@Override
+	public void setParameter(IPowderIndexerParam param) throws Exception {
+		this.params.put(param.getName(), param);
+	}
+	
+	
+	
+	public AbstractPowderIndexer() {
+		this.params = this.initialParamaters();
+	}
+
 }

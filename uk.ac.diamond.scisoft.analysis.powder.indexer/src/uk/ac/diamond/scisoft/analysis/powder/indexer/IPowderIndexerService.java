@@ -42,8 +42,6 @@ public interface IPowderIndexerService {
 	 * Register all all IPeakFinders found by extensions points with the
 	 * service.
 	 */
-	public void addPeakFindersByExtension();
-	
-	//TODO: cal lindexer service?
+	public void addPowderIndexersByExtension();
 	
 }

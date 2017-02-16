@@ -34,5 +34,12 @@ public interface IPowderIndexerParam {
 	 * @throws IllegalArgumentException if value is not correct type (Integer/Double)
 	 */
 	public void setValue(Number value);
+			
+	/**
+	 * Extract formated paramter 
+	 * 
+	 * @return formated string output to fit be passed to appropriate powder indexer
+	 * */
+	public String formatParam();
 	
 }

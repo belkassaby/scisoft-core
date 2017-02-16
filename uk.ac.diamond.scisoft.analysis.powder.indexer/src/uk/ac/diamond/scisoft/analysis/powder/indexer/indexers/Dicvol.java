@@ -7,12 +7,16 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
 import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexerParam;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,10 +53,13 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 			false, false, false, false, false);
 
 	
+	
 	public Dicvol() {
 		binName = BINNAME;
 		resultsExtension = ".ord";
+		//Set params
 	}
+
 
 	// Intilaise keys and values. Insertion order is important to file created.
 	// Also included defaults
@@ -361,6 +368,27 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 		if ("1".equalsIgnoreCase(value))
 			returnValue = true;
 		return returnValue;
+	}
+
+	@Override
+	public Map<String, IPowderIndexerParam> initialParamaters() {
+		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
+		intialParams.put("wavelength", new DicvolParam("wavelength", new Double(1.0)));
+		return intialParams;
+	}
+
+	
+	class DicvolParam extends PowderIndexerParam {
+
+		public DicvolParam(String name, Number value) {
+			super(name, value);
+		}
+
+		@Override
+		public String formatParam() {
+			return this.name; //Dicvol is not that complex...
+		}
+		
 	}
 
 }

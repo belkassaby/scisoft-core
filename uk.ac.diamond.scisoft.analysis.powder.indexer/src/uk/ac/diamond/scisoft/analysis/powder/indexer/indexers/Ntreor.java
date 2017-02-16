@@ -12,6 +12,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 /**
@@ -208,6 +209,12 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	@Override
 	public String getResultsDataPath() {
 		return filepath + outFileTitle + ".short";
+	}
+
+	@Override
+	public Map<String, IPowderIndexerParam> initialParamaters() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
