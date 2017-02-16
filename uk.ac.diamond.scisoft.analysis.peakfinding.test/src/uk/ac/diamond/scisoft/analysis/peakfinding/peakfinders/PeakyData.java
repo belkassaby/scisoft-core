@@ -21,7 +21,7 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.Offset;
 
 public class PeakyData {
 	
-	private static Double xAxisMax = 30.; //TODO: change back but 30.; just killer in size while experimenting 
+	private static Double xAxisMax = 30.; 
 	private static DoubleDataset xAxisRange = (DoubleDataset) DatasetFactory.createRange(0, xAxisMax, 0.01, Dataset.FLOAT64);
 	
 	public static Add makeGauPeak() {
@@ -81,7 +81,6 @@ public class PeakyData {
 		DoubleDataset yData = wave1.iadd(wave2).iadd(wave3);
 		return yData;
 	}
-
 	
 	//TODO: use the add for functions to gneerate wave peaks
 	private DoubleDataset makeSinusoidalWavePeakData(DoubleDataset xData){	
