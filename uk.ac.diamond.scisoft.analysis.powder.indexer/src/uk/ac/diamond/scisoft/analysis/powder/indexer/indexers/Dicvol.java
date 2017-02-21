@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * @author Dean P. Ottewell
  *
  *         Utilises Dicvol indexer
  *
@@ -33,6 +32,8 @@ import java.util.Iterator;
  *
  *         See Dicvol documentation for further input file and output file
  *         information
+
+ * @author Dean P. Ottewell
  */
 public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProcessingIndexer {
 
@@ -234,7 +235,6 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 			bw.write(path + "/" + outFileTitle + "\n");
 			// PLEASE ENTER THE NAME OF OUTPUT FILE
 			bw.write(path + "/" + outFileTitle + "o" + "\n");
-
 			bw.flush();
 		} catch (IOException e) {
 			logger.debug("Unable to communicate with Dicvol executable" + e);
