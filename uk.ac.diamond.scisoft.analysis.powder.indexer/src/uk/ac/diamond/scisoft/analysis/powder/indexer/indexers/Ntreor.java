@@ -64,13 +64,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 		}
 	};
 
-	public static Map<String, String> getStdKeyVals() {
-		return stdKeyVals;
-	}
 
-	public static void setStdKeyVals(Map<String, String> stdKeyVals) {
-		Ntreor.stdKeyVals = stdKeyVals;
-	}
 
 	public boolean isPeakDataValid(IDataset peakData) {
 		boolean isValid = true;
@@ -81,24 +75,6 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 		}
 
 		return isValid;
-	}
-
-	private void processCmds() {
-		Map<String, String> cmdKeys = new HashMap<String, String>();
-
-		// Extract data particular to ntreor
-		String dataName = peakData.getName();
-
-		/* Accommodate for ntreor command. place into own containers */
-		if (dataName.contains("D_space")) {
-			cmdKeys.put("CHOICE", "4");
-		} else if (dataName.contains("Theta")) {
-			cmdKeys.put("CHOICE", "2");
-		} else if (dataName.contains("Two Theta")) {
-			cmdKeys.put("CHOICE", "3");
-		} else {
-			// cmdKeys.put("CHOICE", "3");
-		}
 	}
 
 	public void generateIndexFile(String fullPathFile) {
@@ -115,12 +91,11 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 			writer.println();
 
-			for (Entry<String, String> entry : stdKeyVals.entrySet()) {
-				String key = entry.getKey();
-				Object value = entry.getValue();
-				writer.println(key + "=" + value + ",");
+			for (Entry<String, IPowderIndexerParam> entry : parameters.entrySet()) {
+				NtreorParam param = (NtreorParam) entry.getValue();
+				writer.println(param.formatParam());
 			}
-
+			
 			// finish file
 			writer.println("END*");
 			writer.println("0.00");
@@ -233,8 +208,10 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 		@Override
 		public String formatParam() {
-			//TODO: format of ntreorparam 
-			return null; 
+			String key = this.getName();
+			String value = this.getValue().toString();
+			String formated = key + "=" + value + ",";
+			return formated; 
 		}
 		
 	}

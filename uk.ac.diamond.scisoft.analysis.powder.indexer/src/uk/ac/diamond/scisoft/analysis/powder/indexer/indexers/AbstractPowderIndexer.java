@@ -41,10 +41,20 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 	// 14 lattice searches being respectively
 	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
 	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
-	private List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
+	protected List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
 			false, false, false, false, false);
 	
-	//TODO: place above in paramater set
+	public List<Boolean> getActiveBravais() {
+		return activeBravais;
+	}
+
+	public void setActiveBravais(List<Boolean> activeBravais) {
+		this.activeBravais = activeBravais;
+	}
+	//TODO: place active bravais searching in parameter set
+
+	
+	
 	
 	protected static String ID;
 	
