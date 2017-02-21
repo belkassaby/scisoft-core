@@ -43,13 +43,6 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 	private static String CELLFILEINDETIFIER = "REDUCED CELL :";
 
 	private static String BINNAME = "dicvol";
-
-	// A selection of bravais searches that are active required for GSASII
-	// 14 lattice searches being respectively
-	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
-	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
-	private List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
-			false, false, false, false, false);
 	
 	public Dicvol() {
 		binName = BINNAME;

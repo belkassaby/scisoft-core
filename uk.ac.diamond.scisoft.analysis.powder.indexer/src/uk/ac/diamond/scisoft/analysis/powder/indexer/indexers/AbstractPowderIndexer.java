@@ -1,6 +1,7 @@
 package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,6 +36,15 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 	protected List<CellParameter> plausibleCells = new ArrayList<CellParameter>();
 
 	protected Map<String, IPowderIndexerParam> parameters = new TreeMap<String, IPowderIndexerParam>();
+	
+	// A selection of bravais searches that are active required for GSASII
+	// 14 lattice searches being respectively
+	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
+	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
+	private List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
+			false, false, false, false, false);
+	
+	//TODO: place above in paramater set
 	
 	protected static String ID;
 	

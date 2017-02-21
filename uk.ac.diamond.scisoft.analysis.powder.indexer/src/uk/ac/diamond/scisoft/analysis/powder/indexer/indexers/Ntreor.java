@@ -233,7 +233,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 		@Override
 		public String formatParam() {
-			//TODO: format of ntreorparam
+			//TODO: format of ntreorparam 
 			return null; 
 		}
 		

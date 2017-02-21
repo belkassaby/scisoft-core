@@ -3,6 +3,8 @@ package uk.ac.diamond.scisoft.analysis.powder.indexer.indexers;
 import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
 import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Ntreor.NtreorParam;
 import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcClient;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.dawnsci.analysis.api.rpc.AnalysisRpcException;
 import org.eclipse.january.dataset.IDataset;
@@ -21,15 +24,15 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  *         GsasIIWrap call based of xmlrpc. Class acts as a client that
- *         commuincates with the python server that has access to gsasII
- *         indexing procedure. The server file {@link runGSASII.py} to run as
+ *         communicates with the python server that has access to GsasII 
+ *         powder indexing procedure. The server file {@link runGSASII.py} to run as
  *         the server.
  * 
  * @author Dean P. Ottewell
  */
-public class GsasIIWrap extends AbstractPowderIndexer {
+public class GsasIIWrapper extends AbstractPowderIndexer {
 
-	private static final Logger logger = LoggerFactory.getLogger(GsasIIWrap.class);
+	private static final Logger logger = LoggerFactory.getLogger(GsasIIWrapper.class);
 
 	public static final String ID = "GsasII";
 
@@ -46,13 +49,6 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 	/*
 	 * GSASII parameter set 
 	*/
-	
-	// A selection of bravais searches that are active requried for GSASII
-	// 14 lattice searches being respectively
-	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
-	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
-	private List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
-			false, false, false, false, false);
 
 	// Controls UNKNOWN_UNUSED,zero=0,ncno = 4 ,volume=25, - these are deafult
 	// values
@@ -73,9 +69,7 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 
 	/**
 	 * Destroys the server background python file listening for input.
-	 * 
 	 * Gives time to ensure ports are freed.
-	 * 
 	 */
 	public void terminatePyServer() {
 		if (server != null) {
@@ -93,11 +87,9 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 	}
 
 	/**
-	 * Intialise python server to run in background and listen for requests
-	 * 
+	 * Initialise python server to run in background and listen for requests
 	 */
 	private void setUpServer() {
-
 		try {
 			File f = new File(urlGsasIIPyServer.getPath());
 			String absPath = f.getAbsolutePath().toString();
@@ -112,7 +104,7 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 			}
 
 		} catch (Exception e) {
-			logger.debug("Was not able to start gsasII python file" + e);
+			logger.debug("Was not able to start GsasII python file" + e);
 			terminatePyServer();
 			e.printStackTrace();
 		}
@@ -214,10 +206,29 @@ public class GsasIIWrap extends AbstractPowderIndexer {
 		return isValid;
 	}
 
+	
 	@Override
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		// TODO Auto-generated method stub
-		return null;
+		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
+		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(1.5405981)));
+		
+		
+		return intialParams;
+	}
+	
+	class GsasIIParam extends PowderIndexerParam {
+
+		public GsasIIParam(String name, Number value) {
+			super(name, value);
+		}
+
+		@Override
+		public String formatParam() {
+			//TODO: format of GsasIIParam 
+			return null; 
+		}
+		
 	}
 
 }
