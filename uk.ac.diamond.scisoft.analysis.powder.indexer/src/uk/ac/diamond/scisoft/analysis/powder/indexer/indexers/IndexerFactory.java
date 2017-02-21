@@ -26,8 +26,8 @@ public class IndexerFactory {
 			return new Dicvol();
 		if (ID.equals(Ntreor.ID))
 			return new Ntreor();
-		if (ID.equals(GsasIIWrap.ID))
-			return new GsasIIWrap();
+		if (ID.equals(GsasIIWrapper.ID))
+			return new GsasIIWrapper();
 		else
 			logger.debug("INVALID ID");
 		return null;
