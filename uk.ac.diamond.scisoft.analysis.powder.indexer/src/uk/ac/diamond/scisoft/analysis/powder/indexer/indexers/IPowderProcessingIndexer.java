@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 
  *         Interface for configuring a indexer that executes a external process.
- *         These indexers should be configured to gather progress asynchonously.
+ *         These indexers should be configured to gather progress asynchronously.
  *
  * @author Dean P. Ottewell
  */
@@ -36,7 +36,7 @@ public interface IPowderProcessingIndexer {
 	/**
 	 * Gets resulted output file by the indexing process.
 	 * 
-	 * Path depedent on indexer extension and configuration. 
+	 * Path dependent on indexer extension and configuration. 
 	 * 
 	 * getResultsDataPath can lead to deducing this path.
 	 * 
@@ -47,7 +47,7 @@ public interface IPowderProcessingIndexer {
 	public List<CellParameter> getResults(String resultFilePath);
 
 	/**
-	 * Retrieves the formated path and extensions for ouput file of indexer
+	 * Retrieves the formated path and extensions for output file of indexer
 	 * process.
 	 * 
 	 * @return path configured with indexer extension

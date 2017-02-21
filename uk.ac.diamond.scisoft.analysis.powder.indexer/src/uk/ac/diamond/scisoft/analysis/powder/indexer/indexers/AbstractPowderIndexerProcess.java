@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- *         Abstract class utilising process callable indexers.
+ *         Abstract class utilising process calls for established powder indexers.
  * 
- *         Configuable for executables different binary locations.
+ *         Configuration for executables different binary locations.
  * 
  *         Reads in streams for both writing to and reading from the indexer
  *         process.
@@ -31,13 +31,13 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 	protected final Logger logger = LoggerFactory.getLogger(AbstractPowderIndexerProcess.class);
 
 	protected String indexerStore = "/scratch/Data/"; //TODO: check indexer on path
-	protected String filepath = "/scartch/Data/";//System.getProperty("java.io.tmpdir") + "/"; - TODO: until can properly kill process if i cancel during dev shouldnt place here
+	protected String filepath = "/scartch/Data/";//System.getProperty("java.io.tmpdir") + "/"; - TODO: until can properly kill process if i cancel during dev shouldn't place here
 
 	protected static String binName = null;
 
 	protected String resultsExtension = ".dat";
 
-	// -- Calling Process Configuables --/
+	// -- Calling Process Configuration --/
 	ProcessBuilder procBuilder;
 	Process indexerProcess;
 	BufferedReader readerIndexer;
@@ -105,22 +105,17 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 	@Override
 	public String getStatus() {
 		String status = null;
-
 		status = processIndexOutput();
-
 		if (status == null) {
 			try {
-
 				while ((status = errIndexer.readLine()) != null) {
 					rawCommsOutput.add(status);
 					logger.error("Executable error: ", status);
 				}
-
 			} catch (IOException e) {
 				logger.error("Uanble to read error comms");
 			}
 		}
-
 		return status;
 	}
 
@@ -134,7 +129,7 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 
 		commsSpecificIndexer(writerIndexer, relativePath);
 
-		// once comms done close the output
+		// once comms done, close the output
 		try {
 			outputIndexer.flush();
 			writerIndexer.flush();

@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.eclipse.january.dataset.IDataset;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexerParam;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Dicvol.DicvolParam;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 /**
@@ -25,7 +28,7 @@ import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
  *         Summary of input line used to Ntreor:
  *
  *         Maximum Volume (A^3): 4000 -VOL is key, default to 4000 Maximum
- *         a,b,c: 35000 -KS ~ Max impuirity lines: 1 -believe this result of
+ *         a,b,c: 35000 -KS ~ Max impurity lines: 1 -believe this result of
  *         limit Min figure-of-merit: -MERIT is key, default 10
  *
  *         Molecular weight: MOLW - depends on DENS use Measured density: DENS =
@@ -57,7 +60,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			// put("VOL", "4000");
 			// put("LIMIT", "1");
 			// put("MERIT", "10");
-			put("CHOICE", "3"); // Defualt??
+			put("CHOICE", "3"); // Default??
 		}
 	};
 
@@ -213,8 +216,27 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 	@Override
 	public Map<String, IPowderIndexerParam> initialParamaters() {
-		// TODO Auto-generated method stub
-		return null;
+		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
+		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(1.5405981)));
+		intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
+		intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
+		intialParams.put("merit", new NtreorParam("MERIT", new Double(10)));
+		intialParams.put("choice", new NtreorParam("CHOICE", new Double(3)));
+		return intialParams;
+	}
+	
+	class NtreorParam extends PowderIndexerParam {
+
+		public NtreorParam(String name, Number value) {
+			super(name, value);
+		}
+
+		@Override
+		public String formatParam() {
+			//TODO: format of ntreorparam
+			return null; 
+		}
+		
 	}
 
 }

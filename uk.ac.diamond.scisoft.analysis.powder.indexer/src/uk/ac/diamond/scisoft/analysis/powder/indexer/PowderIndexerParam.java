@@ -6,7 +6,7 @@ public abstract class PowderIndexerParam implements IPowderIndexerParam {
 	protected final String name;
 	protected Number value;	
 	
-	public PowderIndexerParam(String name, Number value) {
+	protected PowderIndexerParam(String name, Number value) {
 		this.name = name;
 		setValue(value);
 	}
