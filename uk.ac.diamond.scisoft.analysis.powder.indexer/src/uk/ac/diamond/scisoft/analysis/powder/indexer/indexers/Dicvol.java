@@ -37,11 +37,8 @@ import java.util.Iterator;
 public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProcessingIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Dicvol.class);
-
 	public static final String ID = "Dicvol";
-
 	private static String CELLFILEINDETIFIER = "REDUCED CELL :";
-
 	private static String BINNAME = "dicvol";
 	
 	public Dicvol() {
@@ -50,8 +47,6 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 		//Set params
 	}
 	
-	
-
 	// Intilaise keys and values. Insertion order is important to file created.
 	// Also included defaults
 	// See dicvol.html for details

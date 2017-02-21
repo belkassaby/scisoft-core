@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  *         GsasIIWrap call based of xmlrpc. Class acts as a client that
- *         communicates with the python server that has access to GsasII 
+ *         communicates with the Python server that has access to GsasII 
  *         powder indexing procedure. The server file {@link runGSASII.py} to run as
  *         the server.
  * 
@@ -53,14 +53,6 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	// Controls UNKNOWN_UNUSED,zero=0,ncno = 4 ,volume=25, - these are deafult
 	// values
 	private List<Double> controls = Arrays.asList(0.0, 0.0, 4.0, 25.0);
-
-	public List<Boolean> getActiveBravais() {
-		return activeBravais;
-	}
-
-	public void setActiveBravais(List<Boolean> activeBravais) {
-		this.activeBravais = activeBravais;
-	}
 
 	@Override
 	public List<CellParameter> getPlausibleCells() {
@@ -166,7 +158,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	public void runIndexer() {
 		try {
 			String rawCellResult = (String) analysisRpcClient.request(INDEXING,
-					new Object[] { peakData, controls, activeBravais });
+					new Object[] { peakData, controls, activeBravais});
 
 			if (rawCellResult.length() > 0)
 				plausibleCells = extractCellResults(rawCellResult);
@@ -211,7 +203,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		// TODO Auto-generated method stub
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(1.5405981)));
+		intialParams.put("wavelength", new GsasIIParam("WAVE", new Double(1.5405981)));
 		
 		
 		return intialParams;
