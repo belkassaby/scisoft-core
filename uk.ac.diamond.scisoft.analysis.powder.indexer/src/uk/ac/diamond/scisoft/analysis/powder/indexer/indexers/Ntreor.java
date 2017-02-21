@@ -19,7 +19,6 @@ import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Dicvol.DicvolParam
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 /**
- *
  *         Utilises Ntreor indexer
  *
  *         Produce indexed file extensions are *.short. *.imp, *.con Plausible
@@ -53,18 +52,6 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 		binName = BINNAME;
 		resultsExtension = ".short";
 	}
-
-	public static Map<String, String> stdKeyVals = new HashMap<String, String>() {
-		{
-			put("WAVE", "0.41328");// put("WAVE","1.5405981");
-			// put("VOL", "4000");
-			// put("LIMIT", "1");
-			// put("MERIT", "10");
-			put("CHOICE", "3"); // Default??
-		}
-	};
-
-
 
 	public boolean isPeakDataValid(IDataset peakData) {
 		boolean isValid = true;
@@ -118,13 +105,12 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 																			// reach
 																			// space
 
-			Map<String, Double> raw = extractKeyVal(i);
+			Map<String, Double> raw = extractDataKeyVal(i);
 
 			CrystalSystem system = new CrystalSystem();
 
 			// Extract crystal system indexing found
-			cell.setCrystalSystem(system); // Shouldnt really be having to set
-											// this
+			cell.setCrystalSystem(system); //TODO: Shouldn't really be having to set this
 
 			//// the cell A, B, C, Alpha, Beta, Gamma
 			cell.setUnitCellLengths(raw.get("A"), raw.get("B"), raw.get("C"));
@@ -139,10 +125,9 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 		return this.plausibleCells;
 	}
 
-	private Map<String, Double> extractKeyVal(String rawCellData) {
+	private Map<String, Double> extractDataKeyVal(String rawCellData) {
 
 		Map<String, Double> cellParam = new HashMap<String, Double>();
-
 		// Cell unit data + merit
 		String[] out = rawCellData.split("\\s+");
 		for (int i = 0; i < out.length; ++i) {
@@ -151,7 +136,6 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 				++i;
 			}
 		}
-
 		return cellParam;
 	}
 

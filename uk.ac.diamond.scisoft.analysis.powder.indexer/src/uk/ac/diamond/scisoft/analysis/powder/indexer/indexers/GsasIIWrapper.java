@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
  *         GsasIIWrap call based of xmlrpc. Class acts as a client that
  *         communicates with the Python server that has access to GsasII 
  *         powder indexing procedure. The server file {@link runGSASII.py} to run as

@@ -1,13 +1,11 @@
 package uk.ac.diamond.scisoft.analysis.powder.indexer;
 
 /**
- * The core paramters that are passed to the indexers...
+ * The core parameters that are passed to the indexers...
  * 
  * Well What if each indexer had its own interface? then I could just use that as default setters?
  * 
- * 
  * @author Dean P. Ottewell
- *
  */
 public interface IPowderIndexerParam {
 	
@@ -36,7 +34,7 @@ public interface IPowderIndexerParam {
 	public void setValue(Number value);
 			
 	/**
-	 * Extract formated paramter 
+	 * Extract formated parameter 
 	 * 
 	 * @return formated string output to fit be passed to appropriate powder indexer
 	 * */
