@@ -26,14 +26,13 @@ import java.util.Iterator;
 /**
  * @author Dean P. Ottewell
  *
- *         Utlises Dicvol indexer
+ *         Utilises Dicvol indexer
  *
  *         Produces two indexed file and one a ordered *.ord type Plausible
  *         cells are extracted from *.ord
  *
- *         See Dicvol documentation for futher input file and output file
+ *         See Dicvol documentation for further input file and output file
  *         information
- * 
  */
 public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProcessingIndexer {
 
@@ -45,21 +44,20 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 
 	private static String BINNAME = "dicvol";
 
-	// A selection of bravais searches that are active requried for GSASII
+	// A selection of bravais searches that are active required for GSASII
 	// 14 lattice searches being respectively
 	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
 	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
 	private List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
 			false, false, false, false, false);
-
-	
 	
 	public Dicvol() {
 		binName = BINNAME;
 		resultsExtension = ".ord";
 		//Set params
 	}
-
+	
+	
 
 	// Intilaise keys and values. Insertion order is important to file created.
 	// Also included defaults
@@ -120,7 +118,7 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 			// (IF BEMAX= 0.0 DEFAULT= 125. DEGREES).
 
 			// CARD 4 WAVE,POIMOL,DENS,DELDEN-4 FREE FORMAT
-			put("WAVE", "0."); // TODO: Paramterize wavelength
+			put("WAVE", "0."); // TODO: Parametrise wavelength
 			// WAVE WAVELENGTH IN ANGSTROMS (DEFAULT=0.0 IF CU K ALPHA1).
 			put("POIMOL", "0.");
 			// POIMOL MOLECULAR WEIGHT OF ONE FORMULA UNIT IN A.M.U.
@@ -306,8 +304,7 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 	@Override
 	public boolean isPeakDataValid(IDataset peakData) {
 		boolean valid = true;
-		// title + path can only be max 18 characters long or dicvol executable
-		// concatenats
+		// title + path can only be max 18 characters long or dicvol executable concatenates
 		String relativePath = Paths.get(System.getProperty("user.dir") + "/").relativize(Paths.get(filepath))
 				.toString();
 
@@ -350,16 +347,13 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 	}
 
 	public List<Boolean> getActiveBravais() {
-
 		List<Boolean> activeBravais = new ArrayList<Boolean>();
-
 		activeBravais.add(convertToBoolean(stdKeyval.get("JC")));
 		activeBravais.add(convertToBoolean(stdKeyval.get("JT")));
 		activeBravais.add(convertToBoolean(stdKeyval.get("JH")));
 		activeBravais.add(convertToBoolean(stdKeyval.get("JO")));
 		activeBravais.add(convertToBoolean(stdKeyval.get("JM")));
 		activeBravais.add(convertToBoolean(stdKeyval.get("JTR")));
-
 		return activeBravais;
 	}
 
@@ -386,7 +380,7 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 
 		@Override
 		public String formatParam() {
-			return this.name; //Dicvol is not that complex...
+			return this.name; //Dicvol is not that complex in formating
 		}
 		
 	}

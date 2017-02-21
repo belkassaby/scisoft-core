@@ -16,12 +16,11 @@ import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
  * 
  *         Base requirements for several auto indexing methods.
  * 
- *         Use peakdata points from difrraction pattern to run auto indexing
- *         proecdure.
+ *         Use peakdata points from diffraction pattern to run automatic powder indexing procedure
  * 
  *         Results can be acquired in {@link CellParameter} format.
  *         
- *         TODO: would like a way to force a extension of abstract powderindexer
+ *         TODO: would like a way to force a extension of abstract powder indexer
 
  * @author Dean P. Ottewell
  */
@@ -35,7 +34,7 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 
 	protected List<CellParameter> plausibleCells = new ArrayList<CellParameter>();
 
-	protected Map<String, IPowderIndexerParam> params = new TreeMap<String, IPowderIndexerParam>();
+	protected Map<String, IPowderIndexerParam> parameters = new TreeMap<String, IPowderIndexerParam>();
 	
 	protected static String ID;
 	
@@ -61,23 +60,21 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 
 	@Override
 	public Map<String, IPowderIndexerParam> getParameters() {
-		return this.params;
+		return this.parameters;
 	}
 
 	@Override
 	public IPowderIndexerParam getParameter(String pName) throws Exception {
-		return this.params.get(pName);
+		return this.parameters.get(pName);
 	}
 
 	@Override
 	public void setParameter(IPowderIndexerParam param) throws Exception {
-		this.params.put(param.getName(), param);
+		this.parameters.put(param.getName(), param);
 	}
 	
-	
-	
 	public AbstractPowderIndexer() {
-		this.params = this.initialParamaters();
+		this.parameters = this.initialParamaters();
 	}
 
 }
