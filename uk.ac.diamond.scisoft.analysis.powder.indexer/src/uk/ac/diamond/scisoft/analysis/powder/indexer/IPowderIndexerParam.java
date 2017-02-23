@@ -35,7 +35,6 @@ public interface IPowderIndexerParam {
 			
 	/**
 	 * Extract formated parameter 
-	 * 
 	 * @return formated string output to fit be passed to appropriate powder indexer
 	 * */
 	public String formatParam();

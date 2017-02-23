@@ -12,14 +12,14 @@ import org.eclipse.january.dataset.DoubleDataset;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.CellParameter;
-import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrap;
+import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrapper;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 public class GSASIITest {
 
 	//TODO: will just not work if the gsasII module is not valaible in python file. Itll just crash on attempt
 	
-	class GsasIITestMode extends GsasIIWrap {
+	class GsasIITestMode extends GsasIIWrapper {
 		public GsasIITestMode() {
 			urlGsasIIPyServer = getClass().getResource("dummyGsasII.py");
 		}
@@ -27,7 +27,7 @@ public class GSASIITest {
 	
 	@Test
 	public void setBravaisSearch() {
-		GsasIIWrap test = new GsasIIWrap();
+		GsasIIWrapper test = new GsasIIWrapper();
 
 		List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false, false,
 				false, true, false, false);
@@ -41,7 +41,7 @@ public class GSASIITest {
 	
 	@Test
 	public void serverpyDeactiviation() {
-		GsasIIWrap test = new GsasIIWrap();
+		GsasIIWrapper test = new GsasIIWrapper();
 		
 		test.configureIndexer();
 
@@ -91,7 +91,7 @@ public class GSASIITest {
 	
 	@Test
 	public void expectedResultsData1Test() {
-		GsasIIWrap test= new GsasIIWrap();
+		GsasIIWrapper test= new GsasIIWrapper();
 		
 		DoubleDataset data = (DoubleDataset) DatasetFactory.createFromObject(CellIndexTestData.testdata1);
 		test.setPeakData(data);

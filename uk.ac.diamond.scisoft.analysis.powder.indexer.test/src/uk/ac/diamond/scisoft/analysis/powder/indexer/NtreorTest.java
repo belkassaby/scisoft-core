@@ -127,7 +127,7 @@ public class NtreorTest {
 
 		Double[] singalPeakVal = { 1.0 };
 
-		// Set as sigal value
+		// Set as signal value
 		test.setPeakData(DatasetFactory.createFromObject(singalPeakVal));
 		test.setOutFileTitle("tmpGenerateTest");
 
@@ -160,20 +160,20 @@ public class NtreorTest {
 			line = reader.readLine();
 			assertTrue(line.isEmpty());
 
-			Map<String, String> keyVals = test.getStdKeyVals();
+			Map<String, IPowderIndexerParam> keyVals = test.getParameters();
 			// Check if keyset are correctly added
 			for (Object key : keyVals.keySet()) {
 				line = reader.readLine();
 
 				// line = line.split("\\s+"); //remove whitespace .. although
-				// there shouldnt be any
+				// there shouldn't be any
 
 				String[] hasKeyVal = line.split("="); // should be able to split
 														// on equals
 
 				// Expected length for each line is to be 2. This being as
 				// should only have one key and one value on a line for NTreor
-				// to functio ncorrectly
+				// to function correctly
 				assertEquals("Format of Keys assigned to values incorrect", 2, hasKeyVal.length);
 
 				// Check has a a comma at the end on the line

@@ -17,7 +17,7 @@
       </indexer>
       <indexer
             id="GSASII"
-            indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrap">
+            indexer="uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.GsasIIWrapper">
       </indexer>
    </extension>
 </plugin>

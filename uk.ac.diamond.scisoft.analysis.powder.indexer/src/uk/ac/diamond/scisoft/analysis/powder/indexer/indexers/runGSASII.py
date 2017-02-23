@@ -4,7 +4,7 @@ sys.path.append(scisoftpath)
 import scisoftpy as dnp #@UnresolvedImport
 
 #GSASII dependencies
-gsasIIPath = '/scratch/software/Indexers/GSASII_Indexing/gsas2' #TODO: lin kto environment varaible of gsasII instead
+gsasIIPath = '/scratch/software/Indexers/GSASII_Indexing/gsas2' #TODO: link to environment varaible of gsasII instead
 sys.path.append(gsasIIPath)
 import GSASIIindex 
 
