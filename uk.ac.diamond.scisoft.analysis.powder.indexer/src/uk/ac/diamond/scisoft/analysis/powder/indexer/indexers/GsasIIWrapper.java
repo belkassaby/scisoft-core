@@ -12,6 +12,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -51,7 +53,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 
 	// Controls UNKNOWN_UNUSED,zero=0,ncno = 4 ,volume=25, - these are deafult
 	// values
-	private List<Double> controls = Arrays.asList(0.0, 0.0, 4.0, 25.0);
+	private List<Double> controls = Arrays.asList(0.01134, 0.0, 4.0, 25.0);
 
 	@Override
 	public List<CellParameter> getPlausibleCells() {
@@ -159,9 +161,19 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 			String rawCellResult = (String) analysisRpcClient.request(INDEXING,
 					new Object[] { peakData, controls, activeBravais});
 
-			if (rawCellResult.length() > 0)
+			if (rawCellResult.length() > 0){
 				plausibleCells = extractCellResults(rawCellResult);
-
+				
+				//Tmp primitive sort of PlausibleCells
+				Collections.sort(plausibleCells, new Comparator<CellParameter>(){
+					@Override
+					public int compare(CellParameter o1, CellParameter o2) {
+						int winner =  o1.getFigureMerit() > o2.getFigureMerit() ? -1 : 1;// (o1.isGreaterMerit(o2)) ? -1 : 1;
+						return winner;
+					}
+				});
+			}
+			
 		} catch (AnalysisRpcException e) {
 			logger.debug("Unable to request indexing results");
 			terminatePyServer();
@@ -176,7 +188,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	public void stopIndexer() {
 		terminatePyServer();
 	}
-
+	
 	@Override
 	public String getStatus() {
 		String status = null;
@@ -196,17 +208,32 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 
 		return isValid;
 	}
-
 	
 	@Override
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		// TODO Auto-generated method stub
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new GsasIIParam("WAVE", new Double(1.5405981)));
-		
+		//intialParams.put("wavelength", new GsasIIParam("wavelength", new Double(1.5405981)));
+
+		// Controls UNKNOWN_UNUSED,zero=0,ncno = 4 ,volume=25, - these are deafult
+		intialParams.put("zero", new GsasIIParam("zero", 0));
+		intialParams.put("ncno",new GsasIIParam("ncno", 4));
+		intialParams.put("volume", new GsasIIParam("volume", 25));
 		
 		return intialParams;
 	}
+
+	private void gatherParameters(){
+		//controls = Arrays.asList(-0.0224, 0.0, 4.0, 25.0);
+		//controls.get(0) = this.
+		controls.set(1, parameters.get("zero").getValue().doubleValue());
+		controls.set(2, parameters.get("ncno").getValue().doubleValue());
+		controls.set(3, parameters.get("volume").getValue().doubleValue());
+
+		//Bravais configure
+	
+	}
+	
 	
 	class GsasIIParam extends PowderIndexerParam {
 
@@ -216,8 +243,8 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 
 		@Override
 		public String formatParam() {
-			//TODO: format of GsasIIParam 
-			return null; 
+			//Just the value in a string. Will be passed into the apprioate ordeered posiition
+			return value.toString(); 
 		}
 		
 	}

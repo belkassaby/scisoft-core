@@ -7,6 +7,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.time.StopWatch;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DoubleDataset;
@@ -34,7 +36,7 @@ public class AutoIndexerProcessTest {
 			String absPath = f.getAbsolutePath().toString();
 			String dirPath = absPath.substring(0, absPath.length() - binName.length());
 
-			indexerPathStore = dirPath;
+			indexerStore = dirPath;
 			outFileTitle = "tmpDummyIndexer";
 		}
 
@@ -64,6 +66,12 @@ public class AutoIndexerProcessTest {
 		public boolean isPeakDataValid(IDataset peakData) {
 			//Not Appplicable
 			return false;
+		}
+
+		@Override
+		public Map<String, IPowderIndexerParam> initialParamaters() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

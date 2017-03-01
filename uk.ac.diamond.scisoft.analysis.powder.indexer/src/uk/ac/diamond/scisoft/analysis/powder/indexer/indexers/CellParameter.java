@@ -46,6 +46,23 @@ public class CellParameter extends XPDFPhase {
 				|| cell.getUnitC().equals(this.getUnitC()) || cell.getUnitCellAngle().equals(this.getUnitCellAngle()));
 
 	}
+	
+	public boolean isGreaterMerit(Object obj){
+		
+		if (obj == this) {
+			return true;
+		}
+
+		if (obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		}
+
+		CellParameter cell = (CellParameter) obj;
+
+		
+		return (cell.getFigureMerit() > this.getFigureMerit());
+	}
+	
 
 	public void setFigureMerit(double m) {
 		merit = m;

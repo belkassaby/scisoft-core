@@ -45,9 +45,9 @@ wx.ProgressDialog = faker
 
 #Approx Cell Unit After: 530.39,0,Pm3m,5.8789,5.8789,5.8789,90.00,90.00,90.00,203.178
 #Cube-P system to speed up search
-testPeaks = [ 10.7569, 5.69600, 8.05950, 9.87500, 11.40750, 12.75950, 13.98300, 16.15950, 17.14650,
-                18.08200, 18.97250, 19.81635, 20.64200, 21.43100, 22.93000, 23.64550, 24.34150, 25.01900, 25.68050,
-                26.32550, 26.95700 ]
+# testPeaks = [ 10.7569, 5.69600, 8.05950, 9.87500, 11.40750, 12.75950, 13.98300, 16.15950, 17.14650,
+#                 18.08200, 18.97250, 19.81635, 20.64200, 21.43100, 22.93000, 23.64550, 24.34150, 25.01900, 25.68050,
+#                 26.32550, 26.95700 ]
 
 
 callable = False
@@ -95,8 +95,8 @@ def getIndexing(peakData, controls, bravais):
     #Confgiure peaks for how GSASII runs it     
     #TMP fake x values - THE RUN DOESNT DEPEND ON ACCURATE X VALUES
     peaks= []
-    for peakIdx in range(0,len(testPeaks)):
-        peakConfigure = [float(peakIdx),testPeaks[peakIdx],True,False,0,0,0,1.0,0.0] #the x position might be just there to pass around ... that what it seemed in the algo...i hope i hope 
+    for peakIdx in range(0,len(peakData)):
+        peakConfigure = [float(peakIdx),peakData[peakIdx],True,False,0,0,0,1.0,0.0] #the x position might be just there to pass around ... that what it seemed in the algo...i hope i hope 
         peaks.append(peakConfigure)
     
     logger.info("Configured Indexer Peaks: ")
@@ -130,7 +130,7 @@ def getIndexing(peakData, controls, bravais):
             logger.info(releventCell)
             plausibleCells.append(releventCell)
     else:
-        logger.debug("Failure in indexing call, invalid search paramters or no plausible matches")
+        ogger.debug("Failure in indexing call, invalid search paramters or no plausible matches")
     
     cast = dnp.array(plausibleCells)
     logger.info("Attempting to return plausible cells")

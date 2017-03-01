@@ -44,7 +44,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 	public static final String ID = "Ntreor";
 
-	private static String CELLFILEINDETIFIER = "has been reduced into the following one";
+	private static String CELLFILEINDETIFIER = "The following cell has been selected for refinement by PIRUM:";
 
 	private static String BINNAME = "ntreor_new";
 
@@ -95,7 +95,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 	public List<CellParameter> getResults(String resultFilePath) {
 
-		List<String> rawIndexes = extractRawCellInfo(resultFilePath, CELLFILEINDETIFIER, 9);
+		List<String> rawIndexes = extractRawCellInfo(resultFilePath, CELLFILEINDETIFIER, 3);
 
 		for (String i : rawIndexes) {
 			CellParameter cell = new CellParameter();
@@ -117,7 +117,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			cell.setUnitCellAngles(raw.get("Alpha"), raw.get("Beta"), raw.get("Gamma"));
 
 			// Extract & set figure of merit
-			cell.setFigureMerit((Double) raw.get("M(20)"));
+//			/cell.setFigureMerit((Double) raw.get("M(20)"));
 
 			plausibleCells.add(cell);
 		}
@@ -154,7 +154,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			// Short output file ........:
 			bw.write(path + "/" + outFileTitle + ".short" + "\n");
 			// Theta-shift (irrelevant if LIMIT=1) :
-			bw.write("0\n");
+			bw.write("10\n");
 			// Do you want to have the possibility to stop the iterated N-TREOR
 			// run ?
 			// Y makes it possible to avoid the triclinic tests.
@@ -176,7 +176,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	@Override
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(1.5405981)));
+		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(0.826033)));
 		intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
 		intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
 		intialParams.put("merit", new NtreorParam("MERIT", new Double(10)));
