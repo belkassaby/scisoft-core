@@ -30,4 +30,5 @@ Export-Package: uk.ac.diamond.scisoft.xpdf;
    org.eclipse.dawnsci.analysis.api.dataset,
    org.eclipse.dawnsci.analysis.api.processing,
    org.eclipse.dawnsci.analysis.api.processing.model,
-   org.eclipse.dawnsci.analysis.api.monitor"
+   org.eclipse.dawnsci.analysis.api.monitor",
+ uk.ac.diamond.scisoft.xpdf.views
