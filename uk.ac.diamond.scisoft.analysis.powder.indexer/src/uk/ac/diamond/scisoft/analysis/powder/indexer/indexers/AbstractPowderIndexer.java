@@ -39,8 +39,9 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 	
 	// A selection of bravais searches that are active required for GSASII
 	// 14 lattice searches being respectively
-	// 'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
-	// 'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
+//	['Cubic-F','Cubic-I','Cubic-P','Trigonal-R','Trigonal/Hexagonal-P',
+//	    'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
+//	    'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
 	protected List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
 			false, false, false, false, false);
 	

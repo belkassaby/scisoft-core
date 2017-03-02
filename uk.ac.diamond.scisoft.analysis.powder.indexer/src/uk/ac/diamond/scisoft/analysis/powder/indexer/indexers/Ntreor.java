@@ -117,7 +117,8 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			cell.setUnitCellAngles(raw.get("Alpha"), raw.get("Beta"), raw.get("Gamma"));
 
 			// Extract & set figure of merit
-//			/cell.setFigureMerit((Double) raw.get("M(20)"));
+			//double merit = (Double) raw.get("M(20)"));
+			cell.setFigureMerit(20);
 
 			plausibleCells.add(cell);
 		}
@@ -177,8 +178,8 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
 		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(0.826033)));
-		intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
-		intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
+		//intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
+		//intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
 		intialParams.put("merit", new NtreorParam("MERIT", new Double(10)));
 		intialParams.put("choice", new NtreorParam("CHOICE", new Double(3)));
 		return intialParams;
