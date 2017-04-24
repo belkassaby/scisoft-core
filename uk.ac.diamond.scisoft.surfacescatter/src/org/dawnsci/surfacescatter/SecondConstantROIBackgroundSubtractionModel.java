@@ -9,8 +9,8 @@
 
 package org.dawnsci.surfacescatter;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+//import java.beans.PropertyChangeListener;
+//import java.beans.PropertyChangeSupport;
 
 import org.dawnsci.surfacescatter.AnalaysisMethodologies.FitPower;
 import org.eclipse.dawnsci.analysis.api.processing.model.AbstractOperationModel;
@@ -24,7 +24,7 @@ public class SecondConstantROIBackgroundSubtractionModel extends AbstractOperati
 	private double[] trackerCoordinates = {100,100,110,100,110,100,110,110};
 	private int loopNo = 0;
 	private IDataset input;
-	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+//	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 //	private IRectangularROI initialBackgroundROI = new RectangularROI(10,10,50,50,0);
 	private int[][] backgroundLenPt;
 	private int[][] boxOffsetLenPt =null;
@@ -108,13 +108,13 @@ public class SecondConstantROIBackgroundSubtractionModel extends AbstractOperati
 	private IPlottingSystem<Composite> sPlottingSystem = null;
 	
 	
-	public IPlottingSystem<Composite> getSPlottingSystem() {
-		return sPlottingSystem;
-	}
-
-	public void setSPlottingSystem(IPlottingSystem<Composite> plottingSystem) {
-		firePropertyChange("sPlottingSystem", this.sPlottingSystem, this.sPlottingSystem = plottingSystem);
-	}
+//	public IPlottingSystem<Composite> getSPlottingSystem() {
+//		return sPlottingSystem;
+//	}
+//
+//	public void setSPlottingSystem(IPlottingSystem<Composite> plottingSystem) {
+//		firePropertyChange("sPlottingSystem", this.sPlottingSystem, this.sPlottingSystem = plottingSystem);
+//	}
 	
 
 	public void setInput(IDataset input1){
@@ -189,22 +189,22 @@ public class SecondConstantROIBackgroundSubtractionModel extends AbstractOperati
 	}
 
 
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		propertyChangeSupport.addPropertyChangeListener(listener);
-	}
-
-	public void removePropertyChangeListener(String propertyName,
-			PropertyChangeListener listener) {
-		propertyChangeSupport.removePropertyChangeListener(propertyName,
-				listener);
-	}
-
-	protected void firePropertyChange(String propertyName, Object oldValue,
-			Object newValue) {
-		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
-				newValue);
-	}
-	
+//	public void addPropertyChangeListener(PropertyChangeListener listener) {
+//		propertyChangeSupport.addPropertyChangeListener(listener);
+//	}
+//
+//	public void removePropertyChangeListener(String propertyName,
+//			PropertyChangeListener listener) {
+//		propertyChangeSupport.removePropertyChangeListener(propertyName,
+//				listener);
+//	}
+//
+//	protected void firePropertyChange(String propertyName, Object oldValue,
+//			Object newValue) {
+//		propertyChangeSupport.firePropertyChange(propertyName, oldValue,
+//				newValue);
+//	}
+//	
 	
 	@OperationModelField(label="LenPt", hint = "LenPt" )
 	private int[][] LenPt;

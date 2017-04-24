@@ -27,7 +27,7 @@ public class DummyProcessingClass {
 	
 	
 	private static Dataset yValue;
-	private static int DEBUG = 0;
+	private static int DEBUG = 1;
 	private static OperationData outputOD;
 	
 	public static IDataset DummyProcess(SuperModel sm, 
@@ -35,8 +35,6 @@ public class DummyProcessingClass {
 										ExampleModel model, 
 										DataModel dm, 
 										GeometricParametersModel gm, 
-										IPlottingSystem<Composite> pS,
-//										IPlottingSystem<Composite> ssvsPS,
 										int correctionSelector, 
 										int k, 
 										int trackingMarker,
@@ -56,8 +54,9 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+//									  pS
+									  );
 				}
 				
 				if(AnalaysisMethodologies.toInt(model.getFitPower())<5){
@@ -114,8 +113,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 				}
 				
 				else{	
@@ -147,10 +146,6 @@ public class DummyProcessingClass {
 							   trackingMarker);
 				}
 				
-				
-				
-				
-				
 				output = outputOD.getData();
 				
 
@@ -171,8 +166,9 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+									  
+									  );
 				}
 				
 				else{
@@ -188,7 +184,7 @@ public class DummyProcessingClass {
 												 model,
 										 		 input,  
 										 		 dm, 
-										 		 pS,
+										 		
 										 		 selection,
 										 		 trackingMarker,
 										 		 k);	
@@ -209,8 +205,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+									 );
 				}
 
 				else{
@@ -228,7 +224,7 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
+				 		
 				 		 selection,
 				 		 trackingMarker,
 				 		 k);	
@@ -247,8 +243,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 				}
 
 				else{
@@ -286,8 +282,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 				}
 
 				else{
@@ -343,8 +339,7 @@ public class DummyProcessingClass {
 				fhkl =Math.pow((Double) DatasetUtils.cast(yValue,Dataset.FLOAT64).sum(), 0.5);
 		}		
 			
-		
-		if (trackingMarker !=3 ){
+		if (trackingMarker !=3){
 			
 			dm.addyList(model.getDatImages().getShape()[0], k ,intensity);
 			dm.addyListFhkl(model.getDatImages().getShape()[0], k ,fhkl);
@@ -357,7 +352,11 @@ public class DummyProcessingClass {
 			sm.addOutputDatArray(sm.getImages().length, selection ,output);
 			
 			
+			debug("  intensity:  " + intensity + "   k: " + k);
+			debug(" DummyProcess intensity added to dm: " + intensity + "   local k: " + k + "   selection: " + selection);
+			
 		}
+			
 		
 		return output;
 	}
@@ -388,8 +387,8 @@ public class DummyProcessingClass {
 								  dm, 
 								  trackingMarker, 
 								  k, 
-									  selection,
-									  pS);
+									  selection
+									);
 				
 				if(AnalaysisMethodologies.toInt(model.getFitPower())<5){
 					  outputOD= TwoDFittingIOp(model,
@@ -442,8 +441,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									   k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 				}
 				
 				else{	
@@ -496,8 +495,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k,
-									  selection,
-									  pS);
+									  selection
+									  );
 			
 				}
 
@@ -514,7 +513,7 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
+				 		
 //				 		 ssvsPS,
 				 		 selection,
 				 		 trackingMarker,
@@ -535,8 +534,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k,
-									  selection,
-									  pS);
+									  selection
+									  );
 			
 				}
 
@@ -553,7 +552,7 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
+				 		 
 //				 		 ssvsPS,
 				 		 selection,
 				 		 trackingMarker,
@@ -574,8 +573,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k,
-									  selection,
-									  pS);
+									  selection
+									  );
 			
 				}
 				
@@ -600,6 +599,8 @@ public class DummyProcessingClass {
 				sm.setTemporaryBackgroundHolder(temporaryBackground2);
 
 				break;
+				
+				
 											
 			case Y:
 				
@@ -613,8 +614,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k,
-									  selection,
-									  pS);
+									  selection
+									  );
 			
 					
 				}
@@ -689,8 +690,8 @@ public class DummyProcessingClass {
 										ExampleModel model, 
 										DataModel dm, 
 										GeometricParametersModel gm, 
-										IPlottingSystem<Composite> pS, 
-										IPlottingSystem<Composite> ssvsPS,
+//										IPlottingSystem<Composite> pS, 
+//										IPlottingSystem<Composite> ssvsPS,
 										int correctionSelector, 
 										int k, 
 										int trackingMarker,
@@ -709,8 +710,8 @@ public class DummyProcessingClass {
 								  dm, 
 								  trackingMarker, 
 								  k, 
-								  selection,
-								  pS);
+								  selection
+								  );
 				
 				
 				if(AnalaysisMethodologies.toInt(model.getFitPower())<5){
@@ -759,8 +760,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									   k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 					
 				}
 
@@ -821,8 +822,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									   k, 
-									  selection,
-									  pS);
+									  selection
+									  );
 					
 				}
 
@@ -838,7 +839,7 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
+//				 		 pS,
 //				 		 ssvsPS,
 				 		 selection,
 				 		 trackingMarker,
@@ -860,8 +861,9 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  selection, 
-									  selection,
-									  pS);
+									  selection
+//									  pS
+									  );
 					
 				}
 
@@ -877,7 +879,6 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
 //				 		 ssvsPS,
 				 		 selection,
 				 		 trackingMarker,
@@ -897,8 +898,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									  k, 
-									  selection,
-									  pS
+									  selection
+//									  pS
 									  );
 					
 				}
@@ -938,8 +939,8 @@ public class DummyProcessingClass {
 									  dm, 
 									  trackingMarker, 
 									   k, 
-									  selection,
-									  pS);	
+									  selection
+									  );	
 				}
 
 				else{
@@ -998,11 +999,12 @@ public class DummyProcessingClass {
 			sm.addyListFhkl(sm.getImages().length, selection ,fhkl);
 			sm.addOutputDatArray(sm.getImages().length, selection ,output);
 			
-			debug("  intensity:  " + intensity + "   k: " + k);
+			debug(" DummyProcess0 intensity:  " + intensity + "   k: " + k);
+			debug("DummyProcess0 intensity added to dm: " + intensity + "   local k: " + k + "   selection: " + selection);
+			
 		}
 		
 		
-		debug("intensity added to dm: " + intensity + "   local k: " + k + "   selection: " + selection);
 		
 		return output;
 	}
@@ -1013,8 +1015,8 @@ public class DummyProcessingClass {
 										ExampleModel model, 
 										DataModel dm, 
 										GeometricParametersModel gm, 
-										IPlottingSystem<Composite> pS, 
-										IPlottingSystem<Composite> ssvsPS,
+//										IPlottingSystem<Composite> pS, 
+//										IPlottingSystem<Composite> ssvsPS,
 										int correctionSelector, 
 										int k, 
 										int trackingMarker,
@@ -1036,8 +1038,8 @@ public class DummyProcessingClass {
 						trackingMarker, 
 						k,
 						locationList,
-						selection,
-						pS);
+						selection
+						);
 				
 
 				
@@ -1089,8 +1091,8 @@ public class DummyProcessingClass {
 							trackingMarker, 
 							k,
 							locationList,
-							selection,
-							pS);
+							selection
+							);
 					
 
 
@@ -1139,6 +1141,7 @@ public class DummyProcessingClass {
 				sm.setTemporaryBackgroundHolder(temporaryBackground1);
 				
 				break;
+				
 			case SECOND_BACKGROUND_BOX:
 
 				if(sm.getTrackerOn() && sm.getProcessingMethodSelection() != ProccessingMethod.MANUAL){
@@ -1151,8 +1154,8 @@ public class DummyProcessingClass {
 							trackingMarker, 
 							k,
 							locationList,
-							selection,
-							pS);
+							selection
+							);
 				}
 
 				else{
@@ -1168,15 +1171,13 @@ public class DummyProcessingClass {
 						 model,
 				 		 input,  
 				 		 dm, 
-				 		 pS,
-//				 		 ssvsPS,
+//				 		 pS,
 				 		 selection,
 				 		 trackingMarker,
 				 		 k);	
-
-
 				
 				break;
+				
 			case OVERLAPPING_BACKGROUND_BOX:
 
 				if(sm.getTrackerOn() && sm.getProcessingMethodSelection() != ProccessingMethod.MANUAL){
@@ -1189,8 +1190,8 @@ public class DummyProcessingClass {
 							trackingMarker, 
 							k,
 							locationList,
-							selection,
-							pS);
+							selection
+							);
 				}
 
 				else{
@@ -1205,19 +1206,15 @@ public class DummyProcessingClass {
 				output = secondConstantROIMethod(sm,
 						 model,
 				 		 input,  
-				 		 dm, 
-				 		 pS,
-//				 		 ssvsPS,
+				 		 dm,
 				 		 selection,
-				 		trackingMarker,
-				 		k);	
+				 		 trackingMarker,
+				 		 k);	
 				
 				
 				break;
 				
 			case X:
-				
-				
 				
 				if(sm.getTrackerOn() && sm.getProcessingMethodSelection() != ProccessingMethod.MANUAL){
 					AgnosticTrackerHandler ath1 = new AgnosticTrackerHandler();
@@ -1229,8 +1226,8 @@ public class DummyProcessingClass {
 							trackingMarker, 
 							k,
 							locationList,
-							selection,
-							pS);
+							selection
+							);
 					
 				}
 
@@ -1242,7 +1239,6 @@ public class DummyProcessingClass {
 					sm.addLocationList(selection,new double[] { (double) pt[0], (double) pt[1], (double) (pt[0] + len[0]), (double) (pt[1]),
 							(double) pt[0], (double) pt[1] + len[1], (double) (pt[0] + len[0]), (double) (pt[1] + len[1])});
 				}
-				
 				
 				OperationData outputOD2= OneDFittingIOp(model,
 						   								input,
@@ -1271,11 +1267,9 @@ public class DummyProcessingClass {
 							trackingMarker, 
 							k,
 							locationList,
-							selection,
-							pS);
-					
-
-
+							selection
+							);
+				
 				}
 
 				else{
@@ -1334,9 +1328,12 @@ public class DummyProcessingClass {
 			sm.addyListFhkl(sm.getImages().length, selection ,fhkl);
 			sm.addOutputDatArray(sm.getImages().length, selection ,output);
 			
-			debug("  intensity:  " + intensity + "   k: " + k);
+		
+			debug(" DummyProcess1 intensity:  " + intensity + "   k: " + k);
+			debug("DummyProcess1 intensity added to dm: " + intensity + "   local k: " + k + "   selection: " + selection);
+			
 		}
-		debug("intensity added to dm: " + intensity + "   local k: " + k + "   selection: " + selection);
+		
 		
 		return output;
 	}
@@ -1604,10 +1601,15 @@ public class DummyProcessingClass {
 		}
 		
 		if (trackingMarker != 3){
+			
 			double[] p = sm.getLocationList().get(k);
 			int[] pt = new int[]{(int) p[0], (int) p[1]}; 
-			int[] len = sm.getInitialLenPt()[0]; 
+			int len0 = (int) (p[6] - p[0]);
+			int len1 = (int)(p[8] - p[1]);
+			
+			int[] len = new int[] {len0, len1}; 
 			int[][] lenPt = new int[][] {len,pt};
+			
 			if(p[0] != 0 && p[1] != 0){
 				scrbm.setLenPt(lenPt);
 			}
@@ -1647,14 +1649,13 @@ public class DummyProcessingClass {
 
 	
 	public static IDataset secondConstantROIMethod(SuperModel sm, 
-											ExampleModel model,
-											IDataset input,  
-											DataModel dm, 
-											IPlottingSystem<Composite> pS,
-//											IPlottingSystem<Composite> ssvsPS,
-											int selection,
-											int trackingMarker,
-											int k){		
+													ExampleModel model,
+													IDataset input,  
+													DataModel dm, 
+//													IPlottingSystem<Composite> pS,
+													int selection,
+													int trackingMarker,
+													int k){		
 		
 
 		
@@ -1668,21 +1669,20 @@ public class DummyProcessingClass {
 															  input, 
 															  sm,
 															  trackingMarker,
-															  k
+															  selection
 															  );
 		}
 		
 		else if(model.getMethodology() == Methodology.OVERLAPPING_BACKGROUND_BOX){
 			
-
+			debug("selection value: " + selection);
 			
 			outputOD4 = OverlappingBackgroundROIFittingIOp(model, 
 														   input, 
 														   sm,
-														   pS,
-//														   ssvsPS,
 														   trackingMarker,
-														   k);
+														   selection
+														   );
 			if(outputOD4.getAuxData()[3] != null){
 				sm.setBoxOffsetLenPt((int[][]) outputOD4.getAuxData()[3]);
 			}
@@ -1714,11 +1714,11 @@ public class DummyProcessingClass {
 	public static OperationData OverlappingBackgroundROIFittingIOp(ExampleModel model,
 				  												   IDataset input,
 				  												   SuperModel sm,
-				  												   IPlottingSystem<Composite> pS,
-//				  												   IPlottingSystem<Composite> ssvsPS,
 				  												   int trackingMarker,
 				  												   int k){
 
+		
+		debug("selection value: " + k);
 		SecondConstantROIBackgroundSubtractionModel scrbm 
 			= new SecondConstantROIBackgroundSubtractionModel();
 		int[][] a= sm.getInitialLenPt();
@@ -1732,10 +1732,12 @@ public class DummyProcessingClass {
 		
 		if(sm.getBoxOffsetLenPt() != null){
 			int[][] e = sm.getBoxOffsetLenPt();
-			scrbm.setBoxOffsetLenPt(sm.getBoxOffsetLenPt());
+			scrbm.setBoxOffsetLenPt(e);
+//			System.out.println("sm.getBoxOffsetLenPt()[0][0] :   " + sm.getBoxOffsetLenPt()[0][0]);
+//			System.out.println("sm.getBoxOffsetLenPt()[0][1] :   " + sm.getBoxOffsetLenPt()[0][1]);
+//			System.out.println("sm.getBoxOffsetLenPt()[1][0] :   " + sm.getBoxOffsetLenPt()[1][0]);
+//			System.out.println("sm.getBoxOffsetLenPt()[1][1] :   " + sm.getBoxOffsetLenPt()[1][1]);
 		}
-		
-		
 		
 		if (trackingMarker != 3){
 			
@@ -1752,7 +1754,11 @@ public class DummyProcessingClass {
 				scrbm.setLenPt(sm.getInitialLenPt());
 			}
 			
-			if(sm.getPermanentBoxOffsetLenPt()!= null){
+			if((sm.getPermanentBoxOffsetLenPt()!= null) &&
+					(Arrays.equals(sm.getPermanentBoxOffsetLenPt()[0], new int[] {0, 0}) == false)&&
+					(Arrays.equals(sm.getPermanentBoxOffsetLenPt()[1], new int[] {0, 0}) == false)){
+				
+				
 				int[][] c = sm.getPermanentBoxOffsetLenPt();
 				scrbm.setBoxOffsetLenPt(sm.getPermanentBoxOffsetLenPt());
 			}
@@ -1762,8 +1768,8 @@ public class DummyProcessingClass {
 			scrbm.setLenPt(sm.getInitialLenPt());
 		}
 		
-		int[][]  d= sm.getBackgroundLenPt();
-		scrbm.setBackgroundLenPt(sm.getBackgroundLenPt());
+		int[][]  d= sm.getSecondBackgroundLenPt();
+		scrbm.setBackgroundLenPt(d);
 		
 		Metadata md = new Metadata();
 		IDataset dummyMD = DatasetFactory.zeros(new int [] {2,2});

@@ -26,7 +26,7 @@ public class OverlappingBgBoxUsingIOperation
 		
 		@Override
 		public String getId() {
-			return "uk.ac.diamond.scisoft.surfacescatter.SecondConstantROIUsingIOperation";
+			return "uk.ac.diamond.scisoft.surfacescatter.OverlappingBgBoxUsingIOperation";
 		}
 
 		@Override
@@ -43,21 +43,24 @@ public class OverlappingBgBoxUsingIOperation
 		public OperationData process (IDataset input, IMonitor monitor) 
 				throws OperationException {
 			
+			g2 =null;
+			
 			int[] len = model.getLenPt()[0];
 			int[] pt = model.getLenPt()[1];
 			
 			debug("pt[0]: " + pt[0]);
 			debug("pt[1]: " + pt[1]);
+		
+			if (g2 == null){
+				g2 = new Polynomial2D(AnalaysisMethodologies.toInt(model.getFitPower()));
+			}
 			
-
-			if (g2 == null)
+			if ((int) Math.pow(AnalaysisMethodologies.toInt(model.getFitPower()) + 1, 2) != g2.getNoOfParameters()){
 				g2 = new Polynomial2D(AnalaysisMethodologies.toInt(model.getFitPower()));
-			if ((int) Math.pow(AnalaysisMethodologies.toInt(model.getFitPower()) + 1, 2) != g2.getNoOfParameters())
-				g2 = new Polynomial2D(AnalaysisMethodologies.toInt(model.getFitPower()));
+			}
 			
 			Dataset in1 = BoxSlicerRodScanUtilsForDialog.rOIBox(input,len, pt);
 			
-	        
 	        int[] backLen = model.getBackgroundLenPt()[0];
 	        int[] backPt = model.getBackgroundLenPt()[1];
 	        
@@ -80,21 +83,21 @@ public class OverlappingBgBoxUsingIOperation
 	        debug("backPt[0]: " + backPt[0]);
 			debug("backPt[1]: " + backPt[1]);
 			
+			debug("backLen[0]: " + backLen[0]);
+			debug("backLen[1]: " + backLen[1]);
+		
 	        BackgroundRegionArrays br = new BackgroundRegionArrays();
 	        
-	        
-			for (int i = backPt[0]; i<backPt[0]+backLen[0]; i++){
-				for(int j = backPt[1]; j<backPt[1]+backLen[1]; j++){
+			for (int j = backPt[0]; j<backPt[0]+backLen[0]; j++){
+				for(int i = backPt[1]; i<backPt[1]+backLen[1]; i++){
 					
-					if((i<pt[0]||i>=(pt[0]+len[0]))||(j<pt[1]||j>=(pt[1]+len[1]))){
-						br.xArrayAdd(i);
-						br.yArrayAdd(j);
-						br.zArrayAdd(input.getDouble(j,i));
+					if((j<pt[0]||j>=(pt[0]+len[0]))||(i<pt[1]||i>=(pt[1]+len[1]))){
+						br.xArrayAdd(j);
+						br.yArrayAdd(i);
+						br.zArrayAdd(input.getDouble(i,j));
 					}
 					else{
-//						br.xArrayAdd(i);
-//						br.yArrayAdd(j);
-//						br.zArrayAdd(input.getDouble(j,i));
+
 					}
 				}
 			}
@@ -109,13 +112,16 @@ public class OverlappingBgBoxUsingIOperation
 	              	   
 	        DoubleDataset test = (DoubleDataset)LinearAlgebra.solveSVD(matrix, zBackgroundDat);
 			double[] params = test.getData();
-			
-			in1Background = g2.getOutputValuesOverlapping(params, len, new int[] {(int) (model.getBoxOffsetLenPt()[1][1]),(int) (model.getBoxOffsetLenPt()[1][0])},
-					AnalaysisMethodologies.toInt(model.getFitPower()));
-		
 
-			in1Background.transpose(new int[] {1,0});
+			g2.setParameterValues(params);
 			
+			double[] d = params;
+			int[] len1 = len;
+			int[][] boxOffsetLenPt = model.getBoxOffsetLenPt();
+
+			in1Background = g2.getOutputValuesOverlapping(params, len, pt,
+					AnalaysisMethodologies.toInt(model.getFitPower()));
+					
 			Dataset pBackgroundSubtracted = DatasetFactory.zeros(new int[] {2}, Dataset.ARRAYFLOAT64);
 			
 			try{

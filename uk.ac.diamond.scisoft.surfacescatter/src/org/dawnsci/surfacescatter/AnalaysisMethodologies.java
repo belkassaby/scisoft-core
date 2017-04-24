@@ -59,6 +59,34 @@ public class AnalaysisMethodologies {
 	}
 	
 	
+	public static Methodology toMethodology(int in){
+		
+		if (in == 0){
+			return Methodology.TWOD;
+		}
+		else if (in == 1){
+			return Methodology.TWOD_TRACKING;
+		}
+		else if (in == 2){
+			return Methodology.X;
+		}
+		
+		else if (in == 3){
+			return Methodology.Y;
+		}
+		
+		else if (in == 4){
+			return Methodology.SECOND_BACKGROUND_BOX;
+		}
+		
+		else if (in==5){
+			return Methodology.OVERLAPPING_BACKGROUND_BOX;
+		}
+		
+		return null;
+	}
+	
+	
 	
 	public enum FitPower {
 		ZERO, ONE, TWO, THREE ,FOUR, TWOD_GAUSSIAN, TWOD_EXPONENTIAL

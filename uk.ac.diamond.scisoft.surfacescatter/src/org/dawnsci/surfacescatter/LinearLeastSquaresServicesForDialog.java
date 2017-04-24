@@ -11,25 +11,23 @@ package org.dawnsci.surfacescatter;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.dataset.SliceND;
 
 public class LinearLeastSquaresServicesForDialog {
 
 	
-	public static Dataset polynomial2DLinearLeastSquaresMatrixGenerator (int degree, Dataset xValues, Dataset yValues){
+	public static Dataset polynomial2DLinearLeastSquaresMatrixGenerator (int degree, 
+																	Dataset xValues, 
+																	Dataset yValues){
 		
 		int noParams = (int) Math.pow(degree+1, 2);
 		int datasize = xValues.getShape()[0];
 		
+//		Dataset testMatrix = DatasetFactory.ones(new int[] {datasize, noParams}, Dataset.FLOAT64);
 		
-		Dataset testMatrix = DatasetFactory.ones(new int[] {datasize, noParams}, Dataset.FLOAT64);
-		
-		int[] pos = new int[]{0,0};
-		for (int i = 0; i < datasize; i++) {
-			testMatrix.set(xValues.getObject(i), pos);
-			pos[0]++;
-		}
+		DoubleDataset testMatrix = DatasetFactory.zeros(datasize, noParams);
 		
 		int p = 0;
 		
@@ -40,19 +38,18 @@ public class LinearLeastSquaresServicesForDialog {
 			double x = xValues.getDouble(k);
 			double y = yValues.getDouble(k);
 			
-			for (int i =0; i<degree+1 ; i++){
-				double xFunc = Math.pow(x, i);
-				for (int j=0; j<degree+1; j++){
+			for (int j =0; j<degree+1 ; j++){
+				
+				for (int i=0; i<degree+1; i++){
 					
-					double yFunc = Math.pow(y, j);
+					double f =  Math.pow(x, j)*Math.pow(y, i);
 					
-					testMatrix.set(xFunc*yFunc, k, p);
+					testMatrix.set(f, k, p);
 					
 					p++;
 					if(p == check){
 						p=0;
 					}
-					
 				}
 			}
 		}
@@ -89,7 +86,7 @@ public class LinearLeastSquaresServicesForDialog {
 																		  Dataset yValues, 
 																		  Dataset zValues){
 		
-		int noParams = 4;
+		int noParams = 5;
 		int datasize = xValues.getShape()[0];
 		
 		
@@ -107,43 +104,49 @@ public class LinearLeastSquaresServicesForDialog {
 
 		for (int k =0; k<datasize; k++){
 	
-			if (zValues.get1DIndex(k) > 1){
+			double obs = zValues.getDouble(k);
+			
+			if (obs> 1.0){
 				
-				double w = - Math.log(1-1/zValues.get1DIndex(k));
+				double w = 0;
 				
+				try{
+					w = - Math.log(1-1/zValues.getDouble(k));
+				}
+				catch(Exception i){
+//					System.out.println(i.getMessage());
+				}
 				if (Double.isInfinite(w)){
-					System.out.println("error at k:  " + k);
+//					System.out.println("error at k1:  " + k + "  w1:   " + w);
+					w = -900000000;
+				}
+				else if (Double.isNaN(w)){
+//					System.out.println("error at k1:  " + k + "  w1:   " + w);
+					w = 0;
 				}
 				
 				testMatrix.set(w, k, 0);	
 			
 			}
+			
 			else{
 			
-				testMatrix.set(1, k, 0);
+				testMatrix.set(0, k, 0);
 			}
-		}
 		
-		for (int k =0; k<datasize; k++){
-			
 			testMatrix.set(1, k, 1);	
-					
-		}
-				
-		for (int k =0; k<datasize; k++){
 			
 			double x = xValues.getDouble(k);
 					
 			testMatrix.set(x, k, 2);
-					
-		}
-		
-		
-		for (int k =0; k<datasize; k++){
 			
 			double y = yValues.getDouble(k);
 					
 			testMatrix.set(y, k, 3);
+			
+			double xy = x*y;
+			
+			testMatrix.set(xy, k, 4);
 					
 		}
 	
@@ -177,7 +180,7 @@ public class LinearLeastSquaresServicesForDialog {
 	
 	public static Dataset refinedExponential2DLinearLeastSquaresMatrixGenerator (Dataset xValues, 
 																				 Dataset yValues, 
-																				 Dataset zValues,
+//																				 Dataset zValues,
 																				 double[] paramsPoly,
 																				 double[] paramsExp){
 	
@@ -197,28 +200,34 @@ public class LinearLeastSquaresServicesForDialog {
 		
 		for (int k =0; k<datasize; k++){
 			
+			
+			double x = xValues.getDouble(k);
+			double y = yValues.getDouble(k);
+			
+			
 			double w = b[0] 
-					+ b[1]*xValues.getDouble(k) 
-							+ b[2]*yValues.getDouble(k) 
-							+ b[3]*xValues.getDouble(k)*yValues.getDouble(k);
+					+ b[1]*x
+					+ b[2]*y 
+					+ b[3]*x*y;
 				
 			if (Double.isInfinite(w)){
-//				System.out.println("error at k0:  " + k);
-				w = -1000000000;
+//				System.out.println("error at k1:  " + k + "  w:   " + w);
+				w = 1000000000;
 			}
-				
+//			System.out.println("  w:   " + w);
 			testMatrix.set(w, k, 0);	
 		
-			double w1 = -Math.exp(a[0]) + Math.exp(a[1])*Math.exp(a[2]* xValues.getDouble(k) + a[3]* yValues.getDouble(k));
+			double w1 = -Math.exp(a[0]) + Math.exp(a[1])*Math.exp(a[2]* x + a[3]* y + a[4]*x* y);
 			
 			if (Double.isInfinite(w1)){
-//				System.out.println("error at k1:  " + k);
-				w1 = -1000000000;
+//				System.out.println("error at k1:  " + k + "  w1:   " + w1);
+				w1 = 900000000;
 			}
 			else if (Double.isNaN(w1)){
-//				System.out.println("error at k1:  " + k);
+//				System.out.println("error at k1:  " + k + "  w1:   " + w1);
 				w1 = 0;
 			}
+//			System.out.println("  w1:   " + w1);
 			testMatrix.set(w1, k, 1);	
 		
 		}

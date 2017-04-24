@@ -57,6 +57,7 @@ public class SuperModel {
 	private boolean errorDisplayFlag = false;
 	private IRectangularROI backgroundROI = new RectangularROI(10,10,50,50,0);
 	private int[][] backgroundLenPt;
+	private int[][] secondBackgroundLenPt;
 	private RectangularROI backgroundBox;
 	private IImageTracker tracker;
 	private ArrayList<double[]> trackerLocationList;
@@ -1214,6 +1215,23 @@ public class SuperModel {
 				this.locationList= locationList1);
 	}
 	
+	public void addLocationList(int l, int k, double[] location){
+		
+		if (locationList==null || locationList.isEmpty()){
+			locationList = new ArrayList<double[]>();
+			for (int i = 0; i < l; i++) {
+				locationList.add(new double[]{0,0,0,0,0,0,0,0});
+				}
+		}
+		
+		ArrayList<double[]> locationList1 = new ArrayList<double[]>();
+		locationList1 = (ArrayList<double[]>) locationList.clone();
+		locationList1.set(k, location);
+		firePropertyChange("locationList", this.locationList,
+				this.locationList= locationList1);
+	}
+	
+	
 	public void addTrackerLocationList(double[] in){
 		
 		if (trackerLocationList==null){
@@ -1653,5 +1671,13 @@ public class SuperModel {
 
 	public Dataset getSortedQ() {
 		return sortedQ;
+	}
+
+	public int[][] getSecondBackgroundLenPt() {
+		return secondBackgroundLenPt;
+	}
+
+	public void setSecondBackgroundLenPt(int[][] secondBackgroundLenPt) {
+		this.secondBackgroundLenPt = secondBackgroundLenPt;
 	}	
 }

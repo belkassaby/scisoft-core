@@ -100,12 +100,14 @@ public class RefinedTwoDExponentialFittingUsingIOperation extends AbstractOperat
 				refinedExponential2DLinearLeastSquaresMatrixGenerator(
 				fittingBackground[0], 
 				fittingBackground[1],
-				fittingBackground[2],
+//				fittingBackground[2],
 				paramsPoly,
 				paramsExp);
 		
 		DoubleDataset testRef = (DoubleDataset) LinearAlgebra.solveSVD(matrixRef, fittingBackground[2]);
 		double[] paramsRef = testRef.getData();
+		System.out.println("paramsRef[0]:  "  +paramsRef[0] + "   paramsRef[1]:   "+ paramsRef[1]);
+		
 		
 		IDataset in1Background = getRefinedExponentialOutputValues(paramsPoly,
 																   paramsExp,
@@ -186,7 +188,7 @@ public class RefinedTwoDExponentialFittingUsingIOperation extends AbstractOperat
 					valueExp = 0;
 				}
 				else if(Double.isInfinite(valueExp)){
-					valueExp = -1000000000;
+					valueExp = 1000000000;
 				}
 				
 				double valuePoly = b[0] 

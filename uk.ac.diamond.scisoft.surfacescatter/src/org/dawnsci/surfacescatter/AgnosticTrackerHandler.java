@@ -35,8 +35,9 @@ public class AgnosticTrackerHandler {
 								  DataModel dm, 
 								  int trackingMarker, 
 								  int k,
-								  int selection,
-								  IPlottingSystem<Composite> pS) {
+								  int selection
+//								  IPlottingSystem<Composite> pS
+								  ) {
 	
 		this.sm = sm;
 		len = model.getLenPt()[0];
@@ -434,13 +435,15 @@ public class AgnosticTrackerHandler {
 								  int trackingMarker, 
 								  int k,
 								  double[] seedLocation,
-								  int selection,
-								  IPlottingSystem<Composite> pS) {
+								  int selection
+//								  IPlottingSystem<Composite> pS
+								  ) {
 
 		this.sm = sm;
 		
 		
-		if(model.getTrackerType() != TrackingMethodology.TrackerType1.INTERPOLATION && model.getTrackerType() != TrackingMethodology.TrackerType1.SPLINE_INTERPOLATION){
+		if(model.getTrackerType() != TrackingMethodology.TrackerType1.INTERPOLATION && 
+		   model.getTrackerType() != TrackingMethodology.TrackerType1.SPLINE_INTERPOLATION){
 			
 			
 			if (trackingMarker == 0) {
@@ -778,8 +781,9 @@ public class AgnosticTrackerHandler {
 							      DataModel dm, 
 							      int trackingMarker, 
 							      int k,
-							      int selection,
-							      IPlottingSystem<Composite> pS) {
+							      int selection
+//							      IPlottingSystem<Composite> pS
+							      ) {
 
 		len = sm.getInitialLenPt()[0];
 		pt = sm.getInitialLenPt()[1];
@@ -787,7 +791,8 @@ public class AgnosticTrackerHandler {
 //		initialLocation = new double[] { (double) pt[1], (double) pt[0], (double) (pt[1] + len[1]), (double) (pt[0]),
 //		(double) pt[1], (double) pt[0] + len[0], (double) (pt[1] + len[1]), (double) (pt[0] + len[0]) };
 		
-		if(model.getTrackerType() != TrackingMethodology.TrackerType1.INTERPOLATION && model.getTrackerType() != TrackingMethodology.TrackerType1.SPLINE_INTERPOLATION){
+		if(model.getTrackerType() != TrackingMethodology.TrackerType1.INTERPOLATION && 
+				model.getTrackerType() != TrackingMethodology.TrackerType1.SPLINE_INTERPOLATION){
 			
 			
 			
@@ -1140,7 +1145,7 @@ public class AgnosticTrackerHandler {
 						(double) (pt[1]), (double) pt[0], (double) pt[1] + len[1], (double) (pt[0] + len[0]),
 						(double) (pt[1] + len[1]) };
 				
-				sm.addLocationList(selection, localLocation);
+				sm.addLocationList(sm.getNumberOfImages(),selection, localLocation);
 				dm.addLocationList(model.getDatImages().getShape()[0], k, localLocation);
 			}
 			catch(Exception r){

@@ -19,7 +19,6 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.IndexIterator;
 import org.eclipse.january.dataset.LinearAlgebra;
 import org.eclipse.january.dataset.Maths;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.Polynomial2D;
@@ -31,7 +30,7 @@ public class TwoDFittingUsingIOperation extends AbstractOperation<TwoDFittingMod
 
 	private static Dataset output;
 	private static Polynomial2D g2;
-	private static int DEBUG = 0;
+	private static int DEBUG = 1;
 	private IDataset in1Background;
 	
 	@Override
@@ -88,22 +87,23 @@ public class TwoDFittingUsingIOperation extends AbstractOperation<TwoDFittingMod
 		Dataset matrix = LinearLeastSquaresServicesForDialog.polynomial2DLinearLeastSquaresMatrixGenerator(
 				AnalaysisMethodologies.toInt(model.getFitPower()), fittingBackground[0], fittingBackground[1]);
 
-				DoubleDataset test = (DoubleDataset) LinearAlgebra.solveSVD(matrix, fittingBackground[2]);
-				double[] params = test.getData();
+		DoubleDataset test = (DoubleDataset) LinearAlgebra.solveSVD(matrix, fittingBackground[2]);
+		double[] params = test.getData();
 
-				in1Background = g2.getOutputValues2(params, len, model.getBoundaryBox(),
-						AnalaysisMethodologies.toInt(model.getFitPower()));
-
-
-				Dataset pBackgroundSubtracted = Maths.subtract(in1, in1Background, null);
-
-				output = DatasetUtils.cast(pBackgroundSubtracted, Dataset.FLOAT64);
-
-				output.setName("Region of Interest, polynomial background removed");
-				
-	
+		for(int y =0 ; y<params.length; y++){
+			debug(" TwoDFitting params[" + y + "]:  " + params[y]);
+		}
 		
-				
+		
+		in1Background = g2.getOutputValues2(params, len, model.getBoundaryBox(),
+								AnalaysisMethodologies.toInt(model.getFitPower()));
+
+		Dataset pBackgroundSubtracted = Maths.subtract(in1, in1Background, null);
+
+		output = DatasetUtils.cast(pBackgroundSubtracted, Dataset.FLOAT64);
+
+		output.setName("Region of Interest, polynomial background removed");
+						
 		return new OperationData(output, (IDataset) in1Background);
 	}
 

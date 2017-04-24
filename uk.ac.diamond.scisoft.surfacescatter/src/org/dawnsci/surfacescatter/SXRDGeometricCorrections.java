@@ -37,7 +37,8 @@ public class SXRDGeometricCorrections {
 		IDataHolder dh1 = null;
 			
 		try {
-			dh1 = LoaderFactory.getData(model.getFilepath());			
+			String g = model.getFilepath();
+			dh1 = LoaderFactory.getData(g);			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

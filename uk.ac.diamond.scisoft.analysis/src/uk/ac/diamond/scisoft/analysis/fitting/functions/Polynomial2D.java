@@ -226,16 +226,18 @@ public class Polynomial2D extends AFunction {
 		
 	}
 	
-	public DoubleDataset getOutputValuesOverlapping (double[] d,int[] len, int[] boundaryBox, int fitPower ) {
-		
+	public DoubleDataset getOutputValuesOverlapping (double[] d,
+													int[] len, 
+													int[] pt, 
+													int fitPower ) {
+
 		DoubleDataset output1 = DatasetFactory.zeros(new int[] {len[1], len[0]});//new DoubleDataset(len[1], len[0]);
-		
-		for (int k=-1*(boundaryBox[1]); k<(-1*(boundaryBox[1]))+len[1]; k++){
-			for (int l=-1*(boundaryBox[0]); l<(-1*(boundaryBox[0]))+len[0]; l++){
+		for (int k=pt[1]; k<pt[1]+len[1]; k++){
+			for (int l=pt[0]; l<pt[0]+len[0]; l++){
 				
 				double temp = 0;
-				double x = k;
-				double y = l;
+				double y = k;
+				double x = l;
 			
 				for (int j = 0; j < (fitPower+1); j++) {
 					for (int i = 0; i < (fitPower+1); i++) {
@@ -249,7 +251,7 @@ public class Polynomial2D extends AFunction {
 					}
 				}
 				
-				output1.set(temp, k-(-1*boundaryBox[1]), l-(-1*boundaryBox[0]));
+				output1.set(temp, k-pt[1], l-pt[0]);
 			}
 		}
 	
