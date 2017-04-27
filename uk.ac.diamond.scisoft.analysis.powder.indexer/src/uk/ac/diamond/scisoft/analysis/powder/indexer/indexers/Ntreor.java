@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
 import uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexerParam;
-import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Dicvol.DicvolParam;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
 /**
@@ -177,7 +176,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	@Override
 	public Map<String, IPowderIndexerParam> initialParamaters() {
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new NtreorParam("WAVE", new Double(0.826033)));
+		intialParams.put("wavelength", new NtreorParam("WAVE", new Double( 0.49481)));
 		//intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
 		//intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
 		intialParams.put("merit", new NtreorParam("MERIT", new Double(10)));
