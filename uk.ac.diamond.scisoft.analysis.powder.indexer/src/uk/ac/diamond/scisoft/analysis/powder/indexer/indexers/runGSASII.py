@@ -18,7 +18,7 @@ logger.setLevel(logging.DEBUG)
 
 #TODO: REMOVE LATER POINT ONCE DEPENDENCY ON WX IN GSASII GONE
 #TODO: JSON string return objects - go that weby route - that casting time though
-import wx #TODO: doe s this requrie a load of ana??
+import wx #TODO: does this requrie a load of ana??
 
 def fake():
     return 0,0,0,0
@@ -56,7 +56,7 @@ callable = False
 def isCallAvaliable():
     return callable
 
-#call it more a wrapper to just intialised a wx.App()
+#call it more a wrapper to just initialised a wx.App()
 #side note in the GSASII implementation there might be no difference between a peak and peaks ...
 def getIndexing(peakData, controls, bravais):
     '''

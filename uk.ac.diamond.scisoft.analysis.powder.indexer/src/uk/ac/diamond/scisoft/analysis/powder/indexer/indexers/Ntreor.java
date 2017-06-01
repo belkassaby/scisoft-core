@@ -34,6 +34,9 @@ import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
  *
  *         See Ntreor documentation for further input file and output file
  *         information.
+ *         
+ *         
+ *         TODO: too few lines monoclinic test... 
 `1
  * @author Dean P. Ottewell
  */
@@ -48,6 +51,12 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	private static String BINNAME = "ntreor_new";
 
 	public Ntreor() {
+		
+		
+		isIndexerAvaliable(BINNAME);
+
+		
+		//TODO: setters in the below components
 		binName = BINNAME;
 		resultsExtension = ".short";
 	}
@@ -65,7 +74,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 	public void generateIndexFile(String fullPathFile) {
 		try {
-			PrintWriter writer = new PrintWriter(fullPathFile, "UTF-8");
+			PrintWriter writer = new PrintWriter(fullPathFile + ".dat", "UTF-8");
 
 			writer.println(outFileTitle);
 
@@ -77,14 +86,25 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 
 			writer.println();
 
+			IPowderIndexerParam kp = parameters.get("Choice");
+			parameters.remove("Choice");
+			String formated = kp.getName() + "=" + kp.getValue().intValue() + ",";
+			writer.println(formated);
+			
+			
 			for (Entry<String, IPowderIndexerParam> entry : parameters.entrySet()) {
-				NtreorParam param = (NtreorParam) entry.getValue();
-				writer.println(param.formatParam());
+				PowderIndexerParam param = (PowderIndexerParam) entry.getValue();
+				
+				String key = param.getName();
+				double value = param.getValue().doubleValue();
+				formated = key + "=" + value + ",";
+
+				writer.println(formated);
 			}
 			
 			// finish file
 			writer.println("END*");
-			writer.println("0.00");
+			//writer.println("0.00");
 			writer.close();
 
 		} catch (IOException e) {
@@ -92,13 +112,13 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 		}
 	}
 
-	public List<CellParameter> getResults(String resultFilePath) {
+	public List<CellParameter> extractResults(String resultFilePath) {
 
 		List<String> rawIndexes = extractRawCellInfo(resultFilePath, CELLFILEINDETIFIER, 3);
 
 		for (String i : rawIndexes) {
 			CellParameter cell = new CellParameter();
-
+			
 			String id = "Crystal system: ";
 			String crystalSys = i.substring(id.length() + 1, i.length()); // Until
 																			// reach
@@ -107,7 +127,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			Map<String, Double> raw = extractDataKeyVal(i);
 
 			CrystalSystem system = new CrystalSystem();
-
+			
 			// Extract crystal system indexing found
 			cell.setCrystalSystem(system); //TODO: Shouldn't really be having to set this
 
@@ -115,9 +135,19 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			cell.setUnitCellLengths(raw.get("A"), raw.get("B"), raw.get("C"));
 			cell.setUnitCellAngles(raw.get("Alpha"), raw.get("Beta"), raw.get("Gamma"));
 
+			cell.setUnitA(raw.get("A"));
+			cell.setUnitB(raw.get("B"));
+			cell.setUnitC(raw.get("C"));
+			cell.setAngleAlpha(raw.get("Alpha"));
+			cell.setAngleBeta(raw.get("Beta"));
+			cell.setAngleGamma(raw.get("Gamma"));
+			
 			// Extract & set figure of merit
 			//double merit = (Double) raw.get("M(20)"));
 			cell.setFigureMerit(20);
+			
+			cell.setIndexerIdentifer(this.ID);
+			
 
 			plausibleCells.add(cell);
 		}
@@ -148,13 +178,13 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			// Input file......:
 			bw.write(path + "/" + outFileTitle + ".dat" + "\n");
 			// Output file.....:
-			bw.write(path + "/" + outFileTitle + ".imp" + "\n");
+			bw.write(path + "/" +outFileTitle + ".imp" + "\n");
 			// Condensed output file.....:
-			bw.write(path + "/" + outFileTitle + ".con" + "\n");
+			bw.write(path + "/" +outFileTitle + ".con" + "\n");
 			// Short output file ........:
-			bw.write(path + "/" + outFileTitle + ".short" + "\n");
+			bw.write(path + "/" +outFileTitle + ".short" + "\n");
 			// Theta-shift (irrelevant if LIMIT=1) :
-			bw.write("10\n");
+			bw.write("1\n");
 			// Do you want to have the possibility to stop the iterated N-TREOR
 			// run ?
 			// Y makes it possible to avoid the triclinic tests.
@@ -163,7 +193,7 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 			bw.flush();
 
 		} catch (IOException e) {
-			logger.debug("Logger was unable to ");
+			logger.debug("Ntreor was unable to run ");
 			e.printStackTrace();
 		}
 	}
@@ -174,30 +204,21 @@ public class Ntreor extends AbstractPowderIndexerProcess {
 	}
 
 	@Override
-	public Map<String, IPowderIndexerParam> initialParamaters() {
+	public Map<String, IPowderIndexerParam> getInitialParamaters() {
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new NtreorParam("WAVE", new Double( 0.49481)));
-		//intialParams.put("volume", new NtreorParam("VOL", new Double(4000)));
+		intialParams.put(StandardConstantParameters.wavelength, new PowderIndexerParam("wave", new Double(0.49481)));
+		intialParams.put(StandardConstantParameters.maxVolume, new PowderIndexerParam("VOL", new Double(5000)));
 		//intialParams.put("limit", new NtreorParam("LIMIT", new Double(1)));
-		intialParams.put("merit", new NtreorParam("MERIT", new Double(10)));
-		intialParams.put("choice", new NtreorParam("CHOICE", new Double(3)));
+		intialParams.put("Merit Limit", new PowderIndexerParam("merit", new Double(10)));
+		intialParams.put("Choice", new PowderIndexerParam("choice", new Integer(3))); // 
+		
+		
+		//TODO: crystal search intial paramters
+		//Cant pass all the crystal choices... only cancel triclinic search
+		
 		return intialParams;
 	}
 	
-	class NtreorParam extends PowderIndexerParam {
-
-		public NtreorParam(String name, Number value) {
-			super(name, value);
-		}
-
-		@Override
-		public String formatParam() {
-			String key = this.getName();
-			String value = this.getValue().toString();
-			String formated = key + "=" + value + ",";
-			return formated; 
-		}
-		
-	}
+	
 
 }

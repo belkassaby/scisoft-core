@@ -38,17 +38,20 @@ import java.util.Iterator;
 public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProcessingIndexer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Dicvol.class);
+	
 	public static final String ID = "Dicvol";
+	
 	private static String CELLFILEINDETIFIER = "REDUCED CELL :";
+	
 	private static String BINNAME = "dicvol";
 	
 	public Dicvol() {
-		binName = BINNAME;
-		resultsExtension = ".ord";
+		this.binName = BINNAME;
+		this.resultsExtension = ".ord";
 		//Set params
 	}
 	
-	// Intilaise keys and values. Insertion order is important to file created.
+	// Intial keys and values. Insertion order is important to file created.
 	// Also included defaults
 	// See dicvol.html for details
 	private static LinkedHashMap<String, String> stdKeyval = new LinkedHashMap<String, String>() {
@@ -64,22 +67,23 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 			// =2 2-THETA ANGLE IN DEGREES.
 			// =3 D-SPACING IN ANGSTROM UNIT.
 			// =4 Q SPECIFIED IN Q-UNITS AS E+04/D**2.
+		
 			put("JC", "1");
 			// JC =0 CUBIC SYSTEM IS NOT TESTED.
 			// =1 CUBIC SYSTEM IS TESTED.
 			put("JT", "1");
 			// JT =0 TETRAGONAL SYSTEM IS NOT TESTED.
 			// =1 TETRAGONAL SYSTEM IS TESTED.
-			put("JH", "0");
+			put("JH", "1");
 			// JH =0 HEXAGONAL SYSTEM IS NOT TESTED.
 			// =1 HEXAGONAL SYSTEM IS TESTED.
-			put("JO", "0");
+			put("JO", "1");
 			// JO =0 ORTHORHOMBIC SYSTEM IS NOT TESTED.
 			// =1 ORTHORHOMBIC SYSTEM IS TESTED.
-			put("JM", "0");
+			put("JM", "1");
 			// JM =0 MONOCLINIC SYSTEM IS NOT TESTED.
 			// =1 MONOCLINIC SYSTEM IS TESTED.
-			put("JTR", "1");
+			put("JTR", "0");
 			// JTR =0 TRICLINIC SYSTEM IS NOT TESTED.
 			// =1 TRICLINIC SYSTEM IS TESTED.
 
@@ -167,8 +171,8 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 	};
 
 	@Override
-	public List<CellParameter> getResults(String resultFilePath) {
-
+	public List<CellParameter> extractResults(String resultFilePath) {
+		//TODO: check the addition of "o"
 		List<String> rawUnitCell = extractRawCellInfo(resultFilePath, CELLFILEINDETIFIER, 1);
 
 		List<String> rawFigureMerit = extractRawCellInfo(resultFilePath, "FIGURES OF MERIT", 1);
@@ -234,7 +238,7 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 			// PLEASE ENTER THE NAME OF INPUT FILE
 			bw.write(path + "/" + outFileTitle + "\n");
 			// PLEASE ENTER THE NAME OF OUTPUT FILE
-			bw.write(path + "/" + outFileTitle + "o" + "\n");
+			bw.write(path + "/" + outFileTitle + resultsExtension  +"\n");
 			bw.flush();
 		} catch (IOException e) {
 			logger.debug("Unable to communicate with Dicvol executable" + e);
@@ -253,37 +257,89 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 		try {
 			PrintWriter writer = new PrintWriter(fullPathFile, "UTF-8");
 
+//			// CARD 1 TITLE FREE FORMAT
+//			writer.println(outFileTitle);
+//
+//			String delim = " ";
+//
+//			Iterator<Entry<String, String>> itr = stdKeyval.entrySet().iterator();
+//
+//			int card2Sz = 8;
+//			int card3Sz = 7;
+//			int card4Sz = 4;
+//			int card5Sz = 6;
+//
+//			// CARD 2 N,ITYPE,JC,JT,JH,JO,JM,JTR -8 FREE FORMAT
+//			// CARD 3 AMAX,BMAX,CMAX,VOLMIN,VOLMAX,BEMIN,BEMAX-7 FREE FORMAT
+//			// CARD 4 WAVE,POIMOL,DENS,DELDEN-4 FREE FORMAT
+//			// CARD 5 EPS,FOM,N_IMP,ZERO_S,ZERO_REF,OPTION-6 FREE FORMAT
+//			repeat.accept(card2Sz, () -> writer.print(itr.next().getValue() + delim));
+//			writer.println();
+//			repeat.accept(card3Sz, () -> writer.print(itr.next().getValue() + delim));
+//			writer.println();
+//			repeat.accept(card4Sz, () -> writer.print(itr.next().getValue() + delim));
+//			writer.println();
+//			repeat.accept(card5Sz, () -> writer.print(itr.next().getValue() + delim));
+//			writer.println();
+//			for (int i = 0; i < peakData.getSize(); ++i) {
+//				double d = peakData.getDouble(i);
+//				writer.println(String.valueOf(d));
+//			}
+//
+//			writer.close();
+
+			//TODO: what to do when the value is not there 
+			
 			// CARD 1 TITLE FREE FORMAT
-			writer.println(outFileTitle);
+			writer.println(fullPathFile);
 
-			String delim = " ";
+			String[] CARD2KEYS = {"N","ITYPE",				
+					StandardConstantParameters.cubicSearch,
+					StandardConstantParameters.tetragonalSearch,
+					StandardConstantParameters.hexagonalSearch,
+					StandardConstantParameters.orthorhombicSearch,
+					StandardConstantParameters.monoclinicSearch,
+					StandardConstantParameters.triclinicSearch };
+			
+			for (String cardKey : CARD2KEYS){
+				writer.print(parameters.get(cardKey).getValue().intValue() + " ");
+			}
+			writer.println();
 
-			Iterator<Entry<String, String>> itr = stdKeyval.entrySet().iterator();
-
-			int card2Sz = 8;
-			int card3Sz = 7;
-			int card4Sz = 4;
-			int card5Sz = 6;
-
-			// CARD 2 N,ITYPE,JC,JT,JH,JO,JM,JTR -8 FREE FORMAT
-			// CARD 3 AMAX,BMAX,CMAX,VOLMIN,VOLMAX,BEMIN,BEMAX-7 FREE FORMAT
-			// CARD 4 WAVE,POIMOL,DENS,DELDEN-4 FREE FORMAT
-			// CARD 5 EPS,FOM,N_IMP,ZERO_S,ZERO_REF,OPTION-6 FREE FORMAT
-			repeat.accept(card2Sz, () -> writer.print(itr.next().getValue() + delim));
+			
+			//TODO: repeat for rest?
+			String[] CARD3KEYS = {"AMAX","BMAX","CMAX","VOLMIN",StandardConstantParameters.maxVolume,"BEMIN","BEMAX"};
+			for (String cardKey : CARD3KEYS){
+				writer.print(parameters.get(cardKey).getValue().toString() + " ");
+			}
 			writer.println();
-			repeat.accept(card3Sz, () -> writer.print(itr.next().getValue() + delim));
+			
+			String[] CARD4KEYS ={StandardConstantParameters.wavelength,"POIMOL","DENS","DELDEN"}; 
+			for (String cardKey : CARD4KEYS){
+				writer.print(parameters.get(cardKey).getValue().toString()+ " ");			
+			}
 			writer.println();
-			repeat.accept(card4Sz, () -> writer.print(itr.next().getValue() + delim));
+			
+			//Double precison set
+			String[] CARD5KEYSPRECISION = {"EPS","FOM"};
+			for (String cardKey : CARD5KEYSPRECISION ){
+				writer.print(parameters.get(cardKey).getValue().toString() + " ");
+			}
+			
+			String[] CARD5KEYS = {"N_IMP","ZERO_S","ZERO_REF","OPTION"};
+			for (String cardKey : CARD5KEYS ){
+				writer.print(parameters.get(cardKey).getValue().intValue() + " ");
+			}
 			writer.println();
-			repeat.accept(card5Sz, () -> writer.print(itr.next().getValue() + delim));
-			writer.println();
+			
 			for (int i = 0; i < peakData.getSize(); ++i) {
 				double d = peakData.getDouble(i);
 				writer.println(String.valueOf(d));
 			}
-
+			
 			writer.close();
 
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -306,71 +362,66 @@ public class Dicvol extends AbstractPowderIndexerProcess implements IPowderProce
 	
 	@Override
 	public String getResultsDataPath() {
-		return filepath + outFileTitle + "o";
-	}
-
-	public void setActiveBravais(boolean cubic, boolean tetragonal, boolean hexagonal, boolean orthorhombic,
-			boolean monoclinic, boolean triclinc) {
-
-		stdKeyval.put("JC", (cubic) ? "1" : "0");
-		// JC =0 CUBIC SYSTEM IS NOT TESTED.
-		// =1 CUBIC SYSTEM IS TESTED.
-
-		stdKeyval.put("JT", (tetragonal) ? "1" : "0");
-		// JT =0 TETRAGONAL SYSTEM IS NOT TESTED.
-		// =1 TETRAGONAL SYSTEM IS TESTED.
-
-		stdKeyval.put("JH", (hexagonal) ? "1" : "0");
-		// JH =0 HEXAGONAL SYSTEM IS NOT TESTED.
-		// =1 HEXAGONAL SYSTEM IS TESTED.
-		stdKeyval.put("JO", (orthorhombic) ? "1" : "0");
-		// JO =0 ORTHORHOMBIC SYSTEM IS NOT TESTED.
-		// =1 ORTHORHOMBIC SYSTEM IS TESTED.
-		stdKeyval.put("JM", (monoclinic) ? "1" : "0");
-		// JM =0 MONOCLINIC SYSTEM IS NOT TESTED.
-		// =1 MONOCLINIC SYSTEM IS TESTED.
-		stdKeyval.put("JTR", (triclinc) ? "1" : "0");
-		// JTR =0 TRICLINIC SYSTEM IS NOT TESTED.
-		// =1 TRICLINIC SYSTEM IS TESTED.
-	}
-
-	public List<Boolean> getActiveBravais() {
-		List<Boolean> activeBravais = new ArrayList<Boolean>();
-		activeBravais.add(convertToBoolean(stdKeyval.get("JC")));
-		activeBravais.add(convertToBoolean(stdKeyval.get("JT")));
-		activeBravais.add(convertToBoolean(stdKeyval.get("JH")));
-		activeBravais.add(convertToBoolean(stdKeyval.get("JO")));
-		activeBravais.add(convertToBoolean(stdKeyval.get("JM")));
-		activeBravais.add(convertToBoolean(stdKeyval.get("JTR")));
-		return activeBravais;
-	}
-
-	private boolean convertToBoolean(String value) {
-		boolean returnValue = false;
-		if ("1".equalsIgnoreCase(value))
-			returnValue = true;
-		return returnValue;
+		return filepath + outFileTitle;
 	}
 
 	@Override
-	public Map<String, IPowderIndexerParam> initialParamaters() {
+	public Map<String, IPowderIndexerParam> getInitialParamaters() {
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		intialParams.put("wavelength", new DicvolParam("wavelength", new Double(1.0)));
+		//intialParams.put("WAVE", new DicvolParam("WAVE", new Double(1.0)));
+		
+		Iterator<Entry<String, String>> itr = stdKeyval.entrySet().iterator();
+		
+		
+		//TODO: tmp lazy method as all these values are needed to run Dicvol
+		while(itr.hasNext()){
+			Entry<String, String> kv = itr.next();
+			
+			Number val = new Double(kv.getValue());
+			
+			try{
+				  val = Integer.parseInt(kv.getValue());
+				  // is an integer!
+			} catch (NumberFormatException e) {
+			  // not an integer!
+				//val = new Double(kv.getValue());
+			}
+			
+			intialParams.put(kv.getKey(), new PowderIndexerParam(kv.getKey(), val));
+		}
+
+		
+		//TODO: complete the rest of the standardparameters
+		intialParams.put(StandardConstantParameters.wavelength, new PowderIndexerParam(StandardConstantParameters.wavelength, 0.));
+		intialParams.put(StandardConstantParameters.maxVolume, new PowderIndexerParam(StandardConstantParameters.maxVolume, 2000.));
+		
+		intialParams.put(StandardConstantParameters.minFigureMerit, new PowderIndexerParam(StandardConstantParameters.minFigureMerit, 0.03));
+		
+		// JC =0 CUBIC SYSTEM IS NOT TESTED.
+		// =1 CUBIC SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.cubicSearch, new PowderIndexerParam("JC", 1));
+		// JM =0 MONOCLINIC SYSTEM IS NOT TESTED.
+		// =1 MONOCLINIC SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.monoclinicSearch, new PowderIndexerParam("JM", 1));		
+		// JH =0 HEXAGONAL SYSTEM IS NOT TESTED.
+		// =1 HEXAGONAL SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.hexagonalSearch, new PowderIndexerParam("JH", 1)); 
+		// JO =0 ORTHORHOMBIC SYSTEM IS NOT TESTED.
+		// =1 ORTHORHOMBIC SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.orthorhombicSearch,new PowderIndexerParam("JO", 1));
+		// JT =0 TETRAGONAL SYSTEM IS NOT TESTED.
+		// =1 TETRAGONAL SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.tetragonalSearch, new PowderIndexerParam("JT",1));
+		// JTR =0 TRICLINIC SYSTEM IS NOT TESTED.
+		// =1 TRICLINIC SYSTEM IS TESTED.
+		intialParams.put(StandardConstantParameters.triclinicSearch, new PowderIndexerParam("JTR", 0));
+
+		intialParams.put(StandardConstantParameters.trigonalSearch, new PowderIndexerParam(StandardConstantParameters.trigonalSearch, 0));
+		intialParams.put(StandardConstantParameters.hexagonalSearch, new PowderIndexerParam(StandardConstantParameters.hexagonalSearch	, 0));
+		
 		return intialParams;
 	}
 
 	
-	class DicvolParam extends PowderIndexerParam {
-
-		public DicvolParam(String name, Number value) {
-			super(name, value);
-		}
-
-		@Override
-		public String formatParam() {
-			return this.name; //Dicvol is not that complex in formating
-		}
-		
-	}
 
 }

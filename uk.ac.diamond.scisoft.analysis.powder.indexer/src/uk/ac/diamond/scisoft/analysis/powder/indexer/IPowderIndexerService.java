@@ -3,6 +3,9 @@ package uk.ac.diamond.scisoft.analysis.powder.indexer;
 import java.util.Collection;
 import java.util.Map;
 
+
+//TODO: service setup for indexer path?
+
 public interface IPowderIndexerService {
 	
 	/**
@@ -20,6 +23,7 @@ public interface IPowderIndexerService {
 	 */
 	public Collection<String> getRegisteredIndexers();
 	
+
 	/**
 	 * Get the (default) set of parameters associated with given IPeakFinder ID
 	 * @param id Unique string (e.g. FQCN)

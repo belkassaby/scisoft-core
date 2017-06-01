@@ -4,7 +4,6 @@ import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
 import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
 import uk.ac.diamond.scisoft.analysis.powder.indexer.PowderIndexerParam;
-import uk.ac.diamond.scisoft.analysis.powder.indexer.indexers.Ntreor.NtreorParam;
 import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcClient;
 import uk.ac.diamond.scisoft.xpdf.views.CrystalSystem;
 
@@ -23,7 +22,7 @@ import org.eclipse.january.dataset.IDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
+/**l
  *         GsasIIWrap call based of xmlrpc. Class acts as a client that
  *         communicates with the Python server that has access to GsasII 
  *         powder indexing procedure. The server file {@link runGSASII.py} to run as
@@ -56,7 +55,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	private List<Double> controls = Arrays.asList(0.01134, 0.0, 4.0, 25.0);
 
 	@Override
-	public List<CellParameter> getPlausibleCells() {
+	public List<CellParameter> getResultCells() {
 		return plausibleCells;
 	}
 
@@ -159,7 +158,7 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	public void runIndexer() {
 		try {
 			String rawCellResult = (String) analysisRpcClient.request(INDEXING,
-					new Object[] { peakData, controls, activeBravais});
+					new Object[] { peakData, controls, gatherActiveBravaisParamters()});
 
 			if (rawCellResult.length() > 0){
 				plausibleCells = extractCellResults(rawCellResult);
@@ -183,7 +182,43 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 		// TODO: might want a rerun so no need to terminate here
 		terminatePyServer();
 	}
+	
+	private List<Boolean> gatherActiveBravaisParamters(){
+		
+//		['Cubic-F','Cubic-I','Cubic-P','Trigonal-R','Trigonal/Hexagonal-P',
+//	    'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
+//	    'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
+		List<Boolean> activeBravais = Arrays.asList(
+				isParameterSet(StandardConstantParameters.cubicSearch), //'Cubic-F'
+				isParameterSet(StandardConstantParameters.cubicSearch), //'Cubic-I'
+				isParameterSet(StandardConstantParameters.cubicSearch), //,'Cubic-P'
+				isParameterSet(StandardConstantParameters.trigonalSearch), //,'Trigonal-R'
+				isParameterSet(StandardConstantParameters.trigonalSearch), //,'Trigonal/Hexagonal-P',
+				isParameterSet(StandardConstantParameters.tetragonalSearch), //'Tetragonal-I'
+				isParameterSet(StandardConstantParameters.tetragonalSearch), //,'Tetragonal-P'
+				isParameterSet(StandardConstantParameters.orthorhombicSearch), //,'Orthorhombic-F'
+				isParameterSet(StandardConstantParameters.orthorhombicSearch), //,'Orthorhombic-I'
+				isParameterSet(StandardConstantParameters.orthorhombicSearch), //,'Orthorhombic-C',
+				isParameterSet(StandardConstantParameters.orthorhombicSearch), //'Orthorhombic-P'
+				isParameterSet(StandardConstantParameters.monoclinicSearch),//,'Monoclinic-C'
+				isParameterSet(StandardConstantParameters.monoclinicSearch), //,'Monoclinic-P'
+				isParameterSet(StandardConstantParameters.triclinicSearch)//,'Triclinic']
+				);
+		
+		return activeBravais;
+	}
 
+	
+	private Boolean isParameterSet(String paramName){
+		try {
+			return getParameter(paramName).getValue().intValue() != 0;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		} 
+	}
+	
 	@Override
 	public void stopIndexer() {
 		terminatePyServer();
@@ -210,43 +245,39 @@ public class GsasIIWrapper extends AbstractPowderIndexer {
 	}
 	
 	@Override
-	public Map<String, IPowderIndexerParam> initialParamaters() {
+	public Map<String, IPowderIndexerParam> getInitialParamaters() {
 		// TODO Auto-generated method stub
 		Map<String, IPowderIndexerParam> intialParams = new TreeMap<String, IPowderIndexerParam>();
-		//intialParams.put("wavelength", new GsasIIParam("wavelength", new Double(1.5405981)));
+		//TODO: wavelength should be grabbed from the service constant file
+		intialParams.put("wavelength", new PowderIndexerParam("Wavelength", new Double(1.5405981)));
 
 		// Controls UNKNOWN_UNUSED,zero=0,ncno = 4 ,volume=25, - these are deafult
-		intialParams.put("zero", new GsasIIParam("zero", 0));
-		intialParams.put("ncno",new GsasIIParam("ncno", 4));
-		intialParams.put("volume", new GsasIIParam("volume", 25));
+		intialParams.put("Zero Point Error", new PowderIndexerParam("zero", 0));
+		
+		//TODO: what is ncno then?
+		//intialParams.put("ncno",new PowderIndexerParam("ncno", 4));
+		intialParams.put("Volume Limit", new PowderIndexerParam("volume", 25));
+		
+	
+		intialParams.put(StandardConstantParameters.cubicSearch, new PowderIndexerParam(StandardConstantParameters.cubicSearch, 1));
+		intialParams.put(StandardConstantParameters.monoclinicSearch, new PowderIndexerParam(StandardConstantParameters.monoclinicSearch, 1));
+		intialParams.put(StandardConstantParameters.orthorhombicSearch,new PowderIndexerParam(StandardConstantParameters.orthorhombicSearch, 1));
+		intialParams.put(StandardConstantParameters.hexagonalSearch, new PowderIndexerParam(StandardConstantParameters.hexagonalSearch, 1)); 
+		intialParams.put(StandardConstantParameters.tetragonalSearch, new PowderIndexerParam(StandardConstantParameters.tetragonalSearch,10));
+		intialParams.put(StandardConstantParameters.trigonalSearch, new PowderIndexerParam(StandardConstantParameters.trigonalSearch, 0));
+		intialParams.put(StandardConstantParameters.hexagonalSearch, new PowderIndexerParam(StandardConstantParameters.hexagonalSearch	, 0));
+		intialParams.put(StandardConstantParameters.triclinicSearch, new PowderIndexerParam(StandardConstantParameters.triclinicSearch, 0));
 		
 		return intialParams;
 	}
 
-	private void gatherParameters(){
-		//controls = Arrays.asList(-0.0224, 0.0, 4.0, 25.0);
-		//controls.get(0) = this.
-		controls.set(1, parameters.get("zero").getValue().doubleValue());
-		controls.set(2, parameters.get("ncno").getValue().doubleValue());
-		controls.set(3, parameters.get("volume").getValue().doubleValue());
 
-		//Bravais configure
-	
-	}
-	
-	
-	class GsasIIParam extends PowderIndexerParam {
-
-		public GsasIIParam(String name, Number value) {
-			super(name, value);
-		}
-
-		@Override
-		public String formatParam() {
-			//Just the value in a string. Will be passed into the apprioate ordeered posiition
-			return value.toString(); 
-		}
+	@Override
+	public Boolean isIndexerAvaliable(String identifier) {
+		//TODO: is GSASII a differnt setup? i need to get to python files.. Should check what Iwant is avaliable
 		
+		return false;
 	}
 
+	
 }

@@ -42,7 +42,7 @@ public class ProcessIndexerTest {
 		}
 
 		@Override
-		public List<CellParameter> getResults(String resultFilePath) {
+		public List<CellParameter> extractResults(String resultFilePath) {
 			//Not Applicable
 			return null;
 		}

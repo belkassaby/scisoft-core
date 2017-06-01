@@ -81,7 +81,7 @@ public class GSASIITest {
 			expectedCells.add(cell);
 		}
 		
-		List<CellParameter> cells = test.getPlausibleCells();
+		List<CellParameter> cells = test.getResultCells();
 
 		for (int i = 0; i < expectedCells.size(); ++i){
 			assertTrue(expectedCells.get(i).equals(cells.get(i)));
@@ -104,7 +104,7 @@ public class GSASIITest {
 			status = test.getStatus();
 		}
 		
-		List<CellParameter> resultCells = test.getPlausibleCells();
+		List<CellParameter> resultCells = test.getResultCells();
 		
 		assertTrue(resultCells.size() > 0);
 	}

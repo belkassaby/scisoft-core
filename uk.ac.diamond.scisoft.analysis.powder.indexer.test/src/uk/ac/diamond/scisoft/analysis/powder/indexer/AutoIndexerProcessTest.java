@@ -51,7 +51,7 @@ public class AutoIndexerProcessTest {
 		}
 
 		@Override
-		public List<CellParameter> getResults(String resultFilePath) {
+		public List<CellParameter> extractResults(String resultFilePath) {
 			//Expected empty on a call
 			return this.plausibleCells;
 		}
@@ -69,7 +69,7 @@ public class AutoIndexerProcessTest {
 		}
 
 		@Override
-		public Map<String, IPowderIndexerParam> initialParamaters() {
+		public Map<String, IPowderIndexerParam> getInitialParamaters() {
 			// TODO Auto-generated method stub
 			return null;
 		}

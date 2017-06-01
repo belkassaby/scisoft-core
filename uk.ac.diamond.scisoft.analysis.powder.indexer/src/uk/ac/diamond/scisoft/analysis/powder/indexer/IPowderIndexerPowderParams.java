@@ -15,9 +15,12 @@ public interface IPowderIndexerPowderParams {
 	
 	public IPowderIndexerParam  getParameter(String pName) throws Exception;
 	
-	public void setParameter(IPowderIndexerParam param) throws Exception;
+	public void setParameter(IPowderIndexerParam param, String paramName) throws Exception;
 	
-	public Map<String, IPowderIndexerParam> initialParamaters();
-
+	public Map<String, IPowderIndexerParam> getInitialParamaters();
+	
+	
+	//TODO: standard parameters setup must be defined
+	//public Map<String, IPowderIndexerParam> getWavelength();
 	
 }

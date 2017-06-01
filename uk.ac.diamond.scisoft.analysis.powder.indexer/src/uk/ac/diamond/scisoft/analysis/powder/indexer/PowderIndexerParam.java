@@ -1,12 +1,13 @@
 package uk.ac.diamond.scisoft.analysis.powder.indexer;
 
 
-public abstract class PowderIndexerParam implements IPowderIndexerParam {
+//TODO: change all paramters to be universal
+public class PowderIndexerParam implements IPowderIndexerParam {
 
-	protected final String name;
-	protected Number value;	
+	private final String name;
+	private Number value;	
 	
-	protected PowderIndexerParam(String name, Number value) {
+	public PowderIndexerParam(String name, Number value) {
 		this.name = name;
 		setValue(value);
 	}
@@ -59,6 +60,9 @@ public abstract class PowderIndexerParam implements IPowderIndexerParam {
 	}
 
 	@Override
-	public abstract String formatParam();
-		
+	public String formatParam() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

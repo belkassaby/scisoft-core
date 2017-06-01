@@ -48,7 +48,7 @@ public class DicvolTest {
 	public void extractFileSingleCell() {
 		Dicvol test = new Dicvol(); 
 		
-		List<CellParameter> resultCells = test.getResults("src/uk/ac/diamond/scisoft/analysis/powder/indexer/testDicvol1cell");
+		List<CellParameter> resultCells = test.extractResults("src/uk/ac/diamond/scisoft/analysis/powder/indexer/testDicvol1cell");
 		
 		CellParameter cell = new CellParameter();
 		

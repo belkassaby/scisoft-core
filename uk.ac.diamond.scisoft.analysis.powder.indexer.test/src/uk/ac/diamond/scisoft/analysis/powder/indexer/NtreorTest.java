@@ -95,7 +95,7 @@ public class NtreorTest {
 		test.setOutFileTitle("testNtreor");
 
 		List<CellParameter> resultCells = test
-				.getResults("src/uk/ac/diamond/scisoft/analysis/powder/indexer/testNtreor1Cell.short");
+				.extractResults("src/uk/ac/diamond/scisoft/analysis/powder/indexer/testNtreor1Cell.short");
 
 		CellParameter cell = new CellParameter();
 

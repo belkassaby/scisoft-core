@@ -27,7 +27,7 @@ public interface IPowderIndexerParam {
 	public Number getValue();
 
 	/**
-	 * Set the value of the parameter, 
+	 * Set the value of the parameter, assuming is Number value to set. 
 	 * @param value New value of the parameter
 	 * @throws IllegalArgumentException if value is not correct type (Integer/Double)
 	 */

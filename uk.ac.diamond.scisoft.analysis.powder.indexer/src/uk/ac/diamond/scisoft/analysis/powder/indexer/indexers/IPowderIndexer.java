@@ -20,7 +20,7 @@ import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
 public interface IPowderIndexer extends IPowderIndexerPowderParams {
 
 	/**
-	 * Configure indexer setup to load in specfied parameter sets and run
+	 * Configure indexer setup to load in specified parameter sets and run
 	 * styles. For indexers these range from search exhauation, error bounds and
 	 * sample configuration.
 	 * 
@@ -29,6 +29,16 @@ public interface IPowderIndexer extends IPowderIndexerPowderParams {
 	 */
 	public void configureIndexer();
 
+	//TODO: configureIndexer to generic. Want another method for validating indexer avaliabilit
+	
+	public String getIndexerLocation();
+	
+	public void setIndexerLocation(String fullpath);
+	
+	public Boolean isIndexerAvaliable(String identifier);
+	
+	public void setPeakData(IDataset peakData);
+	
 	/**
 	 * Run indexer process based on the configured setting
 	 * 
@@ -60,10 +70,14 @@ public interface IPowderIndexer extends IPowderIndexerPowderParams {
 	 * @return contains all cells that were extracted and formated from a
 	 *         indexer run
 	 */
-	public List<CellParameter> getPlausibleCells();
+	public List<CellParameter> getResultCells();
 
+	
+	
+	//TODO: below is mroe something you could do if you want to ensure your validity in your indexer...
+	
 	/**
-	 * Valdation of data for autoindexer.
+	 * Validation of data for autoindexer.
 	 * 
 	 * Ensures the data is not null, enough peaks to run and correct format
 	 * 

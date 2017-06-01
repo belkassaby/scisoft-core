@@ -21,10 +21,11 @@ import org.slf4j.LoggerFactory;
  * 
  *         Configuration for executables different binary locations.
  * 
+ * 
  *         Reads in streams for both writing to and reading from the indexer
  *         process.
-
- * @author Dean P. Ottewell
+ *
+ * 		   @author Dean P. Ottewell
  */
 public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer implements IPowderProcessingIndexer {
 
@@ -75,7 +76,7 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 
 	@Override
 	public void configureIndexer() {
-		String fullPath = filepath + outFileTitle + ".dat";
+		String fullPath = filepath + outFileTitle;
 
 		generateIndexFile(fullPath);
 
@@ -158,8 +159,8 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 	}
 
 	@Override
-	public List<CellParameter> getPlausibleCells() {
-		return getResults(filepath + outFileTitle + resultsExtension);
+	public List<CellParameter> getResultCells() {
+		return extractResults(filepath + outFileTitle + resultsExtension);
 	}
 
 	/*
@@ -203,4 +204,15 @@ public abstract class AbstractPowderIndexerProcess extends AbstractPowderIndexer
 		}
 		return rawIndexes;
 	}
+	
+	@Override
+	public Boolean isIndexerAvaliable(String identifier) {
+		String path = System.getenv(identifier);
+		if(path != null){
+			setIndexerLocation(path);
+			return true;
+		}
+		return false;
+	}
+
 }

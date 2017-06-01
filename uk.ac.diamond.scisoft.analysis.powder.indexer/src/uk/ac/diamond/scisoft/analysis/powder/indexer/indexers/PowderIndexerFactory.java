@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Dean P. Ottewell
  */
-public class IndexerFactory {
+public class PowderIndexerFactory {
 
-	private static final Logger logger = LoggerFactory.getLogger(IndexerFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(PowderIndexerFactory.class);
 
 	/**
 	 * Creates a instance of corresponding indexer based on the unqiue ID for each idexer

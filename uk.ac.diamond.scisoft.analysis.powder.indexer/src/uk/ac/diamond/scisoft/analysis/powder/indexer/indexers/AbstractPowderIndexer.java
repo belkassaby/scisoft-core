@@ -8,7 +8,6 @@ import java.util.TreeMap;
 import org.eclipse.january.dataset.IDataset;
 
 import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerParam;
-import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
 
 /**
  * 
@@ -25,11 +24,11 @@ import uk.ac.diamond.scisoft.analysis.powder.indexer.IPowderIndexerPowderParams;
 
  * @author Dean P. Ottewell
  */
-public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIndexerPowderParams {
+public abstract class AbstractPowderIndexer implements IPowderIndexer {
 
 	protected IDataset peakData;
 
-	protected String indexerOutFilepath;
+	protected String fullIndexerPath;
 
 	protected String outFileTitle;
 
@@ -37,27 +36,18 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 
 	protected Map<String, IPowderIndexerParam> parameters = new TreeMap<String, IPowderIndexerParam>();
 	
-	// A selection of bravais searches that are active required for GSASII
-	// 14 lattice searches being respectively
-//	['Cubic-F','Cubic-I','Cubic-P','Trigonal-R','Trigonal/Hexagonal-P',
-//	    'Tetragonal-I','Tetragonal-P','Orthorhombic-F','Orthorhombic-I','Orthorhombic-C',
-//	    'Orthorhombic-P','Monoclinic-C','Monoclinic-P','Triclinic']
-	protected List<Boolean> activeBravais = Arrays.asList(true, true, true, false, false, false, false, false, false,
-			false, false, false, false, false);
-	
-	public List<Boolean> getActiveBravais() {
-		return activeBravais;
-	}
-
-	public void setActiveBravais(List<Boolean> activeBravais) {
-		this.activeBravais = activeBravais;
-	}
-	//TODO: place active bravais searching in parameter set
-
-	
-	
-	
 	protected static String ID;
+
+	public AbstractPowderIndexer() {
+		this.parameters = this.getInitialParamaters();
+		
+		
+		//Genric name generation?
+		this.outFileTitle = "tmpSet";
+	}
+
+
+	//TODO: place active bravais searching in parameter set
 	
 	public IDataset getPeakData() {
 		return peakData;
@@ -67,7 +57,7 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 		this.peakData = peakData;
 	}
 
-	public List<CellParameter> getPlausibleCells() {
+	public List<CellParameter> getResultCells() {
 		return plausibleCells;
 	}
 
@@ -75,27 +65,44 @@ public abstract class AbstractPowderIndexer implements IPowderIndexer, IPowderIn
 		return outFileTitle;
 	}
 
-	public void setOutFileTitle(String outTitle) {
-		this.outFileTitle = outTitle;
-	};
 
+	@Override
+	public String getIndexerLocation(){
+		return fullIndexerPath;
+	}
+	
+	@Override
+	public void setIndexerLocation(String fullpath) {
+		this.fullIndexerPath = fullpath;
+	}
+
+	@Override
+	public Boolean isIndexerAvaliable(String identifier) {
+		String path = System.getenv(identifier);
+		if(path != null){
+			setIndexerLocation(path);
+			return true;
+		}
+		return false;
+	}
+
+	
+	//Standard parameter setup
+	
 	@Override
 	public Map<String, IPowderIndexerParam> getParameters() {
 		return this.parameters;
 	}
-
+	
 	@Override
 	public IPowderIndexerParam getParameter(String pName) throws Exception {
 		return this.parameters.get(pName);
 	}
-
+	
 	@Override
-	public void setParameter(IPowderIndexerParam param) throws Exception {
-		this.parameters.put(param.getName(), param);
+	public void setParameter(IPowderIndexerParam param, String paramName) throws Exception {
+		this.parameters.put(paramName, param);
 	}
 	
-	public AbstractPowderIndexer() {
-		this.parameters = this.initialParamaters();
-	}
-
+	
 }

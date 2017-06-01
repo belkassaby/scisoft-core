@@ -44,7 +44,7 @@ public interface IPowderProcessingIndexer {
 	 * 
 	 * @return extracted cells extracted from the runIndex result file
 	 */
-	public List<CellParameter> getResults(String resultFilePath);
+	public List<CellParameter> extractResults(String resultFilePath);
 
 	/**
 	 * Retrieves the formated path and extensions for output file of indexer
