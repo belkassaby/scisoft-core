@@ -21,6 +21,8 @@ import uk.ac.diamond.scisoft.xpdf.metadata.XPDFMetadata;
  *
  */
 class XPDFOperationChecker {
+	
+	private XPDFOperationChecker() {};
 
 	public static void checkXPDFMetadata(IOperation<?,?> parentOp, IDataset theData, boolean needsSample, boolean needsBeam, boolean needsDetector) 
 	throws OperationException {
@@ -38,5 +40,10 @@ class XPDFOperationChecker {
 		if (needsDetector && theMetadata.getDetector() == null)
 			throw new OperationException(parentOp, "XPDF detector metadata not found.");
 	return;
-	}	
+	}
+	
+	public static boolean isAllIncoherentScaterPresent(IDataset theData) {
+		XPDFMetadata theMetadata = theData.getFirstMetadata(XPDFMetadata.class);
+		return theMetadata.isAllIncoherentScaterPresent();
+	}
 }
