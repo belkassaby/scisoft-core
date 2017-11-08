@@ -44,6 +44,6 @@ class XPDFOperationChecker {
 	
 	public static boolean isAllIncoherentScaterPresent(IDataset theData) {
 		XPDFMetadata theMetadata = theData.getFirstMetadata(XPDFMetadata.class);
-		return theMetadata.isAllIncoherentScaterPresent();
+		return theMetadata.isAllIncoherentScatterPresent();
 	}
 }
