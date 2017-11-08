@@ -235,5 +235,5 @@ public interface XPDFMetadata extends MetadataType {
 	 * Reports on the presence of comprehensive incoherent scattering data.
 	 * @return true if every component has corresponding incoherent scattering data
 	 */
-	boolean isAllIncoherentScaterPresent();
+	boolean isAllIncoherentScatterPresent();
 	}
