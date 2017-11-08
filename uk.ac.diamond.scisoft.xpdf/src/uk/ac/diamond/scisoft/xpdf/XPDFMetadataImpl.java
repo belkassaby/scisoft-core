@@ -537,5 +537,11 @@ public class XPDFMetadataImpl implements XPDFMetadata {
 	public Dataset getIncoherentScattering(int index) {
 		return this.incoherentScatteringData.get(index);
 	}
+
+	@Override
+	public boolean isAllIncoherentScatterPresent() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }
