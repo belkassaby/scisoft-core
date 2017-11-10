@@ -97,16 +97,12 @@ public class XPDFMetadataImpl implements XPDFMetadata {
 		this.calCon = inMeta.calCon;
 		this.fluoro = inMeta.fluoro;
 		this.lorchCutOff = inMeta.lorchCutOff;
-<<<<<<< Upstream, based on origin/master
 		this.comptonScaling = inMeta.comptonScaling;
-=======
-		
 		// Deep copy of the incoherent scattering data
 		this.incoherentScatteringData = new ArrayList<Dataset>();
 		for (Dataset incohere: inMeta.incoherentScatteringData) {
 			this.pushIncoherentScattering(incohere.clone());
 		}
->>>>>>> 56d1f31 First pass at XRMC processing for XPDF.
 	}
 	
 	/**
