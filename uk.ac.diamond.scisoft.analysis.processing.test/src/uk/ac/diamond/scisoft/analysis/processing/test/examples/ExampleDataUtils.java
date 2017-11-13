@@ -34,19 +34,11 @@ public class ExampleDataUtils {
 			file.createAndOpenToWrite();
 			GroupNode entryGroup = file.getGroup("/entry1", true);
 			
-//			String entry1 = file.group("entry1");
-//			file.setNexusAttribute(entry1, "NXentry");
-//			String nxdata = file.group("data", entry1);
-//			file.setNexusAttribute(nxdata, "NXdata");
-			
 			Dataset data = DatasetFactory.ones(shape);
 			data.imultiply(10);
 			data.setName("data");
 			DataNode dataNode = file.createData(entryGroup, data);
 			file.addAttribute(dataNode, new AttributeImpl("signal", 1));
-			
-//			String ds = file.createDataset("data", data, nxdata, true);
-//			file.setIntAttribute(ds, "signal", 1);
 			
 			for (int i = 0; i < shape.length; i++) {
 				
@@ -55,8 +47,6 @@ public class ExampleDataUtils {
 				ax.setName("axis" + i);
 				dataNode = file.createData(entryGroup, ax);
 				file.addAttribute(dataNode, new AttributeImpl("axis", i+1));
-//				String da = file.createDataset("axis" + i, ax, nxdata, true);
-//				file.setIntAttribute(da, "axis", i+1);
 			}
 			
 			file.close();
