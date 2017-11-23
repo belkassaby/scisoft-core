@@ -9,9 +9,12 @@
 
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
+import java.util.Arrays;
+
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
@@ -36,10 +39,20 @@ public class XRMCEnergyIntegrator {
 		det = null;
 	}
 	
+	/**
+	 * Sets the XPDF detector information for the integration.
+	 * @param det
+	 * 			{@link XPDFDetector} object to be used for the integration
+	 */
 	public void setDetector(XPDFDetector det) {
 		this.det = det;
 	}
 
+	/**
+	 * Sets the values of the energy bins in the file.
+	 * @param energies
+	 * 				energies of the bins in the energy dimension of the data
+	 */
 	public void setEnergies(Dataset energies) {
 		if (this.xrmcData != null && energies.getSize() != xrmcData.getShape()[0])
 			throw new IllegalArgumentException("Incorrect number of energy bins.");
@@ -47,6 +60,10 @@ public class XRMCEnergyIntegrator {
 		this.energies = energies;
 	}
 	
+	/**
+	 * Gets a two dimensional {@link Dataset} of counts for the defined detector.
+	 * @return two dimensional {@link Dataset} of counts.
+	 */
 	public Dataset getDetectorCounts() {
 		
 		if (det == null)
@@ -100,8 +117,33 @@ public class XRMCEnergyIntegrator {
 		}
 	}
 	
+	/**
+	 * Sets the {@link DetectorProperties} object.
+	 * @param detProp
+	 * 				{@link DetectorProperties} object to set.
+	 */
 	public void setDetectorProperties(DetectorProperties detProp) {
 		this.detProp = detProp;
+	}
+	
+	/** Sets the XRMCDetector information.
+	 *  
+	 * @param xdet
+	 * 			the {@link XRMCDetector} object encapsulating the
+	 * 			input file used to generate the data.  
+	 */
+	public void setXRMCDetector(XRMCDetector xdet) {
+		// Create the range of energies from the detector properties
+		int nEnergies = xdet.getNBins();
+		double minEnergy = xdet.getEmin();
+		double maxEnergy = xdet.getEmax();
+		double dE = (maxEnergy - minEnergy)/nEnergies;
+		this.setEnergies(DatasetFactory.createRange(minEnergy + dE/2, maxEnergy + dE/2, dE));
+
+		// set the geometry of the detector, scaling the pixel size from μm to mm
+		this.setGeometry(new Vector3d(xdet.getDetectorPosition()),
+				DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getEulerAngles()))),
+				DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getPixelSize()))).idivide(1000));
 	}
 	
 	
