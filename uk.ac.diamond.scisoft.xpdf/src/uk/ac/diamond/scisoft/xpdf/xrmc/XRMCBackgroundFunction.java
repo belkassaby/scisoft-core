@@ -1,10 +1,12 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
-import org.eclipse.dawnsci.analysis.api.fitting.functions.IOperator;
+import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
-import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.DoubleDataset;
-import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.Maths;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
@@ -13,7 +15,7 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.Parameter;
 public class XRMCBackgroundFunction extends AFunction {
 
 	// Named indices for the parameters
-	private static final int C = 0, X0 = 2, Y0 = 2, A1 = 3, GX1 = 4, GY1 = 5, A2 = 6, GX2 = 7, GY2 = 8, A3 = 9, GX3 = 10, GY3 = 11, NPARAMS = 12;
+	public static final int C = 0, X0 = 1, Y0 = 2, A1 = 3, GX1 = 4, GY1 = 5, A2 = 6, GX2 = 7, GY2 = 8, A3 = 9, GX3 = 10, GY3 = 11, NPARAMS = 12;
 	
 	
 	/**
@@ -35,6 +37,42 @@ public class XRMCBackgroundFunction extends AFunction {
 		parameters[A3] = new Parameter(0.0, -Double.MAX_VALUE, Double.MAX_VALUE);
 		parameters[GX3] = new Parameter(1.0, 0.0, Double.MAX_VALUE);
 		parameters[GY3] = new Parameter(1.0, 0.0, Double.MAX_VALUE);
+	}
+	
+	public XRMCBackgroundFunction(XRMCBackground1D xfit, XRMCBackground1D yfit) {
+		this();
+		// Now set the derive the parameter values from the x and y xfits
+		parameters[C].setValue( 0.5*(xfit.getParameterValue(XRMCBackground1D.C) + yfit.getParameterValue(XRMCBackground1D.C)));
+		parameters[X0].setValue( xfit.getParameterValue(XRMCBackground1D.X0));
+		parameters[Y0].setValue( yfit.getParameterValue(XRMCBackground1D.X0));
+
+		// get the fitted peaks by order of amplitude, lowest to highest
+		int[] xOrder = sortedAmplitudeIndices(xfit);
+		int[] yOrder = sortedAmplitudeIndices(yfit);
+		
+		int[] orderedA = new int[] {XRMCBackground1D.A1, XRMCBackground1D.A2, XRMCBackground1D.A3};
+		int[] orderedGamma = new int[] {XRMCBackground1D.G1, XRMCBackground1D.G2, XRMCBackground1D.G3};
+		
+		parameters[A1].setValue( Math.sqrt(
+				xfit.getParameterValue(orderedA[xOrder[0]]) *
+				yfit.getParameterValue(orderedA[yOrder[0]])));
+		parameters[GX1].setValue(xfit.getParameterValue(orderedGamma[xOrder[0]]));
+		parameters[GY1].setValue(yfit.getParameterValue(orderedGamma[yOrder[0]]));
+		
+		parameters[A2].setValue( Math.sqrt(
+				xfit.getParameterValue(orderedA[xOrder[1]]) *
+				yfit.getParameterValue(orderedA[yOrder[1]])));
+		parameters[GX2].setValue(xfit.getParameterValue(orderedGamma[xOrder[1]]));
+		parameters[GY2].setValue(yfit.getParameterValue(orderedGamma[yOrder[1]]));
+		
+		parameters[A3].setValue( Math.sqrt(
+				xfit.getParameterValue(orderedA[xOrder[2]]) *
+				yfit.getParameterValue(orderedA[yOrder[2]])));
+		parameters[GX3].setValue(xfit.getParameterValue(orderedGamma[xOrder[2]]));
+		parameters[GY3].setValue(yfit.getParameterValue(orderedGamma[yOrder[2]]));
+		
+
+		
 	}
 	
 	@Override
@@ -141,6 +179,25 @@ public class XRMCBackgroundFunction extends AFunction {
 	
 	private double square(double x) {
 		return x*x;
+	}
+	
+	private int[] sortedIndices3(double[] values) {
+		int[] sortedIndices = new int[3];
+		DoubleSummaryStatistics stat = Arrays.stream(values).summaryStatistics();
+		double min = stat.getMin();
+		double max = stat.getMax();
+		sortedIndices[0] = ArrayUtils.indexOf(values, min);
+		sortedIndices[2] = ArrayUtils.indexOf(values, max);
+		sortedIndices[1] = 3 - sortedIndices[0] - sortedIndices[2];
+		return sortedIndices;
+	}
+
+	private int[] sortedAmplitudeIndices(XRMCBackground1D fit) {
+		return sortedIndices3(new double[] {
+				fit.getParameter(XRMCBackground1D.A1).getValue(),
+				fit.getParameter(XRMCBackground1D.A2).getValue(),
+				fit.getParameter(XRMCBackground1D.A3).getValue()
+		});
 	}
 	
 }
