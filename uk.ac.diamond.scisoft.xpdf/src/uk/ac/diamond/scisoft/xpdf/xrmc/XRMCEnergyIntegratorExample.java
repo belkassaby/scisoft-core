@@ -7,12 +7,16 @@ import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.metadata.IMetadata;
 
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.TIFFImageSaver;
+import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
+import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 import uk.ac.diamond.scisoft.xpdf.XPDFSubstance;
 
@@ -73,7 +77,7 @@ public class XRMCEnergyIntegratorExample {
 		
 		Dataset planeData = integrateData(inputFileName, nFile, det, xdet);
 		
-//		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, outputFileName);
+		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, outputFileName);
 		
 		if (nFile != null) {
 			int nexusCode = 0;
@@ -141,16 +145,44 @@ public class XRMCEnergyIntegratorExample {
 				}
 			}
 			
-			//			TIFFImageSaver tiffis = new TIFFImageSaver(out, 32);
-//			try {
-//				tiffis.saveFile(iDH);
-//			} catch (ScanFileHolderException scfe) {
-//				System.err.println("Could not save file " + out + ": " + scfe.toString());
-//			}
 		}
 		
 		return counts;
 		
+	}
+
+	private static XRMCBackgroundFunction fitData(Dataset planeData, XPDFDetector det, XRMCDetector xdet, String outputFileName) {
+		
+		int nx, ny;
+		nx = planeData.getShape()[0];
+		ny = planeData.getShape()[1];
+		// Get the axis aligned datasets: select the central points (1 point for n is odd, 2 for n is even), and average them to a 1D dataset 
+		Dataset xAxisData = planeData.getSlice(new int[] {0,  (ny+1)/2-1}, new int[] {nx, ny/2 + 1}, new int[] {1, 1}).mean(1, true);
+		Dataset yAxisData = planeData.getSlice(new int[] {(nx+1)/2-1, 0}, new int[] {nx/2 + 1, ny}, new int[] {1, 1}).mean(0, true);
+		
+		XRMCBackground1D xfit = new XRMCBackground1D();
+		XRMCBackground1D yfit = new XRMCBackground1D();
+		
+		double xbg = (xAxisData.getElementDoubleAbs(0) + xAxisData.getElementDoubleAbs(nx-1))/2; 
+		double xamp = 0.5*(xAxisData.getElementDoubleAbs((nx+1)/2) + xAxisData.getElementDoubleAbs(nx/2 + 1)) - xbg;
+
+		double ybg = (yAxisData.getElementDoubleAbs(0) + yAxisData.getElementDoubleAbs(ny-1))/2; 
+		double yamp = 0.5*(yAxisData.getElementDoubleAbs((ny+1)/2) + yAxisData.getElementDoubleAbs(ny/2 + 1)) - ybg;
+
+		
+		// initialize the 1 D fits
+		xfit.setParameterValues(new double[] {xbg, 0.5*(nx-1), xamp, nx* 0.125,	2*xamp/3, nx*0.25, xamp/3, 3*nx*0.125});
+		yfit.setParameterValues(new double[] {ybg, 0.5*(ny-1), yamp, ny* 0.125,	2*yamp/3, ny*0.25, yamp/3, 3*ny*0.125});
+		
+		// optimize the 1D backgrounds along each axis.
+		try {
+			new ApacheOptimizer(Optimizer.SIMPLEX_NM).optimize(new IDataset[] {DatasetFactory.createRange(nx)}, xAxisData, xfit);
+			new ApacheOptimizer(Optimizer.SIMPLEX_NM).optimize(new IDataset[] {DatasetFactory.createRange(ny)}, yAxisData, yfit);
+		} catch (Exception e) {
+			System.err.println("Fitting of xaxis data failed: " + e.toString());
+		}
+		
+		return new XRMCBackgroundFunction(xfit, yfit);
 	}
 	
 	private static void usageError() {
