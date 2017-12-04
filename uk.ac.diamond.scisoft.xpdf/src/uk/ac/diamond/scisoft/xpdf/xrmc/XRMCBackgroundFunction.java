@@ -6,7 +6,6 @@ import java.util.DoubleSummaryStatistics;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.fitting.functions.IParameter;
 import org.eclipse.january.dataset.DoubleDataset;
-import org.eclipse.january.dataset.Maths;
 
 import uk.ac.diamond.scisoft.analysis.fitting.functions.AFunction;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
@@ -15,8 +14,9 @@ import uk.ac.diamond.scisoft.analysis.fitting.functions.Parameter;
 public class XRMCBackgroundFunction extends AFunction {
 
 	// Named indices for the parameters
-	public static final int C = 0, X0 = 1, Y0 = 2, A1 = 3, GX1 = 4, GY1 = 5, A2 = 6, GX2 = 7, GY2 = 8, A3 = 9, GX3 = 10, GY3 = 11, NPARAMS = 12;
-	
+	public static final int C = 0, A1 = 1, GX1 = 2, GY1 = 3, A2 = 4, GX2 = 5, GY2 = 6, A3 = 7, GX3 = 8, GY3 = 9, NPARAMS = 10;
+	private double x0;
+	private double y0;
 	
 	/**
 	 * 20171120
@@ -26,8 +26,6 @@ public class XRMCBackgroundFunction extends AFunction {
 	public XRMCBackgroundFunction() {
 		super(NPARAMS);
 		parameters[C] = new Parameter(0.0, -Double.MAX_VALUE, Double.MAX_VALUE);
-		parameters[X0] = new Parameter(0.0, -Double.MAX_VALUE, Double.MAX_VALUE);
-		parameters[Y0] = new Parameter(0.0, -Double.MAX_VALUE, Double.MAX_VALUE);
 		parameters[A1] = new Parameter(0.0, -Double.MAX_VALUE, Double.MAX_VALUE);
 		parameters[GX1] = new Parameter(1.0, 0.0, Double.MAX_VALUE);
 		parameters[GY1] = new Parameter(1.0, 0.0, Double.MAX_VALUE);
@@ -39,12 +37,28 @@ public class XRMCBackgroundFunction extends AFunction {
 		parameters[GY3] = new Parameter(1.0, 0.0, Double.MAX_VALUE);
 	}
 	
+	public XRMCBackgroundFunction(XRMCBackgroundFunction source) {
+		this();
+		for (int i : new int[] {C, A1, GX1, GY1, A2, GX2, GY2, A3, GX3, GY3}) {
+			parameters[i].setValue(source.parameters[i].getValue());
+		}
+		x0 = source.x0;
+		y0 = source.y0;
+	}
+	
 	public XRMCBackgroundFunction(XRMCBackground1D xfit, XRMCBackground1D yfit) {
 		this();
+
+		System.out.println("Constant term");
+		System.out.println("c_x = " + xfit.getParameterValue(XRMCBackground1D.C) + ", c_y = " + yfit.getParameterValue(XRMCBackground1D.C));
+		
 		// Now set the derive the parameter values from the x and y xfits
 		parameters[C].setValue( 0.5*(xfit.getParameterValue(XRMCBackground1D.C) + yfit.getParameterValue(XRMCBackground1D.C)));
-		parameters[X0].setValue( xfit.getParameterValue(XRMCBackground1D.X0));
-		parameters[Y0].setValue( yfit.getParameterValue(XRMCBackground1D.X0));
+
+		System.out.println("c_xy = " + parameters[C].getValue());
+		
+		this.x0 = xfit.getX0();
+		this.y0 = yfit.getX0();
 
 		// get the fitted peaks by order of amplitude, lowest to highest
 		int[] xOrder = sortedAmplitudeIndices(xfit);
@@ -59,17 +73,35 @@ public class XRMCBackgroundFunction extends AFunction {
 		parameters[GX1].setValue(xfit.getParameterValue(orderedGamma[xOrder[0]]));
 		parameters[GY1].setValue(yfit.getParameterValue(orderedGamma[yOrder[0]]));
 		
+		System.out.println("Lorentzian 1");
+		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[0]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[0]]));
+		System.out.println("A_xy = " + parameters[A1].getValue());
+		System.out.println("γ_x = " + parameters[GX1].getValue());
+		System.out.println("γ_y = " + parameters[GY1].getValue());
+		
 		parameters[A2].setValue( Math.sqrt(
 				xfit.getParameterValue(orderedA[xOrder[1]]) *
 				yfit.getParameterValue(orderedA[yOrder[1]])));
 		parameters[GX2].setValue(xfit.getParameterValue(orderedGamma[xOrder[1]]));
 		parameters[GY2].setValue(yfit.getParameterValue(orderedGamma[yOrder[1]]));
 		
+		System.out.println("Lorentzian 2");
+		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[1]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[1]]));
+		System.out.println("A_xy = " + parameters[A2].getValue());
+		System.out.println("γ_x = " + parameters[GX2].getValue());
+		System.out.println("γ_y = " + parameters[GY2].getValue());
+		
 		parameters[A3].setValue( Math.sqrt(
 				xfit.getParameterValue(orderedA[xOrder[2]]) *
 				yfit.getParameterValue(orderedA[yOrder[2]])));
 		parameters[GX3].setValue(xfit.getParameterValue(orderedGamma[xOrder[2]]));
 		parameters[GY3].setValue(yfit.getParameterValue(orderedGamma[yOrder[2]]));
+		
+		System.out.println("Lorentzian 3");
+		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[2]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[2]]));
+		System.out.println("A_xy = " + parameters[A3].getValue());
+		System.out.println("γ_x = " + parameters[GX3].getValue());
+		System.out.println("γ_y = " + parameters[GY3].getValue());
 		
 
 		
@@ -133,9 +165,9 @@ public class XRMCBackgroundFunction extends AFunction {
 		double x = values[0];
 		double y = values[1];
 		
-		double l1 = evaluateSingleLorentzian2D(x, y, parameters[X0].getValue(), parameters[Y0].getValue(), parameters[A1].getValue(), parameters[GX1].getValue(), parameters[GY1].getValue());
-		double l2 = evaluateSingleLorentzian2D(x, y, parameters[X0].getValue(), parameters[Y0].getValue(), parameters[A2].getValue(), parameters[GX2].getValue(), parameters[GY2].getValue());
-		double l3 = evaluateSingleLorentzian2D(x, y, parameters[X0].getValue(), parameters[Y0].getValue(), parameters[A3].getValue(), parameters[GX3].getValue(), parameters[GY3].getValue());
+		double l1 = evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A1].getValue(), parameters[GX1].getValue(), parameters[GY1].getValue());
+		double l2 = evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A2].getValue(), parameters[GX2].getValue(), parameters[GY2].getValue());
+		double l3 = evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A3].getValue(), parameters[GX3].getValue(), parameters[GY3].getValue());
 		
 		
 		return parameters[C].getValue() + l1 + l2 + l3;
@@ -161,20 +193,51 @@ public class XRMCBackgroundFunction extends AFunction {
 			double x = it.getCoordinates()[0];
 			double y = it.getCoordinates()[1];
 			double z = parameters[C].getValue();
-			z += evaluateSingleLorentzian2D(x, y, 0, 0, parameters[A1].getValue(), parameters[GX1].getValue(), parameters[GY1].getValue());
-			z += evaluateSingleLorentzian2D(x, y, 0, 0, parameters[A2].getValue(), parameters[GX2].getValue(), parameters[GY2].getValue());
-			z += evaluateSingleLorentzian2D(x, y, 0, 0, parameters[A3].getValue(), parameters[GX3].getValue(), parameters[GY3].getValue());
+			z += evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A1].getValue(), parameters[GX1].getValue(), parameters[GY1].getValue());
+			z += evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A2].getValue(), parameters[GX2].getValue(), parameters[GY2].getValue());
+			z += evaluateSingleLorentzian2D(x, y, x0, y0, parameters[A3].getValue(), parameters[GX3].getValue(), parameters[GY3].getValue());
 			
 			buffer[bufferIndex] = z;
 			bufferIndex++;
 		}
 		
 	}
+	
+	/**
+	 * Normalizes a pixel-based fit to one centred on the beam, with
+	 * FWHM (γ, ϝ) values in units of metres.
+	 * @param pixelSizeX
+	 * 					pixel size in the x direction, in units of metres
+	 * @param pixelSizeY
+	 * 					pixel size in the y direction, in units of metres
+	 * @return
+	 * 		A fit equivalent to this one, centred on the beam (x0 = y0 = 0),
+	 * 		with FWHM values in metres.
+	 */
+	public XRMCBackgroundFunction normalizedFit(double pixelSizeX, double pixelSizeY) {
+		
+		XRMCBackgroundFunction norman = new XRMCBackgroundFunction(this);
+		
+		// Now fiddle with the relevant parameters
+		// Centre on the beam
+		norman.x0 = 0.0;
+		norman.y0 = 0.0;
+		
+		// Convert the FWHM to metres
+		for (int i : new int[] {GX1, GX2, GX3}) {
+			norman.parameters[i].setValue(norman.parameters[i].getValue()*pixelSizeX);
+		}
+		for (int i : new int[] {GY1, GY2, GY3}) {
+			norman.parameters[i].setValue(norman.parameters[i].getValue()*pixelSizeY);
+		}
+		
+		return norman;
+	}
 
 	// For reasons of normalization, the 2D Lorentzian is the product
 	// of two 1D Lorentzians.
 	private double evaluateSingleLorentzian2D(double x, double y, double x0, double y0, double a, double gamma, double digamma) {
-		return a/(1 + square((x-x0)/gamma))/(1 + square((y-y0)/digamma));
+		return a/(1 + square((x-x0)/gamma) + square((y-y0)/digamma));
 	}
 	
 	private double square(double x) {
