@@ -1,7 +1,6 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.io.ScanFileHolderException;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NexusException;
@@ -9,12 +8,15 @@ import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
+import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
+import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.metadata.IMetadata;
 
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.io.TIFFImageSaver;
+import uk.ac.diamond.scisoft.analysis.optimize.AbstractOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
@@ -69,7 +71,7 @@ public class XRMCEnergyIntegratorExample {
 		NexusFileFactoryHDF5 factorio = new NexusFileFactoryHDF5();
 		NexusFile nFile = factorio.newNexusFile(outputFileName);
 		try {
-			nFile.openToWrite(true);
+			nFile.createAndOpenToWrite();
 		} catch (NexusException nE) {
 			System.err.println("Failed to set write (or create) file \"" + nFile.getFilePath() + "\": " + nE.toString() + ". No output will be generated.");
 			nFile = null;
@@ -77,7 +79,26 @@ public class XRMCEnergyIntegratorExample {
 		
 		Dataset planeData = integrateData(inputFileName, nFile, det, xdet);
 		
-		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, outputFileName);
+		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, nFile);
+		
+		Dataset fittedData = expandFit(fit, planeData);
+		
+		Dataset residual = Maths.subtract(planeData, fittedData);
+		Dataset percentage = Maths.divide(planeData, fittedData).isubtract(1.0).imultiply(100);
+		
+		if (nFile != null) {
+			String nodeName = "/fit";
+			try {
+				GroupNode node = nFile.getGroup("/", true);
+				nFile.createData(node, "fit", fittedData);
+				nFile.createData(node, "residual", residual);
+				nFile.createData(node, "pc.diff", percentage);
+			} catch (NexusException nE) {
+				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
+			}
+		}
+		
+		
 		
 		if (nFile != null) {
 			int nexusCode = 0;
@@ -151,7 +172,7 @@ public class XRMCEnergyIntegratorExample {
 		
 	}
 
-	private static XRMCBackgroundFunction fitData(Dataset planeData, XPDFDetector det, XRMCDetector xdet, String outputFileName) {
+	private static XRMCBackgroundFunction fitData(Dataset planeData, XPDFDetector det, XRMCDetector xdet, NexusFile outputFile) {
 		
 		int nx, ny;
 		nx = planeData.getShape()[0];
@@ -171,22 +192,84 @@ public class XRMCEnergyIntegratorExample {
 
 		
 		// initialize the 1 D fits
-		xfit.setParameterValues(new double[] {xbg, 0.5*(nx-1), xamp, nx* 0.125,	2*xamp/3, nx*0.25, xamp/3, 3*nx*0.125});
-		yfit.setParameterValues(new double[] {ybg, 0.5*(ny-1), yamp, ny* 0.125,	2*yamp/3, ny*0.25, yamp/3, 3*ny*0.125});
+		xfit.setParameterValues(xbg, 0.5*xamp, nx* 0.125, xamp/3, nx*0.25, xamp/6, 3*nx*0.125);
+		xfit.setX0(0.5*(nx-1));
+		yfit.setParameterValues(ybg, 0.5*yamp, ny* 0.125, yamp/3, ny*0.25, yamp/6, 3*ny*0.125);
+		yfit.setX0(0.5*(ny-1));
+		
+		if (outputFile != null) {
+			String nodeName = "";
+			try {
+				GroupNode node = outputFile.getGroup("/", true);
+				nodeName = "xdata";
+				outputFile.createData(node, nodeName, xAxisData);
+				nodeName = "ydata";
+				outputFile.createData(node, nodeName, yAxisData);
+			} catch (NexusException nE) {
+				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
+			}
+		}
+
+		AbstractOptimizer nmOptim = new ApacheOptimizer(Optimizer.LEVENBERG_MARQUARDT); 
+		
+		Dataset xAxis = DatasetFactory.createRange(nx);
+		Dataset yAxis = DatasetFactory.createRange(ny);
+		Dataset xFitted = DatasetFactory.createRange(nx);
+		Dataset yFitted = DatasetFactory.createRange(ny);
+		CoordinatesIterator xIter = CoordinatesIterator.createIterator(new int[] {nx}, xAxis);
+		CoordinatesIterator yIter = CoordinatesIterator.createIterator(new int[] {ny}, yAxis);
 		
 		// optimize the 1D backgrounds along each axis.
 		try {
-			new ApacheOptimizer(Optimizer.SIMPLEX_NM).optimize(new IDataset[] {DatasetFactory.createRange(nx)}, xAxisData, xfit);
-			new ApacheOptimizer(Optimizer.SIMPLEX_NM).optimize(new IDataset[] {DatasetFactory.createRange(ny)}, yAxisData, yfit);
+				nmOptim.optimize(new IDataset[] {DatasetFactory.createRange(nx)}, xAxisData, xfit);
+				nmOptim.optimize(new IDataset[] {DatasetFactory.createRange(ny)}, yAxisData, yfit);
+
+				xfit.fillWithValues((DoubleDataset) xFitted, xIter);
+				yfit.fillWithValues((DoubleDataset) yFitted, yIter);
+				
 		} catch (Exception e) {
 			System.err.println("Fitting of xaxis data failed: " + e.toString());
 		}
+
+		if (outputFile != null) {
+			String nodeName = "";
+			try {
+				GroupNode node = outputFile.getGroup("/", true);
+				nodeName = "xfits";
+				outputFile.createData(node, nodeName, xFitted);
+				nodeName = "yfits";
+				outputFile.createData(node, nodeName, yFitted);
+			} catch (NexusException nE) {
+				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
+			}
+		}
 		
-		return new XRMCBackgroundFunction(xfit, yfit);
+		XRMCBackgroundFunction fit2d = new XRMCBackgroundFunction(xfit, yfit);
+		
+		Dataset x2d = DatasetFactory.createRange(ny).getBroadcastView(ny, nx).transpose(1, 0);
+		Dataset y2d = DatasetFactory.createRange(nx).getBroadcastView(nx, ny);
+		
+		try {
+			nmOptim.optimize(new IDataset[] {x2d, y2d}, planeData, fit2d);
+		} catch (Exception e) {
+			System.err.println("Could not optimize 2d fit: " + e.toString());
+		}
+		return fit2d;
+	}
+	
+	
+	private static Dataset expandFit(XRMCBackgroundFunction fit, Dataset data) {
+		DoubleDataset fitEvaluation = (DoubleDataset) DatasetFactory.zeros(data);
+		
+		CoordinatesIterator citer = CoordinatesIterator.createIterator(data.getShape(), DatasetFactory.createRange(data.getShape()[0]), DatasetFactory.createRange(data.getShape()[1]));
+
+		fit.fillWithValues(fitEvaluation, citer);
+	
+		return fitEvaluation;
 	}
 	
 	private static void usageError() {
-		System.err.println("usage: xrmcintegrator input.xrmc path/to/input/files.dat output.tiff");
+		System.err.println("usage: xrmcintegrator input.xrmc path/to/input/files.dat output.h5");
 		System.exit(1);
 	}
 	
