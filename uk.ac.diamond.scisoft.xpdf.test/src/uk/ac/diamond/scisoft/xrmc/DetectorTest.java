@@ -38,7 +38,7 @@ public class DetectorTest {
 	@Test
 	public void testDetectorOrientation() {
 		double[] detectorN = det.getDetectorNormal();
-		double[] detectorK = det.getDetectorUpVector();
+		double[] detectorK = det.getDetectorXVector();
 		
 		assertArrayEquals("Incorrect detector normal", new double[] {0, -1, 0}, detectorN, 1e-6);
 		assertArrayEquals("Incorrect detector up vector", new double[] {1, 0, 0}, detectorK, 1e-6);
