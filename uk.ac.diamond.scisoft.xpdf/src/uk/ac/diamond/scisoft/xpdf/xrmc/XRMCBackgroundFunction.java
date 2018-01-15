@@ -49,14 +49,9 @@ public class XRMCBackgroundFunction extends AFunction {
 	public XRMCBackgroundFunction(XRMCBackground1D xfit, XRMCBackground1D yfit) {
 		this();
 
-		System.out.println("Constant term");
-		System.out.println("c_x = " + xfit.getParameterValue(XRMCBackground1D.C) + ", c_y = " + yfit.getParameterValue(XRMCBackground1D.C));
-		
 		// Now set the derive the parameter values from the x and y xfits
 		parameters[C].setValue( 0.5*(xfit.getParameterValue(XRMCBackground1D.C) + yfit.getParameterValue(XRMCBackground1D.C)));
 
-		System.out.println("c_xy = " + parameters[C].getValue());
-		
 		this.x0 = xfit.getX0();
 		this.y0 = yfit.getX0();
 
@@ -73,37 +68,17 @@ public class XRMCBackgroundFunction extends AFunction {
 		parameters[GX1].setValue(xfit.getParameterValue(orderedGamma[xOrder[0]]));
 		parameters[GY1].setValue(yfit.getParameterValue(orderedGamma[yOrder[0]]));
 		
-		System.out.println("Lorentzian 1");
-		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[0]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[0]]));
-		System.out.println("A_xy = " + parameters[A1].getValue());
-		System.out.println("γ_x = " + parameters[GX1].getValue());
-		System.out.println("γ_y = " + parameters[GY1].getValue());
-		
 		parameters[A2].setValue( Math.sqrt(
 				xfit.getParameterValue(orderedA[xOrder[1]]) *
 				yfit.getParameterValue(orderedA[yOrder[1]])));
 		parameters[GX2].setValue(xfit.getParameterValue(orderedGamma[xOrder[1]]));
 		parameters[GY2].setValue(yfit.getParameterValue(orderedGamma[yOrder[1]]));
 		
-		System.out.println("Lorentzian 2");
-		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[1]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[1]]));
-		System.out.println("A_xy = " + parameters[A2].getValue());
-		System.out.println("γ_x = " + parameters[GX2].getValue());
-		System.out.println("γ_y = " + parameters[GY2].getValue());
-		
 		parameters[A3].setValue( Math.sqrt(
 				xfit.getParameterValue(orderedA[xOrder[2]]) *
 				yfit.getParameterValue(orderedA[yOrder[2]])));
 		parameters[GX3].setValue(xfit.getParameterValue(orderedGamma[xOrder[2]]));
 		parameters[GY3].setValue(yfit.getParameterValue(orderedGamma[yOrder[2]]));
-		
-		System.out.println("Lorentzian 3");
-		System.out.println("A_x = " + xfit.getParameterValue(orderedA[xOrder[2]]) + ", A_y = " + yfit.getParameterValue(orderedA[yOrder[2]]));
-		System.out.println("A_xy = " + parameters[A3].getValue());
-		System.out.println("γ_x = " + parameters[GX3].getValue());
-		System.out.println("γ_y = " + parameters[GY3].getValue());
-		
-
 		
 	}
 	
