@@ -3,7 +3,10 @@ package uk.ac.diamond.scisoft.xpdf.xrmc;
 import java.util.Arrays;
 
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
+import javax.vecmath.Vector4d;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
@@ -13,6 +16,7 @@ import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 public class XRMCDetector {
 
 	XRMCDatReader reader;
+	Matrix4d transformToLab;
 	
 	/**
 	 * Creates a new Detector class, based on the given file
@@ -21,6 +25,7 @@ public class XRMCDetector {
 	 */
 	public XRMCDetector(String fileName) {
 		reader = new XRMCDatReader(fileName);
+		transformToLab = null;
 	}
 	
 	/**
@@ -67,7 +72,7 @@ public class XRMCDetector {
 		return getAndParseValues("uk");
 	}
 	
-	public double[] getDetectorUpVector() {
+	public double[] getDetectorXVector() {
 		return getAndParseValues("ui");
 	}
 	
@@ -103,7 +108,7 @@ public class XRMCDetector {
 	public double getSolidAngle() {
 		// Generate the corner vectors for the detector
 		//   Generate the basis vectors for the screen in the lab coordinate system
-		Maths3d xScreen = new Maths3d(this.getDetectorUpVector());
+		Maths3d xScreen = new Maths3d(this.getDetectorXVector());
 		Maths3d zScreen = new Maths3d(this.getDetectorNormal());
 		Maths3d yScreen = zScreen.cross(xScreen);
 		
@@ -133,7 +138,7 @@ public class XRMCDetector {
 	 * @return Euler angles in radians ordered as pitch, yaw, roll.
 	 */
 	public double[] getEulerAngles() {
-		Maths3d xScreen = new Maths3d(this.getDetectorUpVector());
+		Maths3d xScreen = new Maths3d(this.getDetectorXVector());
 		Maths3d zScreen = new Maths3d(this.getDetectorNormal());
 		Maths3d yScreen = zScreen.cross(xScreen);
 
@@ -153,7 +158,105 @@ public class XRMCDetector {
 		
 		return new double[] {pitch, yaw, roll};
 	}
+	
+	/*
+	 * Coordinate frames
+	 * 
+	 * XRMC lab frame.
+	 * A three-dimensional, right-handed orthogonal Cartesian coordinate system
+	 * The origin is centred on the beam-sample interaction region
+	 * x is horizontal, perpendicular to the beam
+	 * y is parallel to the beam, +ve downstream
+	 * z is vertically upwards
+	 * 
+	 * Detector frame
+	 * A two-dimensional Cartesian coordinate system
+	 * The origin is the top left of the detector (facing in the side of the detector that receives the radiation)
+	 * x is horizontal
+	 * y is vertical
+	 */
+	
+	/**
+	 * Returns the XRMC lab coordinates of a given point on the detector
+	 */
+	public Vector3d labFromPixel(Vector2d x) {
+		Vector4d h = new Vector4d(x.x, x.y, 0.0, 1.0);
+		getTransform().transform(h);
+		return new Vector3d(h.x, h.y, h.z);
+	}
+	
+	/**
+	 * Returns the detector coordinates of a given point in the lab frame.
+	 * <p>
+	 * The point in the lab frame is transformed into the detectors xyz frame,
+	 * where x & y are the fast and slow pixel directions, and z is in the
+	 * direction of the detector *anti*-normal. The point is then projected
+	 * into the detector plane by zeroing the z component
+	 */
+	public Vector2d pixelFromLab(Vector3d x) {
+		Vector4d h = new Vector4d(x.x, x.y, x.z, 1.0);
+		Matrix4d inverseTransform = new Matrix4d();
+		inverseTransform.invert(getTransform());
+		inverseTransform.transform(h);
+		return new Vector2d(h.x, h.y);
+	}
 
+	/**
+	 * Sets the transformation matrix from the detector coordinates to the XRMC lab coordinates x_lab = M x_det
+	 */
+	private Matrix4d getTransform() {
+		if (transformToLab == null) {
+			transformToLab = new Matrix4d(
+				1., 0., 0., 0.,
+				0., 1., 0., 0.,
+				0., 0., 1., 0.,
+				0., 0., 0., 1.); // identity transform
+			// Translation from the beam interaction to the detector centre
+			Vector3d centreTranslation = new Vector3d(getDetectorPosition());
+			
+			// Inverting y and z to change from inward normal to outward normal
+			Matrix3d yInversion = new Matrix3d(
+					1., 0., 0.,
+					0.,-1., 0.,
+					0., 0.,-1.);
+			
+			// Compose the matrix to transform from centred, rotated detector 
+			// coordinates to centred, aligned detector coordinates
+			Vector3d e1 = new Vector3d(getDetectorXVector());
+			Vector3d e3 = new Vector3d(getDetectorNormal());
+			Vector3d e2 = new Vector3d();
+			e2.cross(e3, e1);
+			// rotated to aligned
+			Matrix3d alignedFromRotated = new Matrix3d();
+			alignedFromRotated.setColumn(0, e1);
+			alignedFromRotated.setColumn(1, e2);
+			alignedFromRotated.setColumn(2, e3);
+			// invert: now aligned to rotated
+			Matrix3d rotatedFromAligned = new Matrix3d(alignedFromRotated);
+			rotatedFromAligned.invert();
+			
+			// Composed the translation from the corner origin to the detector centre
+			int[] nPx = getNPixels();
+			double[] szPx = getPixelSize();
+			Vector3d centringTranslation = new Vector3d(nPx[0]/2*szPx[0], nPx[1]/2*szPx[1], 0.);
+
+			// Rotation part
+			Matrix3d overallRotation = new Matrix3d();
+			overallRotation.mul(alignedFromRotated, yInversion);
+			
+			// Translation part: rotate the centring translation
+			overallRotation.transform(centringTranslation);
+			
+			// Translation part: translation of the detector centre
+			centringTranslation.add(centreTranslation);
+			centringTranslation.negate();
+			
+			transformToLab.set(overallRotation, centringTranslation, 1.0);
+		
+		}		
+		return transformToLab;
+	}
+	
 	/**
 	 * A class of non-mutating arithmetic for three-element double vectors
 	 */
