@@ -11,12 +11,12 @@ import javax.vecmath.Vector4d;
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 
-import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
-
 public class XRMCDetector {
 
 	XRMCDatReader reader;
 	Matrix4d transformToLab;
+
+	static final double POSITION_TO_PIXELSIZE = 1000.0;
 	
 	/**
 	 * Creates a new Detector class, based on the given file
@@ -177,28 +177,87 @@ public class XRMCDetector {
 	 */
 	
 	/**
-	 * Returns the XRMC lab coordinates of a given point on the detector
+	 * Returns the XRMC lab coordinates of a given point on the detector.
+	 * <p>
+	 * Returns the position (in metres) in the XRMC lab coordinate frame. The 
+	 * input is a position on the detector in units of pixels. The origin is 
+	 * the top left of the top left pixel. The centre of the top left pixel is 
+	 * (0.5, 0.5).
 	 */
 	public Vector3d labFromPixel(Vector2d x) {
-		Vector4d h = new Vector4d(x.x, x.y, 0.0, 1.0);
+		Vector2d d = new Vector2d(getPixelSize());
+		d.scale(1/POSITION_TO_PIXELSIZE);
+		Vector4d h = new Vector4d(d.x*x.x, d.y*x.y, 0.0, 1.0);
 		getTransform().transform(h);
 		return new Vector3d(h.x, h.y, h.z);
 	}
 	
+	/**
+	 * Returns the scattering angles (γ,δ) for a given pixel
+	 * @param x
+	 * 			the location on the screen in units of pixels, with the origin
+	 * 			at the top left of the top left pixel.
+	 * @return (γ,δ) scattering angles in radians.
+	 */
+	public Vector2d anglesFromPixel(Vector2d x) {
+		return anglesFromPixel(x, false);
+	}
+
+	/**
+	 * Returns the polar scattering angles (φ,2θ) for a given pixel.
+	 * @param x
+	 * 			the location on the screen in units of pixels, with the origin
+	 * 			at the top left of the top left pixel.
+	 * @return (φ,2θ) scattering angles in radians.
+	 */
+	public Vector2d polarAnglesFromPixel(Vector2d x) {
+		return anglesFromPixel(x, true);
+	}
+	
+	/**
+	 * Returns the polar (φ,2θ) or Cartesian (γ,δ) scattering angles for a
+	 * given pixel.
+	 * @param x
+	 * 			the location on the screen in units of pixels, with the origin
+	 * 			at the top left of the top left pixel.
+	 * @param polar
+	 * 				if true, return the polar scattering angles (φ,2θ), else 
+	 * 				return the Cartesian scattering angles (γ,δ)
+	 * @return
+	 */
+	public Vector2d anglesFromPixel(Vector2d x, boolean polar) {
+		Vector3d lab = labFromPixel(x);
+		Vector2d result = null;
+		if (polar) {
+			double phi = Math.atan2(lab.z, lab.x);
+			double tth = Math.atan2(quadrate(lab.x, lab.z), lab.y);
+			result = new Vector2d(phi, tth);
+		} else {
+			double gamma = Math.atan2(lab.x, lab.y);
+			double delta = Math.atan2(lab.z, quadrate(lab.x, lab.y));
+			result = new Vector2d(gamma, delta);
+		}
+		return result;
+	}
+
 	/**
 	 * Returns the detector coordinates of a given point in the lab frame.
 	 * <p>
 	 * The point in the lab frame is transformed into the detectors xyz frame,
 	 * where x & y are the fast and slow pixel directions, and z is in the
 	 * direction of the detector *anti*-normal. The point is then projected
-	 * into the detector plane by zeroing the z component
+	 * into the detector plane by zeroing the z component. The output value is
+	 * in fractional pixels, with the origin being the top left of the top left
+	 * pixel.  
 	 */
 	public Vector2d pixelFromLab(Vector3d x) {
 		Vector4d h = new Vector4d(x.x, x.y, x.z, 1.0);
 		Matrix4d inverseTransform = new Matrix4d();
 		inverseTransform.invert(getTransform());
 		inverseTransform.transform(h);
-		return new Vector2d(h.x, h.y);
+		Vector2d d = new Vector2d(getPixelSize());
+		d.scale(1/POSITION_TO_PIXELSIZE);
+		return new Vector2d(h.x/d.x, h.y/d.y);
 	}
 
 	/**
@@ -212,44 +271,54 @@ public class XRMCDetector {
 				0., 0., 1., 0.,
 				0., 0., 0., 1.); // identity transform
 			// Translation from the beam interaction to the detector centre
-			Vector3d centreTranslation = new Vector3d(getDetectorPosition());
+			Vector3d centreOffset  = new Vector3d(getDetectorPosition());
 			
-			// Inverting y and z to change from inward normal to outward normal
-			Matrix3d yInversion = new Matrix3d(
+			// Transform between an aligned detector and the lab frame
+			Matrix3d labFromAligned = new Matrix3d(
 					1., 0., 0.,
-					0.,-1., 0.,
-					0., 0.,-1.);
+					0., 0., 1.,
+					0.,-1., 0.);
+			Matrix3d alignedFromLab = new Matrix3d();
+			alignedFromLab.invert(labFromAligned);
 			
 			// Compose the matrix to transform from centred, rotated detector 
 			// coordinates to centred, aligned detector coordinates
 			Vector3d e1 = new Vector3d(getDetectorXVector());
 			Vector3d e3 = new Vector3d(getDetectorNormal());
+			// Invert the normal: detectors have the normal going into the screen
+			e3.negate();
+			// These basis vectors are defined in the lab frame. Convert to the
+			// aligned detector frame.
+			alignedFromLab.transform(e1);
+			alignedFromLab.transform(e3);
+			// y axis is mutually perpendicular
 			Vector3d e2 = new Vector3d();
 			e2.cross(e3, e1);
+			
 			// rotated to aligned
 			Matrix3d alignedFromRotated = new Matrix3d();
 			alignedFromRotated.setColumn(0, e1);
 			alignedFromRotated.setColumn(1, e2);
 			alignedFromRotated.setColumn(2, e3);
 			// invert: now aligned to rotated
-			Matrix3d rotatedFromAligned = new Matrix3d(alignedFromRotated);
-			rotatedFromAligned.invert();
+			Matrix3d rotatedFromAligned = new Matrix3d();
+			rotatedFromAligned.invert(alignedFromRotated);
 			
 			// Composed the translation from the corner origin to the detector centre
 			int[] nPx = getNPixels();
 			double[] szPx = getPixelSize();
-			Vector3d centringTranslation = new Vector3d(nPx[0]/2*szPx[0], nPx[1]/2*szPx[1], 0.);
-
+			Vector3d centringTranslation = new Vector3d(nPx[0]*szPx[0]/2/POSITION_TO_PIXELSIZE, nPx[1]*szPx[1]/2/POSITION_TO_PIXELSIZE, 0.);
+			centringTranslation.negate();
+			
 			// Rotation part
 			Matrix3d overallRotation = new Matrix3d();
-			overallRotation.mul(alignedFromRotated, yInversion);
+			overallRotation.mul(labFromAligned, alignedFromRotated);
 			
 			// Translation part: rotate the centring translation
 			overallRotation.transform(centringTranslation);
 			
 			// Translation part: translation of the detector centre
-			centringTranslation.add(centreTranslation);
-			centringTranslation.negate();
+			centringTranslation.add(centreOffset);
 			
 			transformToLab.set(overallRotation, centringTranslation, 1.0);
 		
@@ -419,5 +488,11 @@ public class XRMCDetector {
 		public MathsD times(double b) {
 			return new MathsD(this.value * b);
 		}
+
 	}
+
+	private double square(double x) { return x*x; }
+
+	private double quadrate(double x, double y) { return Math.sqrt(square(x) + square(y)); }
+	
 }

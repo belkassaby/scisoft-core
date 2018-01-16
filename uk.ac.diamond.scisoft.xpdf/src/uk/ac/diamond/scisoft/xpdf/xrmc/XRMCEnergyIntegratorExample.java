@@ -1,5 +1,8 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
+import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
+
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
@@ -66,7 +69,7 @@ public class XRMCEnergyIntegratorExample {
 		XRMCDetector xdet = new XRMCDetector(xrmcFilePath + "detector.dat");
 		det.setSolidAngle(xdet.getSolidAngle());
 		det.setEulerAngles(xdet.getEulerAngles());
-		
+
 		// This is totally test code, so I can use this here
 		NexusFileFactoryHDF5 factorio = new NexusFileFactoryHDF5();
 		NexusFile nFile = factorio.newNexusFile(outputFileName);
@@ -78,6 +81,33 @@ public class XRMCEnergyIntegratorExample {
 		}
 		
 		Dataset planeData = integrateData(inputFileName, nFile, det, xdet);
+		
+		int[] shape = planeData.getShape();
+		
+		Dataset gamma = DatasetFactory.zeros(shape);
+		Dataset delta = DatasetFactory.zeros(shape);
+		Dataset x = DatasetFactory.zeros(shape);
+		Dataset y = DatasetFactory.zeros(shape);
+		Dataset z = DatasetFactory.zeros(shape);
+		Dataset	phi = DatasetFactory.zeros(shape);
+		Dataset tth = DatasetFactory.zeros(shape);
+		
+		// Get the angles
+		for (int i = 0; i < shape[0]; i++) {
+			for (int j = 0; j < shape[1]; j++) {
+				Vector2d pxPos = new Vector2d(j+0.5, i+0.5);
+				Vector2d angles = xdet.anglesFromPixel(pxPos);
+				gamma.set(angles.x, i, j);
+				delta.set(angles.y, i, j);
+				Vector2d phtth = new Vector2d(xdet.polarAnglesFromPixel(pxPos));
+				phi.set(phtth.x, i, j);
+				tth.set(phtth.y, i, j);
+				Vector3d position = xdet.labFromPixel(pxPos);
+				x.set(position.x, i, j);
+				y.set(position.y, i, j);
+				z.set(position.z, i, j);
+			}
+		}
 		
 		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, nFile);
 		
@@ -93,6 +123,13 @@ public class XRMCEnergyIntegratorExample {
 				nFile.createData(node, "fit", fittedData);
 				nFile.createData(node, "residual", residual);
 				nFile.createData(node, "pc.diff", percentage);
+				nFile.createData(node, "gamma", gamma);
+				nFile.createData(node, "delta", delta);
+				nFile.createData(node, "phi", phi);
+				nFile.createData(node, "2theta", tth);
+				nFile.createData(node, "x", x);
+				nFile.createData(node, "y", y);
+				nFile.createData(node, "z", z);
 			} catch (NexusException nE) {
 				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
 			}
