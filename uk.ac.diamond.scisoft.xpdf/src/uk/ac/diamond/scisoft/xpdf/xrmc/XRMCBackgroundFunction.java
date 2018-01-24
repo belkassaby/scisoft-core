@@ -62,20 +62,20 @@ public class XRMCBackgroundFunction extends AFunction {
 		int[] orderedA = new int[] {XRMCBackground1D.A1, XRMCBackground1D.A2, XRMCBackground1D.A3};
 		int[] orderedGamma = new int[] {XRMCBackground1D.G1, XRMCBackground1D.G2, XRMCBackground1D.G3};
 		
-		parameters[A1].setValue( Math.sqrt(
-				xfit.getParameterValue(orderedA[xOrder[0]]) *
+		parameters[A1].setValue( 0.5 * (
+				xfit.getParameterValue(orderedA[xOrder[0]]) +
 				yfit.getParameterValue(orderedA[yOrder[0]])));
 		parameters[GX1].setValue(xfit.getParameterValue(orderedGamma[xOrder[0]]));
 		parameters[GY1].setValue(yfit.getParameterValue(orderedGamma[yOrder[0]]));
 		
-		parameters[A2].setValue( Math.sqrt(
-				xfit.getParameterValue(orderedA[xOrder[1]]) *
+		parameters[A2].setValue( 0.5 * (
+				xfit.getParameterValue(orderedA[xOrder[1]]) +
 				yfit.getParameterValue(orderedA[yOrder[1]])));
 		parameters[GX2].setValue(xfit.getParameterValue(orderedGamma[xOrder[1]]));
 		parameters[GY2].setValue(yfit.getParameterValue(orderedGamma[yOrder[1]]));
 		
-		parameters[A3].setValue( Math.sqrt(
-				xfit.getParameterValue(orderedA[xOrder[2]]) *
+		parameters[A3].setValue( 0.5 * (
+				xfit.getParameterValue(orderedA[xOrder[2]]) +
 				yfit.getParameterValue(orderedA[yOrder[2]])));
 		parameters[GX3].setValue(xfit.getParameterValue(orderedGamma[xOrder[2]]));
 		parameters[GY3].setValue(yfit.getParameterValue(orderedGamma[yOrder[2]]));
