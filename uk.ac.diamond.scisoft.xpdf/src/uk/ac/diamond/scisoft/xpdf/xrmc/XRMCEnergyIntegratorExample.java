@@ -133,7 +133,9 @@ public class XRMCEnergyIntegratorExample {
 		GammaDeltaPixelIntegrationCache gdpic = new GammaDeltaPixelIntegrationCache(gamma, delta, gammaRange, deltaRange);
 		List<Dataset> piResults = PixelIntegration.integrate(planeData, null, gdpic);
 		
-		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, nFile);
+		planeData = piResults.get(1);
+		
+		XRMCBackgroundFunction fit = fitData(planeData, /*det, xdet, */nFile);
 		
 		Dataset fittedData = expandFit(fit, planeData);
 		
@@ -157,6 +159,7 @@ public class XRMCEnergyIntegratorExample {
 				for (int i = 0; i < piResults.size(); i++) {
 					nFile.createData(node, "results." + Integer.toString(i), piResults.get(i));
 				}
+				nFile.createData(node, "γδdata", planeData);
 			} catch (NexusException nE) {
 				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
 			}
@@ -181,6 +184,8 @@ public class XRMCEnergyIntegratorExample {
 				System.err.println("Could not close file \"" + nFile.getFilePath() + "\": " + nE.toString());
 			}
 		}
+		
+		System.err.println(fit);
 		
 		System.exit(0);
 	}
@@ -236,7 +241,7 @@ public class XRMCEnergyIntegratorExample {
 		
 	}
 
-	private static XRMCBackgroundFunction fitData(Dataset planeData, XPDFDetector det, XRMCDetector xdet, NexusFile outputFile) {
+	private static XRMCBackgroundFunction fitData(Dataset planeData, /*XPDFDetector det, XRMCDetector xdet, */NexusFile outputFile) {
 		
 		int nx, ny;
 		nx = planeData.getShape()[0];
