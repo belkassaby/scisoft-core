@@ -1,5 +1,7 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
+import java.util.List;
+
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
@@ -16,6 +18,8 @@ import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.metadata.IMetadata;
 
+import uk.ac.diamond.scisoft.analysis.diffraction.powder.GammaDeltaPixelIntegrationCache;
+import uk.ac.diamond.scisoft.analysis.diffraction.powder.PixelIntegration;
 import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -109,6 +113,26 @@ public class XRMCEnergyIntegratorExample {
 			}
 		}
 		
+		// Interpolate to a (γ,δ) grid
+		double gamma00 = gamma.getDouble(0, 0);
+		double gammaNx = gamma.getDouble(0, shape[1]-1);
+		double nGamma = shape[0];
+		double gammaStep = (gammaNx - gamma00)/(nGamma-1);
+
+		double delta00 = delta.getDouble(shape[0]-1, 0);
+		double deltaNx = delta.getDouble(0, 0);
+		double nDelta = shape[0];
+		double deltaStep = (deltaNx - delta00)/(nDelta-1);
+
+		// Make the axes isotropic at the origin
+		double isoStep = Math.min(gammaStep, deltaStep);
+		Dataset gammaRange = DatasetFactory.createRange(gamma00, gammaNx+isoStep, isoStep);
+		Dataset deltaRange = DatasetFactory.createRange(delta00, deltaNx+isoStep, isoStep);
+		gammaRange = deltaRange.clone();
+		
+		GammaDeltaPixelIntegrationCache gdpic = new GammaDeltaPixelIntegrationCache(gamma, delta, gammaRange, deltaRange);
+		List<Dataset> piResults = PixelIntegration.integrate(planeData, null, gdpic);
+		
 		XRMCBackgroundFunction fit = fitData(planeData, det, xdet, nFile);
 		
 		Dataset fittedData = expandFit(fit, planeData);
@@ -130,6 +154,9 @@ public class XRMCEnergyIntegratorExample {
 				nFile.createData(node, "x", x);
 				nFile.createData(node, "y", y);
 				nFile.createData(node, "z", z);
+				for (int i = 0; i < piResults.size(); i++) {
+					nFile.createData(node, "results." + Integer.toString(i), piResults.get(i));
+				}
 			} catch (NexusException nE) {
 				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
 			}
