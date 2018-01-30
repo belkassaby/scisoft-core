@@ -1,15 +1,30 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
+import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
+import org.eclipse.dawnsci.nexus.NXdata;
+import org.eclipse.dawnsci.nexus.NXentry;
+import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
+import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
+import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusFileBuilder;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
@@ -31,19 +46,37 @@ import uk.ac.diamond.scisoft.xpdf.XPDFSubstance;
 
 public class XRMCEnergyIntegratorExample {
 
+	private enum Parameter {INFILE, XRMCDIR, DEBUGFILE, OUTFILE};
+	
+	private static Map<Parameter, String> flagStrings;
+	
 	public static void main(String[] args) {
-		if (args.length < 3) 
-			usageError();
+
+		// initialize the parameter to flag mapping
+		flagStrings = new EnumMap<>(Parameter.class);
+		flagStrings.put(Parameter.INFILE, "-i");
+		flagStrings.put(Parameter.XRMCDIR, "-p");
+		flagStrings.put(Parameter.DEBUGFILE, "-d");
+		flagStrings.put(Parameter.OUTFILE, "-o");
 		
-		String inputFileName = args[0];
-		String xrmcFilePath = args[1];
-		String outputFileName = args[2];
+		
+		Map<Parameter, String> parameters = parseArguments(args);
+		
+//		if (args.length < 3) 
+//			usageError();
+		
+		String inputFileName = parameters.get(Parameter.INFILE);
+		String xrmcFilePath = parameters.get(Parameter.XRMCDIR);
+		String debugFileName = parameters.get(Parameter.DEBUGFILE);
+		String nxFileName = parameters.get(Parameter.OUTFILE);
 
 		if (!hasExtension(inputFileName, "xrmc"))
 			inputFileName += ".xrmc";
-		if (!hasExtension(outputFileName, "h5") && !hasExtension(outputFileName, "hdf5"))
-			outputFileName += ".h5";
-		
+		if (!hasExtension(debugFileName, "h5") && !hasExtension(debugFileName, "hdf5"))
+			debugFileName += ".h5";
+		if (!hasExtension(nxFileName, "nxs"))
+			nxFileName += ".nxs";
+
 		IDataHolder iDH = null;
 		try {
 			iDH = LoaderFactory.getData(inputFileName);
@@ -76,16 +109,17 @@ public class XRMCEnergyIntegratorExample {
 
 		// This is totally test code, so I can use this here
 		NexusFileFactoryHDF5 factorio = new NexusFileFactoryHDF5();
-		NexusFile nFile = factorio.newNexusFile(outputFileName);
+		NexusFile dFile = factorio.newNexusFile(debugFileName);
 		try {
-			nFile.createAndOpenToWrite();
+			dFile.createAndOpenToWrite();
 		} catch (NexusException nE) {
-			System.err.println("Failed to set write (or create) file \"" + nFile.getFilePath() + "\": " + nE.toString() + ". No output will be generated.");
-			nFile = null;
+			System.err.println("Failed to set write (or create) file \"" + dFile.getFilePath() + "\": " + nE.toString() + ". No output will be generated.");
+			dFile = null;
 		}
 		
-		Dataset planeData = integrateData(inputFileName, nFile, det, xdet);
-		
+		Dataset planeData = integrateData(inputFileName, dFile, det, xdet);
+		Dataset xyData = planeData.clone();
+
 		int[] shape = planeData.getShape();
 		
 		Dataset gamma = DatasetFactory.zeros(shape);
@@ -126,7 +160,7 @@ public class XRMCEnergyIntegratorExample {
 
 		// Make the axes isotropic at the origin
 		double isoStep = Math.min(gammaStep, deltaStep);
-		Dataset gammaRange = DatasetFactory.createRange(gamma00, gammaNx+isoStep, isoStep);
+		Dataset gammaRange;// = DatasetFactory.createRange(gamma00, gammaNx+isoStep, isoStep);
 		Dataset deltaRange = DatasetFactory.createRange(delta00, deltaNx+isoStep, isoStep);
 		gammaRange = deltaRange.clone();
 		
@@ -135,31 +169,31 @@ public class XRMCEnergyIntegratorExample {
 		
 		planeData = piResults.get(1);
 		
-		XRMCBackgroundFunction fit = fitData(planeData, /*det, xdet, */nFile);
+		XRMCBackgroundFunction fit = fitData(planeData, /*det, xdet, */dFile);
 		
 		Dataset fittedData = expandFit(fit, planeData);
 		
 		Dataset residual = Maths.subtract(planeData, fittedData);
 		Dataset percentage = Maths.divide(planeData, fittedData).isubtract(1.0).imultiply(100);
 		
-		if (nFile != null) {
+		if (dFile != null) {
 			String nodeName = "/fit";
 			try {
-				GroupNode node = nFile.getGroup("/", true);
-				nFile.createData(node, "fit", fittedData);
-				nFile.createData(node, "residual", residual);
-				nFile.createData(node, "pc.diff", percentage);
-				nFile.createData(node, "gamma", gamma);
-				nFile.createData(node, "delta", delta);
-				nFile.createData(node, "phi", phi);
-				nFile.createData(node, "2theta", tth);
-				nFile.createData(node, "x", x);
-				nFile.createData(node, "y", y);
-				nFile.createData(node, "z", z);
+				GroupNode node = dFile.getGroup("/", true);
+				dFile.createData(node, "fit", fittedData);
+				dFile.createData(node, "residual", residual);
+				dFile.createData(node, "pc.diff", percentage);
+				dFile.createData(node, "gamma", gamma);
+				dFile.createData(node, "delta", delta);
+				dFile.createData(node, "phi", phi);
+				dFile.createData(node, "2theta", tth);
+				dFile.createData(node, "x", x);
+				dFile.createData(node, "y", y);
+				dFile.createData(node, "z", z);
 				for (int i = 0; i < piResults.size(); i++) {
-					nFile.createData(node, "results." + Integer.toString(i), piResults.get(i));
+					dFile.createData(node, "results." + Integer.toString(i), piResults.get(i));
 				}
-				nFile.createData(node, "γδdata", planeData);
+				dFile.createData(node, "xydata", xyData);
 			} catch (NexusException nE) {
 				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
 			}
@@ -167,25 +201,36 @@ public class XRMCEnergyIntegratorExample {
 		
 		
 		
-		if (nFile != null) {
+		if (dFile != null) {
 			int nexusCode = 0;
 			try {
-				nexusCode = nFile.flush();
+				nexusCode = dFile.flush();
 			} catch (NexusException nE) {
-				System.err.println("Could not flush data to file \"" + nFile.getFilePath() + "\": " + nE.toString());
+				System.err.println("Could not flush data to file \"" + dFile.getFilePath() + "\": " + nE.toString());
 			}
 			if (nexusCode == -1) {
-				System.err.println("Could not flush data to file \"" + nFile.getFilePath() + "\".");
+				System.err.println("Could not flush data to file \"" + dFile.getFilePath() + "\".");
 			}
 			
 			try {
-				nFile.close();
+				dFile.close();
 			} catch (NexusException nE) {
-				System.err.println("Could not close file \"" + nFile.getFilePath() + "\": " + nE.toString());
+				System.err.println("Could not close file \"" + dFile.getFilePath() + "\": " + nE.toString());
 			}
 		}
 		
 		System.err.println(fit);
+		
+		String fitFilename = "/tmp/fitfile.dat";
+		// Serialize and output background fit
+		try (FileOutputStream outFile = new FileOutputStream(fitFilename)){
+			ObjectOutputStream outStream = new ObjectOutputStream(outFile);
+			outStream.writeObject(fit);
+		} catch (IOException ioe) {
+			System.err.println("Error writing fit data: " + ioe.toString());
+		}
+		
+		writeOutputNexus(planeData, gamma, delta, nxFileName);
 		
 		System.exit(0);
 	}
@@ -337,8 +382,13 @@ public class XRMCEnergyIntegratorExample {
 		return fitEvaluation;
 	}
 	
+	private static void errUsageError(String errorString) {
+		System.err.println(errorString);
+		usageError();
+	}
+	
 	private static void usageError() {
-		System.err.println("usage: xrmcintegrator input.xrmc path/to/input/files.dat output.h5");
+		System.err.println("usage: xrmcintegrator -i input.xrmc -p path/to/input/files.dat -d debug.h5 -o output.nxs");
 		System.exit(1);
 	}
 	
@@ -347,6 +397,59 @@ public class XRMCEnergyIntegratorExample {
 		return parts[parts.length-1].equals(desiredExtension);
 	}
 	
+	private static Map<Parameter, String> parseArguments(String[] args) {
+		
+		Map<Parameter, String> namedParameters = new EnumMap<>(Parameter.class);
+		List<String> argList = new LinkedList<>(Arrays.asList(args));
+		
+		// usage: xrmcintegrator input.xrmc -p path/to/input/files/ -d debug.h5 -o output.nxs
+		// path to XRMC files
+		
+		putAnArgument(namedParameters, Parameter.XRMCDIR, argList);
+		putAnArgument(namedParameters, Parameter.DEBUGFILE, argList);
+		putAnArgument(namedParameters, Parameter.OUTFILE, argList);
+		putAnArgument(namedParameters, Parameter.INFILE, argList);
+		
+		
+		return namedParameters;
+	}
 	
+	private static void putAnArgument(Map<Parameter, String> parameters, Parameter param, List<String> args) {
+		String flagString = flagStrings.get(param);
+		int iFlag = args.indexOf(flagString);
+		if (iFlag == ArrayUtils.INDEX_NOT_FOUND)
+			errUsageError("Flag " + flagString + " parameter not found. Exiting.");
+		
+		int iValue= iFlag + 1;
+		if (iValue >= args.size())
+			errUsageError("Value for " + flagString + " parameter not found. Exiting");
+		parameters.put(param, args.get(iValue));
+		args.remove(iValue); // this order makes sure that the correct Strings
+		args.remove(iFlag); // are at the correct addresses.
+
+	}
+	
+	private static void writeOutputNexus(Dataset gammaDeltaCounts, Dataset gamma, Dataset delta, String fileName) {
+		NexusFileBuilder builder = new DefaultNexusFileBuilder(fileName);
+		NXroot nxroot = builder.getNXroot();
+		
+		NXentry nxentry = nxroot.getChildren(NXentry.class).values().toArray(new NXentry[1])[0];
+		NXdata data = NexusNodeFactory.createNXdata();
+
+		data.setAttribute(null, "signal", "data");
+		data.setAttribute(null, "axes", DatasetFactory.createFromObject(new String[] {"gamma", "delta"}, 2));
+		data.setAttribute(null, "gamma_indices", 0);
+		data.setAttribute(null, "delta_indices", 1);
+		data.setData(gammaDeltaCounts);
+		data.setDataset("gamma", gamma);
+		data.setDataset("delta", delta);
+		nxentry.addGroupNode("data", data);
+		
+		try {
+			builder.createFile(false).close();
+		} catch (NexusException nE) {
+			System.err.println("Error writing NeXus file: " + nE.toString());
+		}
+	}
 	
 }
