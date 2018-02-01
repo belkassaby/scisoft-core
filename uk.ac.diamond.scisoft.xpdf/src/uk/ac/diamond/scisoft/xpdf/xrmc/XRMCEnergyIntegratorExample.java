@@ -160,8 +160,14 @@ public class XRMCEnergyIntegratorExample {
 		double nGamma = shape[0];
 		double gammaStep = (gammaNx - gamma00)/(nGamma-1);
 
-		double delta00 = delta.getDouble(shape[0]-1, 0);
-		double deltaNx = delta.getDouble(0, 0);
+		double delta0 = 0;
+		// Limits of delta
+		for (int i = 0; i < shape[1]; i++) {
+			if (Math.abs(delta.getDouble(0, i)) >= Math.abs(gamma.getDouble(0, i)))
+				delta0 = Math.abs(delta.getDouble(0, i));
+		}
+		double delta00 = -delta0;
+		double deltaNx = delta0;
 		double nDelta = shape[0];
 		double deltaStep = (deltaNx - delta00)/(nDelta-1);
 
