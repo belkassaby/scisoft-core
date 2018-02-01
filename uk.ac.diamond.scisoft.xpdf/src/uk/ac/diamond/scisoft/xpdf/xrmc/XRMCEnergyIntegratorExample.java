@@ -23,6 +23,7 @@ import org.eclipse.dawnsci.nexus.NXroot;
 import org.eclipse.dawnsci.nexus.NexusException;
 import org.eclipse.dawnsci.nexus.NexusFile;
 import org.eclipse.dawnsci.nexus.NexusNodeFactory;
+import org.eclipse.dawnsci.nexus.ServiceHolder;
 import org.eclipse.dawnsci.nexus.builder.NexusFileBuilder;
 import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusFileBuilder;
 import org.eclipse.january.dataset.Dataset;
@@ -59,20 +60,26 @@ public class XRMCEnergyIntegratorExample {
 		flagStrings.put(Parameter.DEBUGFILE, "-d");
 		flagStrings.put(Parameter.OUTFILE, "-o");
 		
+		// Initialize the NeXus file writer
+		ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
 		
 		Map<Parameter, String> parameters = parseArguments(args);
-		
-//		if (args.length < 3) 
-//			usageError();
 		
 		String inputFileName = parameters.get(Parameter.INFILE);
 		String xrmcFilePath = parameters.get(Parameter.XRMCDIR);
 		String debugFileName = parameters.get(Parameter.DEBUGFILE);
 		String nxFileName = parameters.get(Parameter.OUTFILE);
 
+		if (inputFileName == null)
+			errUsageError("No input file specified");
+		if (xrmcFilePath == null)
+			errUsageError("No XRMC file path specified");
+		if (nxFileName == null)
+			errUsageError("No NeXus file specified");
+		
 		if (!hasExtension(inputFileName, "xrmc"))
 			inputFileName += ".xrmc";
-		if (!hasExtension(debugFileName, "h5") && !hasExtension(debugFileName, "hdf5"))
+		if (debugFileName != null && !hasExtension(debugFileName, "h5") && !hasExtension(debugFileName, "hdf5"))
 			debugFileName += ".h5";
 		if (!hasExtension(nxFileName, "nxs"))
 			nxFileName += ".nxs";
@@ -169,20 +176,10 @@ public class XRMCEnergyIntegratorExample {
 		
 		planeData = piResults.get(1);
 		
-		XRMCBackgroundFunction fit = fitData(planeData, /*det, xdet, */dFile);
-		
-		Dataset fittedData = expandFit(fit, planeData);
-		
-		Dataset residual = Maths.subtract(planeData, fittedData);
-		Dataset percentage = Maths.divide(planeData, fittedData).isubtract(1.0).imultiply(100);
-		
 		if (dFile != null) {
 			String nodeName = "/fit";
 			try {
 				GroupNode node = dFile.getGroup("/", true);
-				dFile.createData(node, "fit", fittedData);
-				dFile.createData(node, "residual", residual);
-				dFile.createData(node, "pc.diff", percentage);
 				dFile.createData(node, "gamma", gamma);
 				dFile.createData(node, "delta", delta);
 				dFile.createData(node, "phi", phi);
@@ -219,18 +216,7 @@ public class XRMCEnergyIntegratorExample {
 			}
 		}
 		
-		System.err.println(fit);
-		
-		String fitFilename = "/tmp/fitfile.dat";
-		// Serialize and output background fit
-		try (FileOutputStream outFile = new FileOutputStream(fitFilename)){
-			ObjectOutputStream outStream = new ObjectOutputStream(outFile);
-			outStream.writeObject(fit);
-		} catch (IOException ioe) {
-			System.err.println("Error writing fit data: " + ioe.toString());
-		}
-		
-		writeOutputNexus(planeData, gamma, delta, nxFileName);
+		writeOutputNexus(planeData, gammaRange, deltaRange, nxFileName);
 		
 		System.exit(0);
 	}
@@ -285,102 +271,6 @@ public class XRMCEnergyIntegratorExample {
 		return counts;
 		
 	}
-
-	private static XRMCBackgroundFunction fitData(Dataset planeData, /*XPDFDetector det, XRMCDetector xdet, */NexusFile outputFile) {
-		
-		int nx, ny;
-		nx = planeData.getShape()[0];
-		ny = planeData.getShape()[1];
-		// Get the axis aligned datasets: select the central points (1 point for n is odd, 2 for n is even), and average them to a 1D dataset 
-		Dataset xAxisData = planeData.getSlice(new int[] {0,  (ny+1)/2-1}, new int[] {nx, ny/2 + 1}, new int[] {1, 1}).mean(1, true);
-		Dataset yAxisData = planeData.getSlice(new int[] {(nx+1)/2-1, 0}, new int[] {nx/2 + 1, ny}, new int[] {1, 1}).mean(0, true);
-		
-		XRMCBackground1D xfit = new XRMCBackground1D();
-		XRMCBackground1D yfit = new XRMCBackground1D();
-		
-		double xbg = (xAxisData.getElementDoubleAbs(0) + xAxisData.getElementDoubleAbs(nx-1))/2; 
-		double xamp = 0.5*(xAxisData.getElementDoubleAbs((nx+1)/2) + xAxisData.getElementDoubleAbs(nx/2 + 1)) - xbg;
-
-		double ybg = (yAxisData.getElementDoubleAbs(0) + yAxisData.getElementDoubleAbs(ny-1))/2; 
-		double yamp = 0.5*(yAxisData.getElementDoubleAbs((ny+1)/2) + yAxisData.getElementDoubleAbs(ny/2 + 1)) - ybg;
-
-		
-		// initialize the 1 D fits
-		xfit.setParameterValues(xbg, 0.5*xamp, nx* 0.125, xamp/3, nx*0.25, xamp/6, 3*nx*0.125);
-		xfit.setX0(0.5*(nx-1));
-		yfit.setParameterValues(ybg, 0.5*yamp, ny* 0.125, yamp/3, ny*0.25, yamp/6, 3*ny*0.125);
-		yfit.setX0(0.5*(ny-1));
-		
-		if (outputFile != null) {
-			String nodeName = "";
-			try {
-				GroupNode node = outputFile.getGroup("/", true);
-				nodeName = "xdata";
-				outputFile.createData(node, nodeName, xAxisData);
-				nodeName = "ydata";
-				outputFile.createData(node, nodeName, yAxisData);
-			} catch (NexusException nE) {
-				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
-			}
-		}
-
-		AbstractOptimizer nmOptim = new ApacheOptimizer(Optimizer.LEVENBERG_MARQUARDT); 
-		
-		Dataset xAxis = DatasetFactory.createRange(nx);
-		Dataset yAxis = DatasetFactory.createRange(ny);
-		Dataset xFitted = DatasetFactory.createRange(nx);
-		Dataset yFitted = DatasetFactory.createRange(ny);
-		CoordinatesIterator xIter = CoordinatesIterator.createIterator(new int[] {nx}, xAxis);
-		CoordinatesIterator yIter = CoordinatesIterator.createIterator(new int[] {ny}, yAxis);
-		
-		// optimize the 1D backgrounds along each axis.
-		try {
-				nmOptim.optimize(new IDataset[] {DatasetFactory.createRange(nx)}, xAxisData, xfit);
-				nmOptim.optimize(new IDataset[] {DatasetFactory.createRange(ny)}, yAxisData, yfit);
-
-				xfit.fillWithValues((DoubleDataset) xFitted, xIter);
-				yfit.fillWithValues((DoubleDataset) yFitted, yIter);
-				
-		} catch (Exception e) {
-			System.err.println("Fitting of xaxis data failed: " + e.toString());
-		}
-
-		if (outputFile != null) {
-			String nodeName = "";
-			try {
-				GroupNode node = outputFile.getGroup("/", true);
-				nodeName = "xfits";
-				outputFile.createData(node, nodeName, xFitted);
-				nodeName = "yfits";
-				outputFile.createData(node, nodeName, yFitted);
-			} catch (NexusException nE) {
-				System.err.println("Failed to create data on node " + nodeName + ": " + nE.toString() + ". Sorry?");
-			}
-		}
-		
-		XRMCBackgroundFunction fit2d = new XRMCBackgroundFunction(xfit, yfit);
-		
-		Dataset x2d = DatasetFactory.createRange(ny).getBroadcastView(ny, nx).transpose(1, 0);
-		Dataset y2d = DatasetFactory.createRange(nx).getBroadcastView(nx, ny);
-		
-		try {
-			nmOptim.optimize(new IDataset[] {x2d, y2d}, planeData, fit2d);
-		} catch (Exception e) {
-			System.err.println("Could not optimize 2d fit: " + e.toString());
-		}
-		return fit2d;
-	}
-	
-	
-	private static Dataset expandFit(XRMCBackgroundFunction fit, Dataset data) {
-		DoubleDataset fitEvaluation = (DoubleDataset) DatasetFactory.zeros(data);
-		
-		CoordinatesIterator citer = CoordinatesIterator.createIterator(data.getShape(), DatasetFactory.createRange(data.getShape()[0]), DatasetFactory.createRange(data.getShape()[1]));
-
-		fit.fillWithValues(fitEvaluation, citer);
-	
-		return fitEvaluation;
-	}
 	
 	private static void errUsageError(String errorString) {
 		System.err.println(errorString);
@@ -433,7 +323,14 @@ public class XRMCEnergyIntegratorExample {
 		NexusFileBuilder builder = new DefaultNexusFileBuilder(fileName);
 		NXroot nxroot = builder.getNXroot();
 		
-		NXentry nxentry = nxroot.getChildren(NXentry.class).values().toArray(new NXentry[1])[0];
+		NXentry nxentry;
+		try {
+			nxentry = builder.newEntry("entry1").getNXentry();
+		} catch (NexusException nE) {
+			System.err.println("Failed to create new entry with NeXus file builder: " + nE.toString());
+			// return, having written no files
+			return;
+		}
 		NXdata data = NexusNodeFactory.createNXdata();
 
 		data.setAttribute(null, "signal", "data");
