@@ -18,6 +18,11 @@ public class DetectorTest {
 	}
 	
 	@Test
+	public void testValidity() {
+		assertTrue(det.isDetectorFile());
+	}
+	
+	@Test
 	public void testNPixels() {
 		int[] npixels = det.getNPixels();
 		assertArrayEquals("Incorrect detector dimensions", new int[] {40,  40}, npixels);

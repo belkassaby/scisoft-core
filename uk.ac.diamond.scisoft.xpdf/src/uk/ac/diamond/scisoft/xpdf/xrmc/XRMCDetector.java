@@ -8,23 +8,21 @@ import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector4d;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 
-public class XRMCDetector {
+public class XRMCDetector extends XRMCFile {
 
-	XRMCDatReader reader;
 	Matrix4d transformToLab;
 
 	static final double POSITION_TO_PIXELSIZE = 1000.0;
-	
+
 	/**
 	 * Creates a new Detector class, based on the given file
 	 * @param fileName
 	 * 				file path at which the source file can be found
 	 */
 	public XRMCDetector(String fileName) {
-		reader = new XRMCDatReader(fileName);
+		super(fileName);
 		transformToLab = null;
 	}
 	
@@ -33,8 +31,12 @@ public class XRMCDetector {
 	 * @return true if the structure in the reader matches an XRMC detector file
 	 */
 	public boolean isDetectorFile() {
-		return reader.hasKey("Newdevice") 
-				&& "detectorarray".equals(reader.getValue("Newdevice"));
+		return isValidFile();
+	}
+
+	@Override
+	protected String getDeviceName() {
+		return "detectorarray";
 	}
 	
 	/**
@@ -42,7 +44,7 @@ public class XRMCDetector {
 	 * @return the integral number of pixels in the detector array.
 	 */
 	public int[] getNPixels() {
-		String pixelString = reader.getValue("NPixels");
+		String pixelString = getValue("NPixels");
 		String[] tokens = pixelString.split("\\s+");
 		int[] nxny = new int[2];
 		nxny[0] = Integer.parseInt(tokens[0]);
@@ -82,25 +84,13 @@ public class XRMCDetector {
 	}
 	
 	public double getEmin() {
-		return Double.parseDouble(reader.getValue("Emin"));
+		return Double.parseDouble(getValue("Emin"));
 	}
 	
 	public double getEmax() {
-		return Double.parseDouble(reader.getValue("Emax"));
+		return Double.parseDouble(getValue("Emax"));
 	}
 
-	private double[] parseToDoubleArray(String[] array) {
-		return ArrayUtils.toPrimitive(Arrays.stream(array).map((String s) -> Double.parseDouble(s)).toArray(Double[]::new));
-	}
-	
-	private double[] getAndParseValues(String key) {
-		return parseToDoubleArray(reader.getValue(key).split("\\s+"));
-	}
-	
-	private double[] getParseAndScaleValues(String key, double scale) {
-		return Arrays.stream(getAndParseValues(key)).map(d -> d*scale).toArray();
-	}
-	
 	/**
 	 * Returns the solid angle subtended by the detector.
 	 * @return the solid angle subtended by the detector (steradians).
