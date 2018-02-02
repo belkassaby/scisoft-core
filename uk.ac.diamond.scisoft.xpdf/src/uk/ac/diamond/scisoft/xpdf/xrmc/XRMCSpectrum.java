@@ -8,11 +8,12 @@ import java.util.Scanner;
 
 public class XRMCSpectrum extends XRMCFile {
 
-	
-	XRMCDatReader reader;
-	
 	public XRMCSpectrum(String fileName) {
 		super(fileName);
+	}
+	
+	public XRMCSpectrum(String[] lines) {
+		super(lines);
 	}
 	
 	public boolean isSpectrumFile() {
@@ -29,8 +30,8 @@ public class XRMCSpectrum extends XRMCFile {
 	 * @return name of the device.
 	 */
 	public String getName() {
-		int iNewDevice = reader.firstIndexOf("Newdevice");
-		return reader.getLine(iNewDevice + 1);
+//		int iNewDevice = reader.firstIndexOf("Newdevice");
+		return reader.getLine(1);
 	}
 	
 	/**
