@@ -26,6 +26,10 @@ public class XRMCDatReader {
 		}
 	}
 	
+	public XRMCDatReader(String[] lines) {
+		data = read(lines);
+	}
+	
 	/**
 	 * Returns whether a given XRMC input file contains the requested key.
 	 * @param key
@@ -159,12 +163,9 @@ public class XRMCDatReader {
 		return -1;
 	}
 	
-	private static List<NameValue> read(String filename) throws IOException {
-		// read the file to the Strings comprising the lines of the file
-		List<String> fileLines = Files.readAllLines(Paths.get(filename));
-		
+	private static List<NameValue> read(String[] lines) {
 		// Delete comments: semicolon to end of line
-		List<String> commentlessLines = fileLines.stream().map(line -> (line.equals(";")) ? "" : line.split(";")[0]).collect(Collectors.toList());
+		List<String> commentlessLines = Arrays.stream(lines).map(line -> (line.equals(";")) ? "" : line.split(";")[0]).collect(Collectors.toList());
 		
 		// Remove blank lines
 		commentlessLines.removeIf((String s) -> s.matches("\\s*"));
@@ -177,6 +178,14 @@ public class XRMCDatReader {
 			outLines.add(parseLine(line));
 				
 		return outLines;
+		
+	}
+	
+	private static List<NameValue> read(String filename) throws IOException {
+		// read the file to the Strings comprising the lines of the file
+		String[] fileLines = Files.readAllLines(Paths.get(filename)).toArray(new String[1]);
+		
+		return read(fileLines);
 	}
 
 	/**
