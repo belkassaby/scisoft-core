@@ -11,7 +11,6 @@ package uk.ac.diamond.scisoft.xpdf.xrmc;
 
 import java.util.Arrays;
 
-import javax.measure.quantity.SolidAngle;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
@@ -20,7 +19,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-import org.eclipse.january.dataset.IndexIterator;
 
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 
