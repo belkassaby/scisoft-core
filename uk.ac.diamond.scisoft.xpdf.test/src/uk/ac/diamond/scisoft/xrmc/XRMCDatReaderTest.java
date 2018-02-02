@@ -76,4 +76,26 @@ public class XRMCDatReaderTest {
 		XRMCDatReader quadricReader = new XRMCDatReader(pathPrefix + "quadric.dat");
 		assertEquals("Second \"Plane\" mislocated", 6, quadricReader.firstIndexOfAfter("Plane", quadricReader.firstIndexOf("Plane")));
 	}
+	
+	@Test
+	public void testArrayCtor() {
+		String[] lines = ("Newdevice spectrum		; Device type\n" + 
+				"Spectrum		; Device name\n" + 
+				"PolarizedFlag 1		; unpolarized/polarized beam (0/1)\n" + 
+				"LoopFlag 1		; 0: extract random energies on the whole spectrum\n" + 
+				"			; 1: loop on all lines and sampling points\n" + 
+				"ContinuousPhotonNum 1	; Multiplicity of events for each interval in spectrum \n" + 
+				"LinePhotonNum 10		; Multiplicity of events for each line in the spectrum\n" + 
+				"RandomEneFlag 1		; enable random energy on each interval (0/1)\n" + 
+				"Lines	      		; discrete energy lines of the spectrum\n" + 
+				"1			; Number of lines in the spectrum\n" + 
+				";			Energy Lines :\n" + 
+				"76.6 0.1 1e10 1e7	; Energy (keV) , sigma (keV) , intensity (photons/sec)\n" + 
+				"\n" + 
+				"End\n" + 
+				"").split("\n");
+		
+		XRMCDatReader lineReader = new XRMCDatReader(lines);
+		assertTrue(lineReader.hasKey("LoopFlag"));
+	}
 }
