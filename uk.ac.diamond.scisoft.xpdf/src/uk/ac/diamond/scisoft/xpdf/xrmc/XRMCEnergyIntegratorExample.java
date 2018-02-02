@@ -1,8 +1,5 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedList;
@@ -14,7 +11,6 @@ import javax.vecmath.Vector3d;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.io.IDataHolder;
-import org.eclipse.dawnsci.analysis.api.tree.DataNode;
 import org.eclipse.dawnsci.analysis.api.tree.GroupNode;
 import org.eclipse.dawnsci.hdf5.nexus.NexusFileFactoryHDF5;
 import org.eclipse.dawnsci.nexus.NXdata;
@@ -29,19 +25,12 @@ import org.eclipse.dawnsci.nexus.builder.impl.DefaultNexusFileBuilder;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
-import org.eclipse.january.dataset.DoubleDataset;
-import org.eclipse.january.dataset.IDataset;
-import org.eclipse.january.dataset.Maths;
 import org.eclipse.january.metadata.IMetadata;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.powder.GammaDeltaPixelIntegrationCache;
 import uk.ac.diamond.scisoft.analysis.diffraction.powder.PixelIntegration;
-import uk.ac.diamond.scisoft.analysis.fitting.functions.CoordinatesIterator;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.diamond.scisoft.analysis.optimize.AbstractOptimizer;
-import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer;
-import uk.ac.diamond.scisoft.analysis.optimize.ApacheOptimizer.Optimizer;
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 import uk.ac.diamond.scisoft.xpdf.XPDFSubstance;
 

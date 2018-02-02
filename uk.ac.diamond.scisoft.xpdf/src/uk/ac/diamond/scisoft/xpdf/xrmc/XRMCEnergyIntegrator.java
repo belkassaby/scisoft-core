@@ -11,13 +11,16 @@ package uk.ac.diamond.scisoft.xpdf.xrmc;
 
 import java.util.Arrays;
 
+import javax.measure.quantity.SolidAngle;
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
+import org.eclipse.january.dataset.IndexIterator;
 
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 
@@ -37,6 +40,7 @@ public class XRMCEnergyIntegrator {
 	public void setXRMCData(Dataset data) {
 		this.xrmcData = data;
 		det = null;
+		detProp = null;
 	}
 	
 	/**
@@ -69,11 +73,14 @@ public class XRMCEnergyIntegrator {
 		if (det == null)
 			return xrmcData.sum(0);
 		else
-			return correctGeometry(integrateEnergy(correctTransmission(xrmcData)));
+			return correctAndNormalize(integrateEnergy(correctTransmission(xrmcData)));
 	}
 	
 	/**
 	 * Set the geometry of the detector relative to the sample.
+	 * <p.
+	 * If the geometry that is defined by this function is set, then the
+	 * dataset returned by getDetectorCounts will be normalized by solid angle.
 	 * @param origin
 	 * 				location of the origin of the detector, relative to the
 	 * 				sample. In millimetres, lateral, vertical, up-beam (+z is toward the source)
@@ -141,9 +148,13 @@ public class XRMCEnergyIntegrator {
 		this.setEnergies(DatasetFactory.createRange(minEnergy + dE/2, maxEnergy + dE/2, dE));
 
 		// set the geometry of the detector, scaling the pixel size from μm to mm
-		this.setGeometry(new Vector3d(xdet.getDetectorPosition()),
-				DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getEulerAngles()))),
-				DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getPixelSize()))).idivide(1000));
+		
+		Vector3d originXRMC = xdet.labFromPixel(new Vector2d(0, 0)); // top left of the top left pixel: DetectorProperties origin, in XRMC lab frame
+		Vector3d originDP = new Vector3d(-originXRMC.x, originXRMC.z, originXRMC.y); // origin, Detector Properties frame
+		Dataset eulerXYZ = DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getEulerAngles())));
+		Dataset pixelSizeDataset = DatasetFactory.createFromList(Arrays.asList(ArrayUtils.toObject(xdet.getPixelSize()))).idivide(1000);
+		
+		this.setGeometry(originDP, eulerXYZ, pixelSizeDataset);
 	}
 	
 	
@@ -169,7 +180,23 @@ public class XRMCEnergyIntegrator {
 		return energyResolved.sum(0); // no dE term, the values are photons per bin, with no per unit of bandwidth term.
 	}
 	
-	private Dataset correctGeometry(Dataset flux) {
-		return flux;
+	// Convert from counts per pixel to photons per incident photon per unit solid angle
+	private Dataset correctAndNormalize(Dataset flux) {
+		
+		Dataset omegaFlux = DatasetFactory.zeros(flux);
+		
+		if (detProp != null) {
+			int[] shape = flux.getShape();
+			for (int i = 0; i < shape[0]; i++) {
+				for (int j = 0; j < shape[1]; j++) {
+					double solidAngle = detProp.calculateSolidAngle(i, j);
+					omegaFlux.set(flux.getDouble(i, j)/solidAngle, i, j);
+				}
+			}
+			return omegaFlux;
+			
+		} else {
+			return flux;
+		}
 	}
 }
