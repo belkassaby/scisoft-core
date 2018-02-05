@@ -14,6 +14,10 @@ public class XRMCFile {
 		reader = new XRMCDatReader(fileName);
 	}
 	
+	protected XRMCFile(String[] lines) {
+		reader = new XRMCDatReader(lines);
+	}
+	
 	/**
 	 * Returns whether the file is valid for its type
 	 * @return
