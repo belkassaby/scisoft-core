@@ -114,6 +114,10 @@ public class XRMCEnergyIntegratorExample {
 		}
 		
 		Dataset planeData = integrateData(inputFileName, dFile, det, xdet);
+
+		XRMCSpectrum xspec = new XRMCSpectrum(xrmcFilePath + "spectrum.dat");
+		List<XRMCSpectrum.SpectrumComponent> spectrumComponents = xspec.getSpectrum();
+		
 		Dataset xyData = planeData.clone();
 
 		int[] shape = planeData.getShape();
