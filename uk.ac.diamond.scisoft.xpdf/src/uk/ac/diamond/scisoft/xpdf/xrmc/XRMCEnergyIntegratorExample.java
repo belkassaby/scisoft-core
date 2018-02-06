@@ -54,7 +54,7 @@ public class XRMCEnergyIntegratorExample {
 		flagStrings.put(Parameter.OUTFILE, "-o");
 		
 		// Initialize the NeXus file writer
-		ServiceHolder.setNexusFileFactory(new NexusFileFactoryHDF5());
+		new ServiceHolder().setNexusFileFactory(new NexusFileFactoryHDF5());
 		
 		Map<Parameter, String> parameters = parseArguments(args);
 		
