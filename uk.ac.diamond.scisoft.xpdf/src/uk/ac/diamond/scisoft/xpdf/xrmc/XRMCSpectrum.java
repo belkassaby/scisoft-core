@@ -146,7 +146,7 @@ public class XRMCSpectrum extends XRMCFile {
 		}
 
 		protected static String getToken(String s, int i) {
-			return s.split("\b*")[i];
+			return s.split("\\s+")[i];
 		}
 
 	
