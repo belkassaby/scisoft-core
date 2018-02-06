@@ -1,6 +1,7 @@
 package uk.ac.diamond.scisoft.xpdf.xrmc;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,9 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 import uk.ac.diamond.scisoft.xpdf.XPDFSubstance;
+import uk.ac.diamond.scisoft.xpdf.xrmc.XRMCSpectrum.IPolarizedComponent;
+import uk.ac.diamond.scisoft.xpdf.xrmc.XRMCSpectrum.IUnpolarizedComponent;
+import uk.ac.diamond.scisoft.xpdf.xrmc.XRMCSpectrum.SpectrumComponent;
 
 public class XRMCEnergyIntegratorExample {
 
@@ -117,7 +121,9 @@ public class XRMCEnergyIntegratorExample {
 
 		XRMCSpectrum xspec = new XRMCSpectrum(xrmcFilePath + "spectrum.dat");
 		List<XRMCSpectrum.SpectrumComponent> spectrumComponents = xspec.getSpectrum();
+		double totalIntensity = sumIntensities(spectrumComponents);
 		
+		planeData.idivide(totalIntensity);
 		Dataset xyData = planeData.clone();
 
 		int[] shape = planeData.getShape();
@@ -346,6 +352,20 @@ public class XRMCEnergyIntegratorExample {
 		} catch (NexusException nE) {
 			System.err.println("Error writing NeXus file: " + nE.toString());
 		}
+	}
+	
+	private static double sumIntensities(Collection<SpectrumComponent> components) {
+		double sum = 0.0;
+		for (SpectrumComponent compo : components) {
+			if (compo instanceof IUnpolarizedComponent) {
+				sum += ((IUnpolarizedComponent) compo).getIntensity();
+			} else if (compo instanceof IPolarizedComponent) {
+				sum += ((IPolarizedComponent) compo).getIntensity1();
+				sum += ((IPolarizedComponent) compo).getIntensity2();
+			}
+		}
+		
+		return sum;
 	}
 	
 }

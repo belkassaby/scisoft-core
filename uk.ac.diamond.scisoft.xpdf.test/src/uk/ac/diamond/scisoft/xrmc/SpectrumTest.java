@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.xpdf.xrmc.XRMCSpectrum;
+import uk.ac.diamond.scisoft.xpdf.xrmc.XRMCSpectrum.PolarizedLineSample;
 
 public class SpectrumTest {
 	
@@ -71,6 +72,11 @@ public class SpectrumTest {
 	public void testGetSpectrum() {
 		List<XRMCSpectrum.SpectrumComponent> components = initTestSpectrum().getSpectrum();
 		assertEquals("Incorrect spectrum length", 1, components.size());
+		PolarizedLineSample plscomp = (PolarizedLineSample) components.get(0);
+		assertEquals("Incorrect line energy", 76.6, plscomp.getEnergy(), 1e-2);
+		assertEquals("Inccorect line width", 0.1, plscomp.getWidth(), 1e-2);
+		assertEquals("Incorrect intensity (1)", 1e10, plscomp.getIntensity1(), 1);
+		assertEquals("Incorrect intensity (2)", 1e7, plscomp.getIntensity2(), 1);
 	}
 
 }
