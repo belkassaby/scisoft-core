@@ -9,6 +9,7 @@
 
 package uk.ac.diamond.scisoft.xpdf.operations;
 
+import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.eclipse.dawnsci.analysis.api.processing.Atomic;
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
 import org.eclipse.dawnsci.analysis.api.processing.OperationException;
@@ -17,11 +18,14 @@ import org.eclipse.dawnsci.analysis.dataset.operations.AbstractOperation;
 import org.eclipse.january.DatasetException;
 import org.eclipse.january.IMonitor;
 import org.eclipse.january.dataset.Dataset;
+import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.DoubleDataset;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Maths;
 
+import uk.ac.diamond.scisoft.analysis.io.DiffractionMetadata;
+import uk.ac.diamond.scisoft.xpdf.XPDFDetector;
 import uk.ac.diamond.scisoft.xpdf.XPDFTargetComponent;
 import uk.ac.diamond.scisoft.xpdf.metadata.XPDFMetadata;
 
@@ -55,6 +59,10 @@ public class XPDFNormalizeTracesOperation extends
 		
 		theXPDFMetadata = process.getFirstMetadata(XPDFMetadata.class);
 		
+		// Get the per pixel solid angle
+		DiffractionMetadata diffMeta = process.getFirstMetadata(DiffractionMetadata.class);
+		Dataset solidAngle = (model.isNormalizeByOmega()) ? fullDetectorSolidAngle(diffMeta.getDetector2DProperties()) : null;
+		
 		if (theXPDFMetadata != null) {
 			// Dataset trace, from the Sample metadata
 			if (theXPDFMetadata.getSample() != null && 
@@ -62,18 +70,21 @@ public class XPDFNormalizeTracesOperation extends
 					!theXPDFMetadata.getSampleTrace().isNormalized() && 
 					model.isNormalizeSample()) {
 				// sets the isNormalized flag, but does not normalize the (null) trace
-				theXPDFMetadata.getSampleTrace().normalizeTrace();
+				theXPDFMetadata.getSampleTrace().normalizeTrace(null);
 				// Normalize the Dataset
 				double normer = theXPDFMetadata.getSampleTrace().getCountingTime()*
 						theXPDFMetadata.getSampleTrace().getMonitorRelativeFlux();
 				process.idivide(normer);
 			
+				if (model.isNormalizeByOmega()) process.idivide(solidAngle);
+				
 				// Normalize the errors, if present
 				Dataset inputErrors;
 				try {
 					inputErrors = DatasetUtils.sliceAndConvertLazyDataset(input.getErrors());
 					if (inputErrors != null) {
 						Dataset processErrors = Maths.divide(inputErrors, normer);
+						if (model.isNormalizeByOmega()) processErrors.idivide(solidAngle);
 						process.setErrors(processErrors);
 					}
 				} catch (DatasetException e) {
@@ -85,14 +96,14 @@ public class XPDFNormalizeTracesOperation extends
 			if (theXPDFMetadata.getBeam() != null && 
 					theXPDFMetadata.getEmptyTrace() != null && 
 					model.isNormalizeBeam())
-				theXPDFMetadata.getEmptyTrace().normalizeTrace();
+				theXPDFMetadata.getEmptyTrace().normalizeTrace(solidAngle);
 			
 			// For each container metadataset, normalize its beam trace
 			if (theXPDFMetadata.getContainers() != null && 
 					model.isNormalizeContainers()) {
 				for (XPDFTargetComponent container : theXPDFMetadata.getContainers()) {
 					if (theXPDFMetadata.getContainerTrace(container) != null) 
-						theXPDFMetadata.getContainerTrace(container);
+						theXPDFMetadata.getContainerTrace(container).normalizeTrace(solidAngle);
 				}
 			}
 		}
@@ -115,4 +126,19 @@ public class XPDFNormalizeTracesOperation extends
 		return OperationRank.SAME;
 	}
 
+	private Dataset fullDetectorSolidAngle(DetectorProperties dProp) {
+		
+		int nX = dProp.getPx();
+		int nY = dProp.getPy();
+		Dataset omega = DatasetFactory.zeros(nX, nY);
+		
+		for (int i = 0; i < nX; i++) {
+			for (int j = 0; j < nY; j++) {
+				omega.set(dProp.calculateSolidAngle(i, j), i, j);
+			}
+		}
+		
+		return omega;
+	}
+	
 }

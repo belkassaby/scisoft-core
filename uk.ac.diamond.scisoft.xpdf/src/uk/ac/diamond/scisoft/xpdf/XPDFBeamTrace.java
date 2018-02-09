@@ -11,6 +11,8 @@ package uk.ac.diamond.scisoft.xpdf;
 
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.Maths;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Beam trace data for XPDF processing
@@ -28,6 +30,7 @@ public class XPDFBeamTrace {
 	private boolean isNormalized, isBackgroundSubtracted;
 	private boolean isAxisAngle;
 	
+	private final static Logger logger = LoggerFactory.getLogger(XPDFBeamTrace.class);
 	
 	/**
 	 * Empty constructor to create an empty beam.
@@ -117,13 +120,25 @@ public class XPDFBeamTrace {
 	/**
 	 * Normalize the trace contained, and note this in the appropriate isNormalized boolean
 	 */
-	public void normalizeTrace() {
+	
+	/**
+	 * Normalizes the trace, optionally including solid angle. Flags that the trace is normalized.
+	 * @param omega
+	 * 				solid angle dataset. If null, no solid angle normalization is performed
+	 */
+	public void normalizeTrace(Dataset omega) {
 		if (trace != null) {
 			Dataset traceErrors = (trace.getErrors() != null) ? trace.getErrors() : null;
-			trace = getNormalizedTrace();
+			
+			Object divisor = (omega != null) ?
+				Maths.multiply(omega, this.countingTime * this.monitorRelativeFlux) :
+				this.countingTime * this.monitorRelativeFlux;	
+			
+				trace.idivide(divisor);
+			
 			// Normalize the errors, too
 			if (traceErrors != null)
-				trace.setErrors(Maths.divide(traceErrors, this.countingTime*this.monitorRelativeFlux));
+				trace.setErrors(Maths.divide(traceErrors, divisor));
 		}
 		isNormalized = true;
 	}
@@ -131,14 +146,15 @@ public class XPDFBeamTrace {
 	/**
 	 * Return the normalized trace.
 	 * <p>
-	 * If the trace is not previously normalized, then do so. Thence, return the answer.
+	 * If the trace is not previously normalized, then return null.
 	 * @return the Dataset of the normalized trace.
 	 */
 	public Dataset getNormalizedTrace() {
 		if (isNormalized) {
 			return trace;
 		} else {
-			return (trace != null) ? Maths.divide(trace, this.countingTime*this.monitorRelativeFlux) : null;
+			logger.error("Call normalizeTrace() to normalize traces before trying to get them");
+			return null;
 		}
 	}
 	
