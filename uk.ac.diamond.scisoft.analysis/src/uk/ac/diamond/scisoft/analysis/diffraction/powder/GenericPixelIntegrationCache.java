@@ -17,7 +17,16 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.IntegerDataset;
 
-public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
+/**
+ * A generic implementor of {@link IPixelIntegrationCache} allowing
+ * interpolation to a regular grid of some pair of variables. The inputs are
+ * the values of the target variables on the initial grid, and the axes of the
+ * same variables for the regular output grid.
+ * 
+ * @author Timothy Spain, timothy.spain@diamond.ac.uk
+ * @since 2018-02-12
+ */
+public class GenericPixelIntegrationCache implements IPixelIntegrationCache {
 
 	Dataset e1; // Values of the output coordinates (e1,e2) on the input image grid. Two dimensional Datasets.
 	Dataset e2;
@@ -53,7 +62,7 @@ public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
 	Dataset e1BinEdges; // Edges of the bins on the e1 output axis
 	Dataset e2BinEdges; // Edges of the bins on the e1 output axis
 	
-	public GammaDeltaPixelIntegrationCache() {
+	public GenericPixelIntegrationCache() {
 		e1 = null;
 		e2 = null;
 		e1Axis = null;
@@ -61,7 +70,7 @@ public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
 		isReady = false;
 	}		
 	
-	public GammaDeltaPixelIntegrationCache(Dataset e1, Dataset e2, Dataset e1Axis, Dataset e2Axis) {
+	public GenericPixelIntegrationCache(Dataset e1, Dataset e2, Dataset e1Axis, Dataset e2Axis) {
 		this();
 		this.e1 = e1;
 		this.e2 = e2;
@@ -177,10 +186,6 @@ public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
 		// Loop over every data point, getting the min and max values at that point
 		for (int i = 0; i < nx; i++) {
 			for (int j = 0; j < ny; j++) {
-				// ... or exfiltrating the extrapolation mask
-//				e1Min.set((double) e1ExtrapolationMask.getInt(i, j), i, j);
-//				e2Min.set((double) e2ExtrapolationMask.getInt(i, j), i, j);
-				
 				minmax = polatedMinMaxValues(i, j, e1, e1ExtrapolationMask.getInt(i, j));
 				e1Min.set(minmax.x, i, j);
 				e1Max.set(minmax.y, i, j);
@@ -228,18 +233,6 @@ public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
 		return new Vector2d(min, max);
 	}
 	
-//	private double extrapolate(int i, int j, Dataset y, int ev) {
-//		final int[] deltaXArray = new int[] {+1, 0, -1, -1, -1, 0, +1, +1};
-//		final int[] deltaYArray = new int[] {+1, +1, +1, 0, -1, -1, -1, 0};
-//		final double pointWeight = 2.0;
-//		final double otherWeight = -1.0;
-//
-//		int deltaX = deltaXArray[ev];
-//		int deltaY = deltaYArray[ev];
-//		
-//		return pointWeight * y.getDouble(i, j) + otherWeight * y.getDouble(i + deltaX, j + deltaY); // No point in writing a function for this
-//	}
-	
 	private double interpolate(int i, int j, Dataset y, int ev) {
 		final int[] deltaXArray = new int[] {-1, 0, +1, +1, +1, 0, -1, -1};
 		final int[] deltaYArray = new int[] {-1, -1, -1, 0, +1, +1, +1, 0};
@@ -272,9 +265,5 @@ public class GammaDeltaPixelIntegrationCache implements IPixelIntegrationCache {
 	private double getYBin0End() {
 		return 3./2.*e2Axis.getDouble(0) - 1./2.*e2Axis.getDouble(1);
 	}
-	
-	//	private int indexer(int n, int mod) {
-//		return mod*n - mod;
-//	}
 	
 }
