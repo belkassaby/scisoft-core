@@ -28,7 +28,7 @@ import org.eclipse.january.dataset.DatasetFactory;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.metadata.IMetadata;
 
-import uk.ac.diamond.scisoft.analysis.diffraction.powder.GammaDeltaPixelIntegrationCache;
+import uk.ac.diamond.scisoft.analysis.diffraction.powder.GenericPixelIntegrationCache;
 import uk.ac.diamond.scisoft.analysis.diffraction.powder.PixelIntegration;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
@@ -69,6 +69,12 @@ public class XRMCEnergyIntegratorExample {
 			errUsageError("No XRMC file path specified");
 		if (nxFileName == null)
 			errUsageError("No NeXus file specified");
+		
+		run(inputFileName, xrmcFilePath, debugFileName, nxFileName);
+		
+	}
+	
+	public static void run(String inputFileName, String xrmcFilePath, String debugFileName, String nxFileName) {
 		
 		if (!hasExtension(inputFileName, "xrmc"))
 			inputFileName += ".xrmc";
@@ -176,7 +182,7 @@ public class XRMCEnergyIntegratorExample {
 		Dataset deltaRange = DatasetFactory.createRange(delta00, deltaNx+isoStep, isoStep);
 		gammaRange = deltaRange.clone();
 		
-		GammaDeltaPixelIntegrationCache gdpic = new GammaDeltaPixelIntegrationCache(gamma, delta, gammaRange, deltaRange);
+		GenericPixelIntegrationCache gdpic = new GenericPixelIntegrationCache(gamma, delta, gammaRange, deltaRange);
 		List<Dataset> piResults = PixelIntegration.integrate(planeData, null, gdpic);
 		
 		planeData = piResults.get(1);
