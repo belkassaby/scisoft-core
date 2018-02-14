@@ -10,12 +10,11 @@ package uk.ac.diamond.scisoft.xpdf.xrmc;
 
 import javax.vecmath.Vector3d;
 
+import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
 import org.eclipse.dawnsci.analysis.api.diffraction.DetectorProperties;
 import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetFactory;
-
-import uk.ac.diamond.scisoft.analysis.diffraction.powder.GenericPixelIntegrationCache;
-import uk.ac.diamond.scisoft.analysis.diffraction.powder.PixelIntegration;
+import org.eclipse.january.dataset.IndexIterator;
 
 /**
  * Given detector properties, an intensity dataset and the coordinates of the
@@ -26,10 +25,10 @@ import uk.ac.diamond.scisoft.analysis.diffraction.powder.PixelIntegration;
  *
  */
 public class IntensityFromDetectorProperties {
+	private PiecewiseBicubicSplineInterpolatingFunction interp;
+	
 	private Dataset realGamma;
 	private Dataset realDelta;
-	private Dataset xrmcI;
-	private Dataset xrmcJ;
 	private Dataset gammaAxis;
 	private Dataset deltaAxis;
 	
@@ -40,8 +39,11 @@ public class IntensityFromDetectorProperties {
 	
 	public static Dataset calculate(DetectorProperties dPropIn, Dataset intensity, Dataset gammaAxis, Dataset deltaAxis) {
 		IntensityFromDetectorProperties obj = new IntensityFromDetectorProperties(dPropIn, intensity, gammaAxis, deltaAxis);
+
+		obj.generateInterpolator();
+
 		obj.generateRealGammaDelta();
-		obj.generateXRMCij();
+//		obj.generateXRMCij();
 		obj.interpolateIntensity();
 		
 		return obj.realIntensity;
@@ -82,34 +84,44 @@ public class IntensityFromDetectorProperties {
 		}
 	}
 	
-	private void generateXRMCij() {
-		GenericPixelIntegrationCache xrmcFromReal = new GenericPixelIntegrationCache(realGamma, realDelta, gammaAxis, deltaAxis);
-
-		xrmcI = DatasetFactory.zeros(gammaAxis.getSize(), deltaAxis.getSize());
-		xrmcJ = DatasetFactory.zeros(gammaAxis.getSize(), deltaAxis.getSize());
+	private void generateInterpolator() {
+		int ng = gammaAxis.getSize();
+		int nd = deltaAxis.getSize();
 		
-		int nX = dProp.getPx();
-		int nY = dProp.getPy();
-
-		Dataset realI = DatasetFactory.zeros(nX, nY);
-		Dataset realJ = DatasetFactory.zeros(nX, nY);
+		// Prepare the double arrays from the Datasets
+		double[] gamma = new double[ng];
+		double[] delta = new double[nd];
 		
-		for (int i = 0; i < dProp.getPx(); i++) {
-			for (int j = 0; j < dProp.getPy(); j++) {
-				realI.set(i, i, j);
-				realJ.set(j, i, j);
+		double[][] intensity = new double[ng][nd];
+		
+		for (int i = 0; i < ng; i++) {
+			gamma[i] = gammaAxis.getDouble(i);
+			for (int j = 0; j < nd; j++) {
+				intensity[i][j] = xrmcIntensity.getDouble(i, j);
 			}
 		}
+		for (int j = 0; j < nd; j++) {
+			delta[j] = deltaAxis.getDouble(j);
+		}
 		
-		xrmcI = PixelIntegration.integrate(realI, null, xrmcFromReal).get(1);
-		xrmcJ = PixelIntegration.integrate(realJ, null, xrmcFromReal).get(1);
-		
+		interp = new PiecewiseBicubicSplineInterpolatingFunction(gamma, delta, intensity);
 	}
-
+	
 	private void interpolateIntensity() {
-		GenericPixelIntegrationCache realFromXRMC = new GenericPixelIntegrationCache(xrmcI, xrmcJ, DatasetFactory.createRange(dProp.getPx()), DatasetFactory.createRange(dProp.getPy()));
+		realIntensity = DatasetFactory.zeros(realGamma);
+		double fillValue = (double) xrmcIntensity.min();
 		
-		realIntensity = PixelIntegration.integrate(xrmcIntensity, null, realFromXRMC).get(1);
+		IndexIterator iter = realGamma.getIterator();
+		
+		while(iter.hasNext()) {
+			double gamma = realGamma.getElementDoubleAbs(iter.index);
+			double delta = realDelta.getElementDoubleAbs(iter.index);
+			if (interp.isValidPoint(gamma, delta))
+				realIntensity.setObjectAbs(iter.index, interp.value(gamma, delta));
+			else
+				realIntensity.setObjectAbs(iter.index, fillValue);
+		}
+		
 	}
 	
 	private double quadrate(double x, double y) {
