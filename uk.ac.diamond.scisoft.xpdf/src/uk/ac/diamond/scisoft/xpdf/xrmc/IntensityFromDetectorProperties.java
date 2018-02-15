@@ -79,7 +79,7 @@ public class IntensityFromDetectorProperties {
 			for (int j = 0; j < nY; j++) {
 				Vector3d r = dProp.pixelPosition(i+0.5, j+0.5);
 				realGamma.set(Math.atan2(r.x, r.z), i, j);
-				realDelta.set(Math.atan2(r.y, quadrate(r.x, r.z)), i, j);
+				realDelta.set(Math.atan2(r.y, Math.hypot(r.x, r.z)), i, j);
 			}
 		}
 	}
@@ -124,11 +124,4 @@ public class IntensityFromDetectorProperties {
 		
 	}
 	
-	private double quadrate(double x, double y) {
-		return Math.sqrt(square(x) + square(y));
-	}
-	
-	private double square(double x) {
-		return x*x;
-	}
 }
