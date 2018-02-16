@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.dawnsci.analysis.api.processing.OperationData;
-import org.eclipse.dawnsci.analysis.api.processing.OperationDataForDisplay;
 import org.eclipse.dawnsci.analysis.api.processing.OperationException;
 import org.eclipse.dawnsci.analysis.api.processing.OperationRank;
 import org.eclipse.dawnsci.analysis.api.processing.model.EmptyModel;
@@ -22,11 +21,16 @@ import org.eclipse.january.dataset.Dataset;
 import org.eclipse.january.dataset.DatasetUtils;
 import org.eclipse.january.dataset.IDataset;
 import org.eclipse.january.dataset.Maths;
+import org.eclipse.january.metadata.MaskMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.xpdf.XPDFAbsorptionMaps;
+import uk.ac.diamond.scisoft.xpdf.XPDFCalibration;
 import uk.ac.diamond.scisoft.xpdf.XPDFComponentForm;
 import uk.ac.diamond.scisoft.xpdf.XPDFCoordinates;
 import uk.ac.diamond.scisoft.xpdf.XPDFElectronCrossSections;
+import uk.ac.diamond.scisoft.xpdf.XPDFQSquaredIntegrator;
 import uk.ac.diamond.scisoft.xpdf.XPDFTargetComponent;
 import uk.ac.diamond.scisoft.xpdf.metadata.XPDFMetadata;
 
@@ -38,6 +42,8 @@ import uk.ac.diamond.scisoft.xpdf.metadata.XPDFMetadata;
  */
 public class IterateGainOperation extends AbstractOperation<EmptyModel, OperationData> {
 
+	private static final Logger logger = LoggerFactory.getLogger(XPDFCalibration.class);
+	
 	@Override
 	public String getId() {
 		return "uk.ac.diamond.scisoft.xpdf.operations.IterateGainOperation";
@@ -61,6 +67,8 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 		XPDFMetadata xMeta = input.getFirstMetadata(XPDFMetadata.class);
 		XPDFCoordinates coordinates = new XPDFCoordinates(DatasetUtils.convertToDataset(input));
 		XPDFAbsorptionMaps absMaps = xMeta.getAbsorptionMaps(coordinates.getDelta(), coordinates.getGamma());
+		Dataset mask = DatasetUtils.convertToDataset(input.getFirstMetadata(MaskMetadata.class).getMask());
+		XPDFQSquaredIntegrator quint = new XPDFQSquaredIntegrator(coordinates, mask);
 		
 		// Obtain the initial gain
 		double gain = 1.0;
@@ -74,7 +82,7 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			List<Dataset> normon = new ArrayList<>();
 			normon.add(Maths.divide(input, gain));
 			for (XPDFTargetComponent container : xMeta.getContainers())
-				normon.add(Maths.divide(xMeta.getContainerTrace(container), gain));
+				normon.add(Maths.divide(xMeta.getContainerTrace(container).getNormalizedTrace(), gain));
 			
 			// Subtract the XRMC simulated data
 			List<Dataset> subx = new ArrayList<>();
@@ -102,12 +110,17 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			// Thomson cross-section
 			sampleSubx.idivide(XPDFElectronCrossSections.getThomsonCrossSection(coordinates));
 			
+			double denominator = quint.qSquaredIntegral(sampleSubx);
+			double numerator = xMeta.getSample().getKroghMoeSum();
 			
 			// Recalculate the gain
 			double oldGain = gain;
-			gain = 1.0;
+			gain *= numerator/denominator;
 			if (Math.abs(gain/oldGain - 1) < gainThreshold) 
 				break;
+			
+			logger.info("IterateGainOprtation: Gain = " + gain);
+			
 		}		
 		
 		return new OperationData(sampleSubx);
