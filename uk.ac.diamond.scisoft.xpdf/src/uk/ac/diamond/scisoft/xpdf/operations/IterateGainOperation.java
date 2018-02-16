@@ -98,9 +98,8 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 
 			// absorption of sample scattering by all components
 			Dataset allComponentTransmission = Maths.subtract(1, absMaps.getAbsorptionMap(0, 0));
-			XPDFComponentForm sampleForm = xMeta.getSample().getForm();
-			for (XPDFTargetComponent compo : xMeta.getContainers()) {
-				allComponentTransmission.imultiply(Maths.subtract(1, absMaps.getAbsorptionMap(sampleForm, compo.getForm())));
+			for (int iCont = 0; iCont < xMeta.getContainers().size(); iCont++) {
+				allComponentTransmission.imultiply(Maths.subtract(1, absMaps.getAbsorptionMap(0, iCont)));
 			}
 			sampleSubx.idivide(Maths.subtract(1, allComponentTransmission));
 			// detector efficiency (detector transmission correction)
@@ -118,6 +117,8 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			gain *= numerator/denominator;
 			if (Math.abs(gain/oldGain - 1) < gainThreshold) 
 				break;
+			if (Math.abs(gain) > Double.MAX_VALUE)
+				throw new OperationException(this, "Gain larger than " + Double.MAX_VALUE + ", aborting.");
 			
 			logger.info("IterateGainOprtation: Gain = " + gain);
 			
