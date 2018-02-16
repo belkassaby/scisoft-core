@@ -113,7 +113,7 @@ public class XPDFInsertSampleMetadataOperation extends XPDFInsertXMetadataOperat
 
 		if (model.getIncoherentScatteringPath() != null && model.getIncoherentScatteringPath().length() > 0) {
 			String iScatterPath = model.getIncoherentScatteringPath();
-			String dataset = "data";
+			String dataset = "/entry1/data/data";
 			
 			Dataset iScatterData = DatasetUtils.convertToDataset(ProcessingUtils.getDataset(this, iScatterPath, dataset));
 			
