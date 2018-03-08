@@ -98,7 +98,7 @@ public class XPDFMetadataImpl implements XPDFMetadata {
 		this.fluoro = inMeta.fluoro;
 		this.lorchCutOff = inMeta.lorchCutOff;
 		this.comptonScaling = inMeta.comptonScaling;
-	
+
 		// Deep copy of the incoherent scattering data
 		this.incoherentScatteringData = new ArrayList<Dataset>();
 		for (Dataset incohere: inMeta.incoherentScatteringData) {
