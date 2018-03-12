@@ -84,10 +84,14 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			for (XPDFTargetComponent container : xMeta.getContainers())
 				normon.add(Maths.divide(xMeta.getContainerTrace(container).getNormalizedTrace(), gain));
 			
+			System.err.println("scaled sample (512, 512) = " + normon.get(0).getDouble(512, 512));
 			// Subtract the XRMC simulated data
 			List<Dataset> subx = new ArrayList<>();
 			for (int i  = 0; i < normon.size(); i++)
 				subx.add(Maths.subtract(normon.get(i), xMeta.getIncoherentScattering(i)));
+			
+			System.err.println("subx (512, 512) = " + subx.get(0).getDouble(512, 512));
+			
 			
 			// Recursively subtract containers
 			while (subx.size() > 1) {
@@ -95,6 +99,8 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			}
 			sampleSubx = subx.get(0);
 			// De-scale distinct scattering
+			
+			System.err.println("sample subx (512, 512) = " + sampleSubx.getDouble(512, 512));
 
 			// absorption of sample scattering by all components
 			Dataset allComponentTransmission = Maths.subtract(1, absMaps.getAbsorptionMap(0, 0));
@@ -109,9 +115,11 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			// Thomson cross-section
 			sampleSubx.idivide(XPDFElectronCrossSections.getThomsonCrossSection(coordinates));
 			
+			System.err.println("corrected sample subx (512, 512) = " + sampleSubx.getDouble(512, 512));
+
 			double denominator = quint.qSquaredIntegral(sampleSubx);
 			double numerator = xMeta.getSample().getKroghMoeSum();
-			
+			System.err.println("XRMC gain correction: " + numerator + "/" + denominator + " = " + (numerator/denominator));
 			// Recalculate the gain
 			double oldGain = gain;
 			gain *= numerator/denominator;
@@ -120,7 +128,7 @@ public class IterateGainOperation extends AbstractOperation<EmptyModel, Operatio
 			if (Math.abs(gain) > Double.MAX_VALUE)
 				throw new OperationException(this, "Gain larger than " + Double.MAX_VALUE + ", aborting.");
 			
-			logger.info("IterateGainOprtation: Gain = " + gain);
+			logger.info("IterateGainOperation: Gain = " + gain);
 			
 		}		
 		
